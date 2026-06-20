@@ -33,6 +33,8 @@ public class Entity : NetworkBehaviour
     public int Damage { get; private set; } = 0;
     public float ProjectileSize { get; set; } = 1.0f;
 
+    public int Level { get; set; } = 1;
+
     public event Action OnDeath;
     public event Action<int> OnDamageTaken;
     public event Action<int> OnHpRecovered;

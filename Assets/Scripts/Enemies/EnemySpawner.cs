@@ -1,15 +1,18 @@
 using System;
 using System.Collections;
+using System.Linq;
 using Mirror;
 using UnityEngine;
 
 public class EnemySpawner : NetworkBehaviour
 {
-    public GameObject[] enemies;
+    public Enemy[] enemies;
     public float spawnFrequency = 3f;
-    public float spawnAmount = 10f;
+    public float baseSpawnAmount = 10f;
     public float spawnRadius = 5f;
     public Vector2 spawnPosition = Vector2.zero;
+
+    private int waveNumber = 0;
 
 
 
@@ -28,12 +31,13 @@ public class EnemySpawner : NetworkBehaviour
         while (true)
         {
             yield return new WaitForSeconds(spawnFrequency);
-            SpawnInCircle(enemies[enemyIndex], spawnRadius, spawnAmount);
+            waveNumber++;
+            SpawnInCircle(enemies[enemyIndex++ % enemies.Length], spawnRadius + waveNumber * 0.25f, baseSpawnAmount + waveNumber);
         }
     }
 
     [Server]
-    private void SpawnInCircle(GameObject gameObject, float spawnRadius, float spawnAmount)
+    private void SpawnInCircle(Enemy enemy, float spawnRadius, float spawnAmount)
     {
         //Debug.Log($"SpawnInCircle({gameObject},{spawnRadius}, {spawnAmount})");
         for (int i = 0; i < spawnAmount; i++)
@@ -45,8 +49,9 @@ public class EnemySpawner : NetworkBehaviour
                 Mathf.Sin(angle)
             ) * spawnRadius;
 
-            GameObject newEnemy = Instantiate(gameObject, position, Quaternion.identity);
-            NetworkServer.Spawn(newEnemy);
+            GameObject newEnemyGO = Instantiate(enemy.gameObject, position, Quaternion.identity);
+            newEnemyGO.GetComponent<Enemy>().Level = waveNumber;
+            NetworkServer.Spawn(newEnemyGO);
         }
     }
 

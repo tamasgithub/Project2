@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class Enemy : Entity
 {
-    public GameObject loot;
+    public Experience exp;
 
 
     private Rigidbody2D rb;
@@ -22,7 +22,7 @@ public class Enemy : Entity
     public override void OnStartServer()
     {
 
-        SetBaseData(maxHp, movementSpeed);
+        SetBaseData(maxHp + Level * 2, movementSpeed + Level * 0.1f);
         rb = GetComponent<Rigidbody2D>();
         players = GameObject.FindGameObjectsWithTag("Player").ToList();
 
@@ -91,8 +91,8 @@ public class Enemy : Entity
     private void OnKilled()
     {
         OnDeath -= OnKilled;
-        GameObject newLoot = Instantiate(loot, transform.position, Quaternion.identity);
-        NetworkServer.Spawn(newLoot);
+        GameObject newExpGO = Instantiate(exp.gameObject, transform.position, Quaternion.identity);
+        NetworkServer.Spawn(newExpGO);
         NetworkServer.Destroy(this.gameObject);
     }
 

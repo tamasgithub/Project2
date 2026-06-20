@@ -5,14 +5,14 @@ public class Player : Entity
 {
     public int maxHp = 100;
     public float movementSpeed = 3.0f;
-    public int XP { get; private set; } = 0;
+    private long xp = 0;
+    private long xpToNextLevel = 5; // update on level up
+    private TextMeshProUGUI hpText;
 
-    // private TextMeshProUGUI hpText;
-   
     public override void OnStartServer()
     {
         base.OnStartServer();
-        
+
         SetBaseData(maxHp, movementSpeed);
         // destroy UI on server
         if (isServerOnly)
@@ -24,13 +24,14 @@ public class Player : Entity
 
     public override void OnStartClient()
     {
-        Canvas canvas = GetComponentInChildren<Canvas>();
-        // hpText = canvas.transform.GetComponentInChildren<TextMeshProUGUI>();
-        // hpText.text = Hp + "/" + MaxHp;
-        // OnDamageTaken += UpdateHpUI;
+        if (!isOwned)
+        {
+            hpText = transform.Find("Visuals").GetComponentInChildren<TextMeshProUGUI>();
+            OnDamageTaken += UpdateHpUI;
+            hpText.text = Hp + "/" + MaxHp;
+            return;
+        }
 
-        if (!isOwned) return;
-       
         Camera.main.gameObject.GetComponent<CameraController>().POI = transform;
     }
 
@@ -43,20 +44,23 @@ public class Player : Entity
             {
                 SpatialHashGrid.Instance.Remove(data);
                 NetworkServer.Destroy(((Experience)data).gameObject);
+
+                xp++;
+                if (xp >= xpToNextLevel)
+                {
+                    // OnLevelUp?.Invoke();
+                }
             }
         }
-    }
-
-    public void GainXP(int amount)
-    {
-        XP += amount;
-        
     }
 
     [Client]
     private void UpdateHpUI(int _)
     {
-        // hpText.text = Hp + "/" + MaxHp;
+        if (!isOwned)
+        {
+            hpText.text = Hp + "/" + MaxHp;
+        }
     }
 
 }

@@ -389,7 +389,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   enemies:
-  - {fileID: 5490901775504061714, guid: f0122740e4f6a5d4b9c75aacbe83fb40, type: 3}
+  - {fileID: 6611726484612143875, guid: f0122740e4f6a5d4b9c75aacbe83fb40, type: 3}
   spawnFrequency: 3
   spawnAmount: 10
   spawnRadius: 5
