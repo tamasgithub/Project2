@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
 using Mirror;
+using UnityEngine;
 
-public class EntityData
+public class Entity : NetworkBehaviour
 {
-
-    public int MaxHp { get; } = 1;
+    public int MaxHp { get; private set; } = 1;
 
     public int Hp { get; private set; }
 
@@ -13,28 +12,35 @@ public class EntityData
     public float CDR { get; private set; } = 0.0f;
     public int Damage { get; private set; } = 0;
     public float ProjectileSize { get; set; } = 1.0f;
-    public EntityData(int maxHp, float movementSpeed, float cdr = 0.0f, int damage = 0, float projected = 1.0f)
+
+    public static event Action OnDeath;
+
+
+    public void SetHp(int hp)
+    {
+        Hp = Math.Clamp(hp, 0, MaxHp);
+        if (Hp == 0)
+        {
+            OnDeath.Invoke();
+        }
+    }
+
+    protected void SetBaseData(int maxHp, float movementSpeed)
     {
         MaxHp = maxHp;
         Hp = maxHp;
         MovementSpeed = movementSpeed;
     }
 
-
-    void SetHp(int hp)
-    {
-        Hp = Math.Clamp(hp, 0, MaxHp);
-    }
-    void ReceiveDamage(int amount)
+    public void ReceiveDamage(int amount)
     {
         //Damage Modifiers
         SetHp(Hp - amount);
     }
-    
-    void Heal(int amount)
+
+    public void Heal(int amount)
     {
         //Heal Modifiers
-         SetHp(Hp + amount);
+        SetHp(Hp + amount);
     }
-
 }

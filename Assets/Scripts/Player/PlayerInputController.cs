@@ -7,13 +7,13 @@ public class PlayerInputController : NetworkBehaviour
     public Vector2 FaceDirection { get; private set; } = Vector2.down;
     private InputAction moveAction;
     private Vector2 moveInput;
-    private EntityData data;
+    private Entity player;
 
 
     void Start()
     {
         moveAction = InputSystem.actions.FindAction("move");
-        data = GetComponent<Player>().Data;
+        player = GetComponent<Player>();
     }
 
    
@@ -46,6 +46,6 @@ public class PlayerInputController : NetworkBehaviour
     [ClientRpc]
     private void RcpMovePlayer(Vector2 input)
     {
-        transform.position += (Vector3) input * Time.deltaTime * data.MovementSpeed;
+        transform.position += (Vector3) input * Time.deltaTime * player.MovementSpeed;
     }
 }

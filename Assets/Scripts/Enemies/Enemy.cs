@@ -4,23 +4,29 @@ using System.Linq;
 using Mirror;
 using UnityEngine;
 
-public class Enemy : NetworkBehaviour
+public class Enemy : Entity
 {
-    public float speed = 1f;
-    public float lifeTime = 5f;
     public GameObject loot;
+
     
     private Rigidbody2D rb;
-    private float spawnTime;
-    List<GameObject> players;
+    private List<GameObject> players;
+
+    private int maxHp = 5;
+    private float movementSpeed = 2f;
+
+    private float lastDecayTime;
 
     void Start()
     {
+        SetBaseData(maxHp, movementSpeed);
         rb = GetComponent<Rigidbody2D>();
-        spawnTime = Time.time;
         players = GameObject.FindGameObjectsWithTag("Player").ToList();
         SurvivorNetworkManager.PlayerJoined += (conn) => players.Add(conn.identity.gameObject);
         SurvivorNetworkManager.PlayerLeft += (conn) => players.Remove(conn.identity.gameObject);
+
+        lastDecayTime = Time.time;
+        OnDeath += () => OnKilled();
     }
 
     // Update is called once per frame
@@ -28,14 +34,13 @@ public class Enemy : NetworkBehaviour
     {
         if (!authority) return;
 
-        if (Time.time - spawnTime > lifeTime)
+        if (Time.time - lastDecayTime > 1)
         {
-            OnKilled();
+            ReceiveDamage(1);
         }
-
         Transform targetPos = FindNearestPlayerPos();
         if (targetPos  == null ) return;
-        rb.MovePosition(transform.position + (targetPos.position - transform.position).normalized * speed * Time.deltaTime);
+        rb.MovePosition(transform.position + (targetPos.position - transform.position).normalized * Data.MovementSpeed* Time.deltaTime);
 
 
     }
