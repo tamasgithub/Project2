@@ -6,7 +6,23 @@ public class Entity : NetworkBehaviour
 {
     public int MaxHp { get; private set; } = 1;
 
-    public int Hp { get; private set; }
+    [SyncVar(hook = nameof(OnHpChanged))]
+    private int _hp;
+    public int Hp
+    {
+        get
+        {
+            return _hp;
+        }
+        private set
+        {
+            _hp = Math.Clamp(value, 0, MaxHp);
+            if (_hp == 0)
+            {
+                OnDeath?.Invoke();
+            }
+        }
+    }
 
     public float MovementSpeed { get; private set; } = 1f;
     public float CDR { get; private set; } = 0.0f;
@@ -14,16 +30,9 @@ public class Entity : NetworkBehaviour
     public float ProjectileSize { get; set; } = 1.0f;
 
     public event Action OnDeath;
+    public event Action<int> OnDamageTaken;
+    public event Action<int> OnHpRecovered;
 
-
-    public void SetHp(int hp)
-    {
-        Hp = Math.Clamp(hp, 0, MaxHp);
-        if (Hp == 0)
-        {
-            OnDeath?.Invoke();
-        }
-    }
 
     protected void SetBaseData(int maxHp, float movementSpeed)
     {
@@ -35,12 +44,25 @@ public class Entity : NetworkBehaviour
     public void ReceiveDamage(int amount)
     {
         //Damage Modifiers
-        SetHp(Hp - amount);
+        Hp -= amount;
     }
 
     public void Heal(int amount)
     {
         //Heal Modifiers
-        SetHp(Hp + amount);
+        Hp += amount;
+    }
+
+    [Client]
+    private void OnHpChanged(int hpOld, int hpNew)
+    {
+        if (hpNew < hpOld)
+        {
+            OnDamageTaken?.Invoke(hpOld - hpNew);
+        }
+        else if (hpNew > hpOld)
+        {
+            OnHpRecovered?.Invoke(hpNew - hpOld);
+        }
     }
 }

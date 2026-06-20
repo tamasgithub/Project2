@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mirror;
+using TMPro;
 using UnityEngine;
 
 public class Enemy : Entity
 {
     public GameObject loot;
 
-    
+
     private Rigidbody2D rb;
     private List<GameObject> players;
 
@@ -16,18 +17,43 @@ public class Enemy : Entity
     private float movementSpeed = 2f;
 
     private float lastDecayTime;
+    private TextMeshProUGUI hpText;
 
-    void Start()
+    public override void OnStartServer()
     {
+
         SetBaseData(maxHp, movementSpeed);
         rb = GetComponent<Rigidbody2D>();
         players = GameObject.FindGameObjectsWithTag("Player").ToList();
-        SurvivorNetworkManager.PlayerJoined += (conn) => players.Add(conn.identity.gameObject);
-        SurvivorNetworkManager.PlayerLeft += (conn) => players.Remove(conn.identity.gameObject);
+
 
         lastDecayTime = Time.time;
+        OnserverSubscribeToEvents();
+
+        // destroy UI on server
+        if (isServerOnly)
+        {
+            Canvas canvas = GetComponentInChildren<Canvas>();
+            Destroy(canvas.gameObject);
+        }
+    }
+
+    [Server]
+    private void OnserverSubscribeToEvents()
+    {
+        SurvivorNetworkManager.PlayerJoined += (conn) => players.Add(conn.identity.gameObject);
+        SurvivorNetworkManager.PlayerLeft += (conn) => players.Remove(conn.identity.gameObject);
         OnDeath += OnKilled;
     }
+
+    public override void OnStartClient()
+    {
+        Canvas canvas = GetComponentInChildren<Canvas>();
+        hpText = canvas.transform.GetComponentInChildren<TextMeshProUGUI>();
+        hpText.text = ""; 
+        OnDamageTaken += UpdateHpUI;
+    }
+
 
     // Update is called once per frame
     void Update()
@@ -40,8 +66,8 @@ public class Enemy : Entity
             lastDecayTime = Time.time;
         }
         Transform targetPos = FindNearestPlayerPos();
-        if (targetPos  == null ) return;
-        rb.MovePosition(transform.position + (targetPos.position - transform.position).normalized * MovementSpeed* Time.deltaTime);
+        if (targetPos == null) return;
+        rb.MovePosition(transform.position + (targetPos.position - transform.position).normalized * MovementSpeed * Time.deltaTime);
 
 
     }
@@ -52,7 +78,8 @@ public class Enemy : Entity
         float smallestDistance = float.MaxValue;
         foreach (GameObject player in players)
         {
-            if (nearestTarget == null || Vector2.Distance(transform.position, player.transform.position) < smallestDistance) {
+            if (nearestTarget == null || Vector2.Distance(transform.position, player.transform.position) < smallestDistance)
+            {
                 smallestDistance = Vector2.Distance(transform.position, player.transform.position);
                 nearestTarget = player.transform;
             }
@@ -67,5 +94,11 @@ public class Enemy : Entity
         GameObject newLoot = Instantiate(loot, transform.position, Quaternion.identity);
         NetworkServer.Spawn(newLoot);
         NetworkServer.Destroy(this.gameObject);
+    }
+
+    [Client]
+    private void UpdateHpUI(int _)
+    {
+        hpText.text = Hp + "/" + maxHp;
     }
 }
