@@ -9,16 +9,14 @@ public class DaggerAbility : PeriodicAbility
 
     public DaggerAbility(AbilityData data, NetworkIdentity owner) : base(data, owner)
     {
+        
     }
 
     [Server]
     public override void Cast()
     {
-        var dagger = GameObject.Instantiate(daggerPrefab, Owner.transform.position, quaternion.identity);
         var facedirection = Owner.transform.GetComponent<PlayerInputController>().FaceDirection;
-        dagger.GetComponent<DaggerProjectile>().direction = facedirection;
-        dagger.transform.rotation = Quaternion.FromToRotation((Vector3)Vector2.up, (Vector3)facedirection);
-        NetworkServer.Spawn(dagger);    
+        SpawnDagger(facedirection);   
     }
 
     public override void OnEquip()
@@ -34,5 +32,11 @@ public class DaggerAbility : PeriodicAbility
         }
     }
 
-    
+    private void SpawnDagger(Vector2 direction)
+    {
+        var dagger = GameObject.Instantiate(daggerPrefab, Owner.transform.position, quaternion.identity);
+        dagger.GetComponent<DaggerProjectile>().Load(direction);
+        dagger.transform.rotation = Quaternion.FromToRotation((Vector3)Vector2.up, (Vector3)direction);
+        NetworkServer.Spawn(dagger);  
+    }
 }

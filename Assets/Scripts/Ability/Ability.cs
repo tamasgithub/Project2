@@ -6,7 +6,7 @@ public abstract class Ability
 {
     public NetworkIdentity Owner { get; private set; }
     public string Name { get; protected set; }
-    public int Level { get; protected set; }
+    public int Level { get; protected set; } = 1;
     public AbilityType Type { get; protected set; }
 
     public AbilityData data;
@@ -25,6 +25,11 @@ public abstract class Ability
     {
         Name = data.abilityName;
 
+    }
+
+    public void LevelUp()
+    {
+        Level++;
     }
     
     

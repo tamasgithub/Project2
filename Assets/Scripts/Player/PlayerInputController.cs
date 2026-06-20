@@ -29,8 +29,7 @@ public class PlayerInputController : NetworkBehaviour
         if (!moveAction.IsPressed()) return;
         // if(!hasAuthority)
         moveInput = moveAction.ReadValue<Vector2>();
-        
-        
+
         CmdMovePlayer(moveInput);
     }
 

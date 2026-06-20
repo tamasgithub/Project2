@@ -373,12 +373,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8030705617461077986}
-  - component: {fileID: 1109544146904829314}
   - component: {fileID: 1984440983325965675}
   - component: {fileID: 4865684508605878023}
+  - component: {fileID: -4150421917823640313}
+  - component: {fileID: 1109544146904829314}
   - component: {fileID: 8181427223836314476}
   - component: {fileID: 3718827914382319028}
-  - component: {fileID: -4150421917823640313}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -402,21 +402,6 @@ Transform:
   - {fileID: 6798210920685787477}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1109544146904829314
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7899670447764900027}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1599181eba5b61742b9805e1e724e0b6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInputController
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
 --- !u!114 &1984440983325965675
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -468,6 +453,38 @@ MonoBehaviour:
   serverOnly: 0
   visibility: 0
   hasSpawned: 0
+--- !u!114 &-4150421917823640313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7899670447764900027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aec265c7830ddd440a39f43a8f6e673b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  maxHp: 10
+  movementSpeed: 3
+--- !u!114 &1109544146904829314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7899670447764900027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1599181eba5b61742b9805e1e724e0b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInputController
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
 --- !u!114 &8181427223836314476
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -530,20 +547,3 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &-4150421917823640313
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7899670447764900027}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aec265c7830ddd440a39f43a8f6e673b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  maxHp: 10
-  movementSpeed: 3
