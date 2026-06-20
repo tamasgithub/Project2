@@ -1,13 +1,16 @@
 using TMPro;
 using UnityEngine;
 using Mirror;
+using System;
 public class Player : Entity
 {
     public int maxHp = 100;
     public float movementSpeed = 3.0f;
     private long xp = 0;
-    private long xpToNextLevel = 5; // update on level up
+    private long xpToNextLevel = 5; // update on level up    public event Action<UpgradeRequest> OnLevelUp;
+
     private TextMeshProUGUI hpText;
+    public event Action<UpgradeRequest> OnLevelUp;
 
     public override void OnStartServer()
     {
@@ -48,11 +51,12 @@ public class Player : Entity
                 xp++;
                 if (xp >= xpToNextLevel)
                 {
-                    // OnLevelUp?.Invoke();
+                    OnLevelUp?.Invoke(new ());
                 }
             }
         }
     }
+
 
     [Client]
     private void UpdateHpUI(int _)
@@ -60,6 +64,24 @@ public class Player : Entity
         if (!isOwned)
         {
             hpText.text = Hp + "/" + MaxHp;
+        }
+    }
+
+    [Client]
+    private void RequestUpgrade()
+    {
+
+    }
+
+    [Command]  
+    public void RpcSubmitUpgradeChoice(UpgradeChoice choice)
+    {
+        Debug.Log($"Player selected: {choice.ChoiceType}");
+        xp -= xpToNextLevel;
+        //TODO: Update xpToNextLevel
+        if(xp >= xpToNextLevel)
+        {
+            OnLevelUp.Invoke(new());
         }
     }
 

@@ -13,7 +13,7 @@ public class Enemy : Entity
     private Rigidbody2D rb;
     private List<GameObject> players;
 
-    private int maxHp = 5;
+    private int maxHp = 1;
     private float movementSpeed = 2f;
 
     private float lastDecayTime;
