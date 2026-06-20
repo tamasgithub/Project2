@@ -4,20 +4,16 @@ using UnityEngine.InputSystem;
 
 public class PlayerInputController : NetworkBehaviour
 {
-    public float movementSpeed = 1f;
-
     public Vector2 FaceDirection { get; private set; } = Vector2.down;
-
     private InputAction moveAction;
     private Vector2 moveInput;
-    public DaggerAbilityData data;
+    private EntityData data;
 
 
     void Start()
     {
         moveAction = InputSystem.actions.FindAction("move");
-        var a = new DaggerAbility(data, GetComponent<NetworkIdentity>());
-        GetComponent<PlayerAbilityController>().RegisterAbility(a);
+        data = GetComponent<Player>().Data;
     }
 
    
@@ -50,6 +46,6 @@ public class PlayerInputController : NetworkBehaviour
     [ClientRpc]
     private void RcpMovePlayer(Vector2 input)
     {
-        transform.position += (Vector3) input * Time.deltaTime * movementSpeed;
+        transform.position += (Vector3) input * Time.deltaTime * data.MovementSpeed;
     }
 }

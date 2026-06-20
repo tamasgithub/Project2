@@ -176,11 +176,6 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  movementSpeed: 3
-  data: {fileID: 11400000, guid: e2f0a165f59d9ba45a104bed57bedcd0, type: 2}
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
 --- !u!114 &1984440983325965675
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -247,6 +242,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  data: {fileID: 11400000, guid: e2f0a165f59d9ba45a104bed57bedcd0, type: 2}
 --- !u!61 &3718827914382319028
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -305,3 +301,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aec265c7830ddd440a39f43a8f6e673b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  maxHp: 10
+  movementSpeed: 3
