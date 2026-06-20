@@ -4,11 +4,20 @@ using UnityEngine.InputSystem;
 
 public class PlayerInputController : NetworkBehaviour
 {
+    public float movementSpeed = 1f;
+
+    public Vector2 FaceDirection { get; private set; } = Vector2.down;
+
     private InputAction moveAction;
     private Vector2 moveInput;
+    public DaggerAbilityData data;
+
+
     void Start()
     {
         moveAction = InputSystem.actions.FindAction("move");
+        var a = new DaggerAbility(data, GetComponent<NetworkIdentity>());
+        GetComponent<PlayerAbilityController>().RegisterAbility(a);
     }
 
    
@@ -20,23 +29,27 @@ public class PlayerInputController : NetworkBehaviour
     [Client]
     private void ReadPlayerInput()
     {
+        if (!isOwned) return;
+        if (!moveAction.IsPressed()) return;
         // if(!hasAuthority)
         moveInput = moveAction.ReadValue<Vector2>();
-        if(moveInput.magnitude <= 0.1f) return;
-        CmdMovePlayer();
-
-
+        
+        
+        CmdMovePlayer(moveInput);
     }
 
     [Command]
-    private void CmdMovePlayer()
+    private void CmdMovePlayer(Vector2 input)
     {
-        RcpMovePlayer();
+
+        //Update Facedirection
+        FaceDirection = input;
+        RcpMovePlayer( input);
     }
 
     [ClientRpc]
-    private void RcpMovePlayer()
+    private void RcpMovePlayer(Vector2 input)
     {
-        transform.position += (Vector3) moveInput * Time.deltaTime;
+        transform.position += (Vector3) input * Time.deltaTime * movementSpeed;
     }
 }
