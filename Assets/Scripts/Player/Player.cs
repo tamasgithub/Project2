@@ -1,20 +1,19 @@
-using Mirror;
 using TMPro;
 using UnityEngine;
-
+using Mirror;
 public class Player : Entity
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    public int maxHp = 10;
+    public int maxHp = 100;
     public float movementSpeed = 3.0f;
+    public int XP { get; private set; } = 0;
 
-    private TextMeshProUGUI hpText;
-
+    // private TextMeshProUGUI hpText;
+   
     public override void OnStartServer()
     {
         base.OnStartServer();
+        
         SetBaseData(maxHp, movementSpeed);
-
         // destroy UI on server
         if (isServerOnly)
         {
@@ -26,9 +25,13 @@ public class Player : Entity
     public override void OnStartClient()
     {
         Canvas canvas = GetComponentInChildren<Canvas>();
-        hpText = canvas.transform.GetComponentInChildren<TextMeshProUGUI>();
-        hpText.text = Hp + "/" + MaxHp;
-        OnDamageTaken += UpdateHpUI;
+        // hpText = canvas.transform.GetComponentInChildren<TextMeshProUGUI>();
+        // hpText.text = Hp + "/" + MaxHp;
+        // OnDamageTaken += UpdateHpUI;
+
+        if (!isOwned) return;
+       
+        Camera.main.gameObject.GetComponent<CameraController>().POI = transform;
     }
 
     [Server]
@@ -44,10 +47,16 @@ public class Player : Entity
         }
     }
 
+    public void GainXP(int amount)
+    {
+        XP += amount;
+        
+    }
+
     [Client]
     private void UpdateHpUI(int _)
     {
-        hpText.text = Hp + "/" + MaxHp;
+        // hpText.text = Hp + "/" + MaxHp;
     }
 
 }

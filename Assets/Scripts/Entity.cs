@@ -1,11 +1,14 @@
 using System;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Mirror;
 using UnityEngine;
 
 public class Entity : NetworkBehaviour
 {
-    public int MaxHp { get; private set; } = 1;
 
+    [SyncVar]
+    private int _maxHp;
+    public int MaxHp { get =>  _maxHp; private set =>  _maxHp = value; } 
     [SyncVar(hook = nameof(OnHpChanged))]
     private int _hp;
     public int Hp
@@ -23,8 +26,9 @@ public class Entity : NetworkBehaviour
             }
         }
     }
-
-    public float MovementSpeed { get; private set; } = 1f;
+    [SyncVar]
+    private float _movementSpeed = 1.0f;
+    public float MovementSpeed { get => _movementSpeed; private set => _movementSpeed = value; }
     public float CDR { get; private set; } = 0.0f;
     public int Damage { get; private set; } = 0;
     public float ProjectileSize { get; set; } = 1.0f;
@@ -32,7 +36,7 @@ public class Entity : NetworkBehaviour
     public event Action OnDeath;
     public event Action<int> OnDamageTaken;
     public event Action<int> OnHpRecovered;
-
+    public event Action OnStatChanged;
 
     protected void SetBaseData(int maxHp, float movementSpeed)
     {
@@ -64,5 +68,6 @@ public class Entity : NetworkBehaviour
         {
             OnHpRecovered?.Invoke(hpNew - hpOld);
         }
+        OnStatChanged?.Invoke();
     }
 }

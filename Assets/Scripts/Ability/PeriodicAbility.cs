@@ -5,7 +5,7 @@ using UnityEngine;
 
 public abstract class PeriodicAbility : Ability
 {
-    protected PeriodicAbility(AbilityData data, NetworkIdentity owner) : base(data, owner)
+    protected PeriodicAbility(AbilityData data, NetworkIdentity owner, Entity entity) : base(data, owner, entity)
     {
     }
 

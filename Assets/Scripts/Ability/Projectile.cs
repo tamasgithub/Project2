@@ -9,11 +9,10 @@ public class Projectile : NetworkBehaviour
     private float lifeTime;
 
 
-    public virtual void Load(Vector2 direction)
+    public virtual void Load(Vector2 direction, Entity _entity)
     {
         this.direction = direction;
-    
-
+        transform.localScale = Vector3.one * _entity.ProjectileSize;
     }
     [Server]
     void Update()

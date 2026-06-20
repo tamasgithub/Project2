@@ -141,8 +141,8 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  speed: 8
-  direction: {x: 0, y: 0}
+  baseSpeed: 8
+  maxLifeTime: 10
 --- !u!114 &3041190268725231556
 MonoBehaviour:
   m_ObjectHideFlags: 0

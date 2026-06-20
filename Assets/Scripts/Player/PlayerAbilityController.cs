@@ -9,7 +9,7 @@ public class PlayerAbilityController : NetworkBehaviour
 
     public void Start()
     {
-        var a = new DaggerAbility(data, GetComponent<NetworkIdentity>());
+        var a = new DaggerAbility(data, GetComponent<NetworkIdentity>(), GetComponent<Entity>());
         GetComponent<PlayerAbilityController>().RegisterAbility(a);
     }
     public void RegisterAbility(Ability ability)
