@@ -99,6 +99,15 @@ public class Enemy : Entity
     [Client]
     private void UpdateHpUI(int _)
     {
-        hpText.text = Hp + "/" + maxHp;
+        hpText.text = Hp + "/" + MaxHp;
+    }
+
+    [Server]
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.tag == "Player")
+        { 
+            collision.gameObject.GetComponent<Entity>().ReceiveDamage(1);
+        }
     }
 }

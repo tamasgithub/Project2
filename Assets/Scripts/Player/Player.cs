@@ -1,4 +1,5 @@
 using Mirror;
+using TMPro;
 using UnityEngine;
 
 public class Player : Entity
@@ -7,9 +8,27 @@ public class Player : Entity
     public int maxHp = 10;
     public float movementSpeed = 3.0f;
 
-    void Start()
+    private TextMeshProUGUI hpText;
+
+    public override void OnStartServer()
     {
+        base.OnStartServer();
         SetBaseData(maxHp, movementSpeed);
+
+        // destroy UI on server
+        if (isServerOnly)
+        {
+            Canvas canvas = GetComponentInChildren<Canvas>();
+            Destroy(canvas.gameObject);
+        }
+    }
+
+    public override void OnStartClient()
+    {
+        Canvas canvas = GetComponentInChildren<Canvas>();
+        hpText = canvas.transform.GetComponentInChildren<TextMeshProUGUI>();
+        hpText.text = Hp + "/" + MaxHp;
+        OnDamageTaken += UpdateHpUI;
     }
 
     [Server]
@@ -24,4 +43,11 @@ public class Player : Entity
             }
         }
     }
+
+    [Client]
+    private void UpdateHpUI(int _)
+    {
+        hpText.text = Hp + "/" + MaxHp;
+    }
+
 }
