@@ -26,7 +26,7 @@ public class Enemy : Entity
         SurvivorNetworkManager.PlayerLeft += (conn) => players.Remove(conn.identity.gameObject);
 
         lastDecayTime = Time.time;
-        OnDeath += () => OnKilled();
+        OnDeath += OnKilled;
     }
 
     // Update is called once per frame
@@ -37,10 +37,11 @@ public class Enemy : Entity
         if (Time.time - lastDecayTime > 1)
         {
             ReceiveDamage(1);
+            lastDecayTime = Time.time;
         }
         Transform targetPos = FindNearestPlayerPos();
         if (targetPos  == null ) return;
-        rb.MovePosition(transform.position + (targetPos.position - transform.position).normalized * Data.MovementSpeed* Time.deltaTime);
+        rb.MovePosition(transform.position + (targetPos.position - transform.position).normalized * MovementSpeed* Time.deltaTime);
 
 
     }
@@ -62,6 +63,7 @@ public class Enemy : Entity
     [Server]
     private void OnKilled()
     {
+        OnDeath -= OnKilled;
         GameObject newLoot = Instantiate(loot, transform.position, Quaternion.identity);
         NetworkServer.Spawn(newLoot);
         NetworkServer.Destroy(this.gameObject);

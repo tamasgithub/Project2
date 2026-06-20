@@ -13,7 +13,7 @@ public class Entity : NetworkBehaviour
     public int Damage { get; private set; } = 0;
     public float ProjectileSize { get; set; } = 1.0f;
 
-    public static event Action OnDeath;
+    public event Action OnDeath;
 
 
     public void SetHp(int hp)
@@ -21,7 +21,7 @@ public class Entity : NetworkBehaviour
         Hp = Math.Clamp(hp, 0, MaxHp);
         if (Hp == 0)
         {
-            OnDeath.Invoke();
+            OnDeath?.Invoke();
         }
     }
 
