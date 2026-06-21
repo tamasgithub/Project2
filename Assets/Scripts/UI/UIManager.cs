@@ -50,11 +50,10 @@ public class UIManager : MonoBehaviour
             c.GetComponent<UI_UpgradeChoice>().Load(choice,
             () =>
             {
-                player.RpcSubmitUpgradeChoice(choice);
+                player.CmdSubmitUpgradeChoice(choice);
 
                 foreach (Transform child in upgradeChoices.transform)
                 {
-                    Debug.Log("Test");
                     Destroy(child.gameObject);
                 }     
             }

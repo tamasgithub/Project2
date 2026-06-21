@@ -7,7 +7,7 @@ public class BombAbility : PeriodicAbility
     private GameObject bombPrefab;
     public BombAbility(BombAbilityData data, NetworkIdentity owner, Entity entity) : base(data, owner, entity)
     {
-
+        AbilityName = AbilityName.BombAbility;
     }
 
     [Server]

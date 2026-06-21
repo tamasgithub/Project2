@@ -5,11 +5,13 @@ using UnityEngine;
 
 public class KnifeAbility : PermanentAbility
 {
+
     private GameObject kniveOrbitalPrefab;
     private KnifeOrbital orbital;
     public KnifeAbility(KnifeAbilityData data, NetworkIdentity owner, Entity entity) : base(data, owner, entity)
     {
         kniveOrbitalPrefab = data.orbitalPrefab;
+        AbilityName = AbilityName.KnifeAbility;
     }
 
     public override void OnEquip()

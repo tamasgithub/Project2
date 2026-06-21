@@ -8,7 +8,7 @@ public class DaggerAbility : PeriodicAbility
     private GameObject daggerPrefab;
     public DaggerAbility(AbilityData data, NetworkIdentity owner, Entity entity) : base(data, owner,entity)
     {
-        
+        AbilityName = AbilityName.DaggerAbility;
     }
 
     [Server]

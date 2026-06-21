@@ -95,9 +95,16 @@ public class Player : Entity
     }
 
     [Command]
-    public void RpcSubmitUpgradeChoice(UpgradeChoice choice)
+    public void CmdSubmitUpgradeChoice(UpgradeChoice choice)
     {
-        Debug.Log($"Player selected: {choice.ChoiceType}");
+        //  Debug.Log(JsonUtility.ToJson(choice));
+        // Debug.Log($"Player selected: {choice.Type}");
+        if (choice.Type == ChoiceType.STAT)
+        {
+            ApplyStatUpgrade(choice);
+        }
+        
+
         xp -= xpToNextLevel;
         xpToNextLevel *= Mathf.RoundToInt(1.5f);
         if (xp >= xpToNextLevel)
@@ -107,4 +114,22 @@ public class Player : Entity
         OnXpChanged?.Invoke(xp, xpToNextLevel);
     }
 
+    private void ApplyStatUpgrade(UpgradeChoice choice)
+    {
+        switch (choice.StatName)
+            {
+                case StatName.MAX_HP:
+                    RegisterMaxHpModifier(new StatModifierFlat(choice.Value));
+                    break;
+                case StatName.DAMAGE:
+                    RegisterDamageModifier(new StatModifierFlat(choice.Value));
+                    break;
+                case StatName.MOVEMENTSPEED:
+                    RegisterMovementSpeedModifier(new StatModifierPercent(choice.Value));
+                    break;
+                case StatName.PROJECTILE_SIZE:
+                    RegisterProjectileSizeModifier(new StatModifierPercent(choice.Value));
+                    break;
+            }
+    }
 }

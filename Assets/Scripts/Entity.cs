@@ -30,7 +30,7 @@ public class Entity : NetworkBehaviour
     }
     [SyncVar]
     private float _movementSpeed = 1.0f;
-    public float MovementSpeed { get => _movementSpeed; private set => _movementSpeed = value; }
+    public float MovementSpeed { get {return ApplyMovementSpeedMods();}  private set => _movementSpeed = value; }
     private float _cdr = 0.0f;
     public float CDR { get{ return ApplyCDRMods(); } private set => _cdr = value; }
     private int _damage = 1;
@@ -123,7 +123,7 @@ public class Entity : NetworkBehaviour
     private int ApplyMaxHPMods()
     {
         var value = _maxHp;
-        maxHpModifiers.RemoveAll(x => !x.IsActive);
+        // maxHpModifiers.RemoveAll(x => !x.IsActive);
         foreach (var mod in maxHpModifiers)
         {
             value = (int)mod.Calculate(value);
@@ -143,7 +143,7 @@ public class Entity : NetworkBehaviour
     private int ApplyDamageMods()
     {
         var value = _damage;
-        damageModifiers.RemoveAll(x => !x.IsActive);
+        // damageModifiers.RemoveAll(x => !x.IsActive);
         foreach (var mod in damageModifiers)
         {
             value = (int)mod.Calculate(value);
@@ -164,7 +164,7 @@ public class Entity : NetworkBehaviour
     public float ApplyMovementSpeedMods()
     {
         var value = _movementSpeed;
-        movementSpeedModifiers.RemoveAll(x => !x.IsActive);
+        // movementSpeedModifiers.RemoveAll(x => !x.IsActive);
         foreach (var mod in movementSpeedModifiers)
         {
             value = mod.Calculate(value);
@@ -185,7 +185,7 @@ public class Entity : NetworkBehaviour
     private float ApplyCDRMods()
     {
         var value = _cdr;
-        cdrModifiers.RemoveAll(x => !x.IsActive);
+        // cdrModifiers.RemoveAll(x => !x.IsActive);
         foreach (var mod in cdrModifiers)
         {
             value = mod.Calculate(value);
@@ -206,7 +206,7 @@ public class Entity : NetworkBehaviour
      private float ApplyProjectileSizeMods()
     {
         var value = _projectileSize;
-        projectileSizeModifiers.RemoveAll(x => !x.IsActive);
+        // projectileSizeModifiers.RemoveAll(x => !x.IsActive);
         foreach (var mod in projectileSizeModifiers)
         {
             value = mod.Calculate(value);

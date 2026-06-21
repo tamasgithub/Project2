@@ -1,22 +1,47 @@
+using System;
+
 public class UpgradeChoice
 {
-    public ChoiceType ChoiceType { get; }
+    public ChoiceType Type;
 
-    public Ability Ability{ get; }
-    public UpgradeChoice() { }
-    public UpgradeChoice(Ability ability = null)
+    public UpgradeChoice( StatName statName , float value , bool flat = true)
     {
-        if(ability != null)
-        {
-            ChoiceType = ChoiceType.ABILITY;
-            Ability = ability;
-            return;
-        }
-        
+
+        Type = ChoiceType.STAT;
+        StatName = statName;
+        Value = value;
+        IsFlat = flat;
     }
+    public UpgradeChoice(AbilityName name)
+    {
+        Type = ChoiceType.ABILITY;
+        AbilityName = name;
+    }
+    public AbilityName AbilityName;
+    public StatName StatName = StatName.MAX_HP;
+    public bool IsFlat;
+    public float Value;
+    public UpgradeChoice()
+    {
+    }
+
 }
 public enum ChoiceType
 {
     ABILITY,
     STAT
+}
+public enum AbilityName
+{
+    DaggerAbility,
+    KnifeAbility,
+    BombAbility
+}
+
+public enum StatName
+{
+    MAX_HP,
+    PROJECTILE_SIZE,
+    MOVEMENTSPEED,
+    DAMAGE
 }

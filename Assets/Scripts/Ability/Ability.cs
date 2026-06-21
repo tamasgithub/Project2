@@ -4,6 +4,7 @@ using UnityEngine;
 public abstract class Ability
 
 {
+    public AbilityName AbilityName;
     protected NetworkIdentity _owner;
     protected Entity _entity;
     public string Name { get; protected set; }
