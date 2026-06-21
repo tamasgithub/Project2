@@ -91,7 +91,7 @@ public class Player : Entity
     [ClientRpc]
     private void RpcRequestUpgrade()
     {
-        OnLevelUp?.Invoke(new(gameObject));
+        OnLevelUp?.Invoke(new UpgradeRequest(gameObject));
     }
 
     [Command]

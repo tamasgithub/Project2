@@ -1,4 +1,5 @@
 
+using System.Linq;
 using System.Xml.XPath;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,7 +22,8 @@ public class UIManager : MonoBehaviour
     {
 
         var p = GetComponentInParent<Player>();
-        if (!player.isOwned) {
+        if (!player.isOwned)
+        {
             Destroy(gameObject);
             return;
         }
@@ -43,11 +45,16 @@ public class UIManager : MonoBehaviour
 
     public void ShowUpgradeChoices(UpgradeRequest request)
     {
-        
+
         foreach (var choice in request.choices)
         {
-            var c = Instantiate(upgradeChoicePrefab, upgradeChoices);
-            c.GetComponent<UI_UpgradeChoice>().Load(choice,
+            var card = Instantiate(upgradeChoicePrefab, upgradeChoices);
+            Ability ability = null;
+            if (choice.Type == ChoiceType.ABILITY && request.abilities.Exists(x => x.AbilityName == choice.AbilityName))
+            {
+                ability = request.abilities.FirstOrDefault(x => x.AbilityName == choice.AbilityName);
+            }
+            card.GetComponent<UI_UpgradeChoice>().Load(choice,
             () =>
             {
                 player.CmdSubmitUpgradeChoice(choice);
@@ -55,11 +62,12 @@ public class UIManager : MonoBehaviour
                 foreach (Transform child in upgradeChoices.transform)
                 {
                     Destroy(child.gameObject);
-                }     
+                }
             }
+            , ability
             );
         }
     }
-    
+
 
 }

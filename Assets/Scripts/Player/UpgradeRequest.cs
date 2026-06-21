@@ -5,6 +5,7 @@ using UnityEngine;
 public class UpgradeRequest
 {
     public List<UpgradeChoice> choices = new();
+    public List<Ability> abilities;
     private List<UpgradeChoice> pool = new()
     {
         //Abilities
@@ -26,6 +27,7 @@ public class UpgradeRequest
     }
     public UpgradeRequest(GameObject player)
     {
+        abilities = player.GetComponent<PlayerAbilityController>().Abilities;
         GenerateRequest(player);
     }
     public UpgradeRequest(List<UpgradeChoice> choices)

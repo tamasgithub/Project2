@@ -12,7 +12,7 @@ public class UpgradeChoice
         Value = value;
         IsFlat = flat;
     }
-    public UpgradeChoice(AbilityName name )
+    public UpgradeChoice(AbilityName name)
     {
         Type = ChoiceType.ABILITY;
         AbilityName = name;

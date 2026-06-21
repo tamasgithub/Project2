@@ -6,7 +6,9 @@ public class DaggerAbility : PeriodicAbility
 {
 
     private GameObject daggerPrefab;
-    public DaggerAbility(AbilityData data, NetworkIdentity owner, Entity entity) : base(data, owner,entity)
+    private int extraDaggers = 0;
+    private float spread = 15f;
+    public DaggerAbility(AbilityData data, NetworkIdentity owner, Entity entity) : base(data, owner, entity)
     {
         AbilityName = AbilityName.DaggerAbility;
     }
@@ -15,7 +17,11 @@ public class DaggerAbility : PeriodicAbility
     public override void Cast()
     {
         var facedirection = _owner.transform.GetComponent<PlayerInputController>().FaceDirection;
-        SpawnDagger(facedirection);   
+        SpawnDagger(facedirection);
+        for (int i = 0; i < extraDaggers; i++)
+        {
+            SpawnDagger(facedirection.Rotate(spread * (-extraDaggers/2 + i*2)));
+        }
     }
 
     public override void OnEquip()
@@ -29,7 +35,13 @@ public class DaggerAbility : PeriodicAbility
         {
             Debug.LogError("Unexpected Ability Data");
         }
-        
+
+    }
+
+    public override void LevelUp()
+    {
+        base.LevelUp();
+        extraDaggers = Level >= 2 ? 2 : 0;
     }
 
     private void SpawnDagger(Vector2 direction)
@@ -38,6 +50,6 @@ public class DaggerAbility : PeriodicAbility
         var daggerProjectile = dagger.GetComponent<DaggerProjectile>();
         daggerProjectile.LoadStats(Level, data, direction, _entity);
         dagger.transform.rotation = Quaternion.FromToRotation((Vector3)Vector2.up, (Vector3)direction);
-        NetworkServer.Spawn(dagger);  
+        NetworkServer.Spawn(dagger);
     }
 }
