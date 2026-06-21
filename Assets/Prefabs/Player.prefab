@@ -1009,7 +1009,8 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  data: {fileID: 11400000, guid: e2f0a165f59d9ba45a104bed57bedcd0, type: 2}
+  daggerAbilityData: {fileID: 11400000, guid: e2f0a165f59d9ba45a104bed57bedcd0, type: 2}
+  bombAbilityData: {fileID: 11400000, guid: 626bed9f16d6b824fa2bba136fd88d60, type: 2}
 --- !u!61 &3718827914382319028
 BoxCollider2D:
   m_ObjectHideFlags: 0

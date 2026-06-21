@@ -39,35 +39,32 @@ public class Player : Entity
         Camera.main.gameObject.GetComponent<CameraController>().POI = transform;
     }
 
-    [Server]
     void Update()
     {
-        foreach (ISpatialHashGridData data in SpatialHashGrid.Instance.GetNearObjects(transform.position, 1f))
+        if (!isServer) return;
+        foreach (Loot loot in SpatialHashGrid.Loot.GetNearObjects(transform.position, 1f))
         {
-            if (data is Loot loot)
+            Loot.LootType type = loot.Type;
+            SpatialHashGrid.Loot.Remove(loot);
+            NetworkServer.Destroy(loot.gameObject);
+            switch (type)
             {
-                Loot.LootType type = loot.Type;
-                SpatialHashGrid.Instance.Remove(data);
-                NetworkServer.Destroy(loot.gameObject);
+                case Loot.LootType.HP_POT:
+                    Heal(1);
+                    break;
+                case Loot.LootType.EXP:
+                default:
+                    xp++;
+                    if (xp == xpToNextLevel)
+                    {
+                        RpcRequestUpgrade();
+                    }
+                    break;
 
-                switch (type)
-                {
-                    case Loot.LootType.HP_POT:
-                        Heal(1);
-                        break;
-                    case Loot.LootType.EXP:
-                    default:
-                        xp++;
-                        if (xp == xpToNextLevel)
-                        {
-                            RpcRequestUpgrade();
-                        }
-                        break;
-
-                }
-                
             }
+
         }
+
     }
 
 
@@ -83,16 +80,16 @@ public class Player : Entity
     [ClientRpc]
     private void RpcRequestUpgrade()
     {
-        OnLevelUp?.Invoke(new (gameObject));
+        OnLevelUp?.Invoke(new(gameObject));
     }
 
-    [Command]  
+    [Command]
     public void RpcSubmitUpgradeChoice(UpgradeChoice choice)
     {
         Debug.Log($"Player selected: {choice.ChoiceType}");
         xp -= xpToNextLevel;
         //TODO: Update xpToNextLevel
-        if(xp >= xpToNextLevel)
+        if (xp >= xpToNextLevel)
         {
             RpcRequestUpgrade();
         }

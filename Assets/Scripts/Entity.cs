@@ -36,10 +36,10 @@ public class Entity : NetworkBehaviour
     public int Damage { get { return ApplyDamageMods(); } private set => _damage = value; }
     private float _projectileSize = 1.0f;
     public float ProjectileSize { get { return ApplyProjectileSizeMods(); } set => _projectileSize = value; }
-
-    public int Level { get; set; } = 1;
-
+    public float AreaOfEffectSize { get; set; } = 1.0f;
     public int Pierce {  get; set; } = 0;
+	
+	public int Level { get; set; } = 1;
 
     #region Events
     public event Action OnDeath;

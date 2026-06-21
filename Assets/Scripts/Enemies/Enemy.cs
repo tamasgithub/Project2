@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class Enemy : Entity
+public class Enemy : Entity, ISpatialHashGridData
 {
     public List<LootTableEntry> lootTable;
     public List<LootPrefabs> lootPrefabs;
@@ -17,6 +17,7 @@ public class Enemy : Entity
     private float movementSpeed = 2f;
 
     private TextMeshProUGUI hpText;
+    private Vector2Int sphCellIndex;
 
     public override void OnStartServer()
     {
@@ -25,6 +26,7 @@ public class Enemy : Entity
         players = GameObject.FindGameObjectsWithTag("Player").ToList();
 
         OnserverSubscribeToEvents();
+        SpatialHashGrid.Enemies.Insert(this);
 
         // destroy UI on server
         if (isServerOnly)
@@ -46,17 +48,22 @@ public class Enemy : Entity
     {
         Canvas canvas = GetComponentInChildren<Canvas>();
         hpText = canvas.transform.GetComponentInChildren<TextMeshProUGUI>();
-        hpText.text = ""; 
+        hpText.text = "";
         OnDamageTaken += UpdateHpUI;
     }
 
+    // ISpatialHashGridData implementation
+    public Vector2 GetPosition() => transform.position;
+    public void SetCellKey(Vector2Int index) => sphCellIndex = index;
+    public Vector2Int GetCellKey() => sphCellIndex;
 
-    [Server]
     void Update()
     {
+        if (!isServer) return;
         Transform targetPos = FindNearestPlayerPos();
         if (targetPos == null) return;
         rb.MovePosition(transform.position + (targetPos.position - transform.position).normalized * MovementSpeed * Time.deltaTime);
+        SpatialHashGrid.Enemies.Update(this);
     }
 
     private Transform FindNearestPlayerPos()
@@ -78,6 +85,7 @@ public class Enemy : Entity
     private void OnKilled()
     {
         OnDeath -= OnKilled;
+        SpatialHashGrid.Enemies.Remove(this);
 
         SpawnRandomLoot();
 
@@ -122,18 +130,19 @@ public class Enemy : Entity
         hpText.text = Hp + "/" + MaxHp;
     }
 
-    [Server]
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (!isServer) return;
         if (collision.collider.tag == "Player")
-        { 
+        {
             collision.gameObject.GetComponent<Entity>().ReceiveDamage(1);
         }
     }
 }
 
 [System.Serializable]
-public struct LootTableEntry {
+public struct LootTableEntry
+{
     public Loot.LootType LootType;
     public float probability;
 }

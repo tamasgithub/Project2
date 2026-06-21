@@ -30,9 +30,9 @@ public class EnemySpawner : NetworkBehaviour
         int enemyIndex = 0;
         while (true)
         {
-            yield return new WaitForSeconds(spawnFrequency);
             waveNumber++;
             SpawnInCircle(enemies[enemyIndex++ % enemies.Length], spawnRadius + waveNumber * 0.25f, baseSpawnAmount + waveNumber);
+            yield return new WaitForSeconds(spawnFrequency);
         }
     }
 

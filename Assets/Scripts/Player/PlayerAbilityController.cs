@@ -7,13 +7,16 @@ public class PlayerAbilityController : NetworkBehaviour
 {
     public List<Ability> Abilities { get{ return periodicAbilities.Select(x => x as Ability ).ToList(); }}
     private readonly List<PeriodicAbility> periodicAbilities = new();
-    public DaggerAbilityData data;
+    public DaggerAbilityData daggerAbilityData;
+    public BombAbilityData bombAbilityData;
 
-    [Server]
+    
     public void Start()
     {
-        var a = new DaggerAbility(data, GetComponent<NetworkIdentity>(), GetComponent<Entity>());
-        RegisterAbility(a);
+        if (!isServer) return;
+        Entity entity = GetComponent<Entity>();
+        RegisterAbility(new DaggerAbility(daggerAbilityData, GetComponent<NetworkIdentity>(), entity));
+        RegisterAbility(new BombAbility(bombAbilityData, GetComponent<NetworkIdentity>(), entity));
     }
 
     [Server]
@@ -27,10 +30,10 @@ public class PlayerAbilityController : NetworkBehaviour
         }
     }
 
-    [Server]
+    
     void Update()
     {
-        
+        if (!isServer) return;
         foreach (var ability in periodicAbilities)
         {
             ability.Update(Time.deltaTime);

@@ -19,10 +19,10 @@ public class PlayerInputController : NetworkBehaviour
    
     void Update()
     {
+        if (!isClient) return;
         ReadPlayerInput();
     }
 
-    [Client]
     private void ReadPlayerInput()
     {
         if (!isOwned) return;

@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpatialHashGrid
+public class SpatialHashGrid<T> where T : ISpatialHashGridData
 {
-    private static SpatialHashGrid _instance;
-
     private Vector2 center;
     private Vector2 bounds;
     private Vector2Int dimensions;
@@ -14,38 +12,24 @@ public class SpatialHashGrid
     private float TopEdge => center.y + bounds.y / 2;
     private Vector2 cellSize => new Vector2(bounds.x / dimensions.x, bounds.y / dimensions.y);
 
-    private Dictionary<Vector2Int, HashSet<ISpatialHashGridData>> cells;
+    private Dictionary<Vector2Int, HashSet<T>> cells;
 
-    public static SpatialHashGrid Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                _instance = new SpatialHashGrid(Vector3.zero, Vector2.one * 100, Vector2Int.one * 100);
-            }
-            return _instance;
-        }
-    }
-
-    private SpatialHashGrid(Vector2 center, Vector2 bounds, Vector2Int dimensions)
+    internal SpatialHashGrid(Vector2 center, Vector2 bounds, Vector2Int dimensions)
     {
         this.center = center;
         this.bounds = bounds;
         this.dimensions = dimensions;
-        cells = new Dictionary<Vector2Int, HashSet<ISpatialHashGridData>>();
+        cells = new Dictionary<Vector2Int, HashSet<T>>();
     }
 
-
-
-    public bool Insert(ISpatialHashGridData data)
+    public bool Insert(T data)
     {
         Vector2Int cellKey = GetCellForPosition(data.GetPosition());
         data.SetCellKey(cellKey);
         //Debug.Log($"Inserted {data} at {cellKey}");
         if (!cells.ContainsKey(cellKey))
         {
-            cells.Add(cellKey, new HashSet<ISpatialHashGridData>());
+            cells.Add(cellKey, new HashSet<T>());
         }
         bool insertResult = cells[cellKey].Add(data);
 
@@ -53,13 +37,17 @@ public class SpatialHashGrid
         return insertResult;
     }
 
-    public bool Remove(ISpatialHashGridData data)
+    public bool Remove(T data)
     {
-        return cells.GetValueOrDefault(data.GetCellKey(), new HashSet<ISpatialHashGridData>()).Remove(data);
+        return cells.GetValueOrDefault(data.GetCellKey(), new HashSet<T>()).Remove(data);
     }
 
-    public bool Update(ISpatialHashGridData data)
+    public bool Update(T data)
     {
+        if (GetCellForPosition(data.GetPosition()) == data.GetCellKey())
+        {
+            return false;
+        }
         if (Remove(data))
         {
             return Insert(data);
@@ -67,9 +55,9 @@ public class SpatialHashGrid
         return false;
     }
 
-    public List<ISpatialHashGridData> GetNearObjects(Vector2 position, float radius)
+    public List<T> GetNearObjects(Vector2 position, float radius)
     {
-        List<ISpatialHashGridData> results = new();
+        List<T> results = new();
 
         Vector2Int cell = GetCellForPosition(position);
         Vector2Int radiusInCells = new Vector2Int(Mathf.CeilToInt(radius / cellSize.x), Mathf.CeilToInt(radius / cellSize.y));
@@ -80,7 +68,7 @@ public class SpatialHashGrid
                 Vector2Int cellKey = new Vector2Int(i, j);
                 //Debug.Log($"Checking {cellKey}");
                 //Debug.Log($"{cells.GetValueOrDefault(cellKey, new()).Count} objects in cell {cellKey}");
-                foreach (ISpatialHashGridData data in cells.GetValueOrDefault(cellKey, new()))
+                foreach (T data in cells.GetValueOrDefault(cellKey, new()))
                 {
                     if (Vector2.Distance(data.GetPosition(), position) <= radius)
                     {
@@ -100,3 +88,34 @@ public class SpatialHashGrid
         return new Vector2Int(cellX, cellY);
     }
 }
+
+// non-generic facade
+public static class SpatialHashGrid
+{
+    private static SpatialHashGrid<Enemy> _instanceEnemies;
+    private static SpatialHashGrid<Loot> _instanceLoot;
+
+    public static SpatialHashGrid<Enemy> Enemies
+    {
+        get
+        {
+            if (_instanceEnemies == null)
+            {
+                _instanceEnemies = new SpatialHashGrid<Enemy>(Vector3.zero, Vector2.one * 100, Vector2Int.one * 50);
+            }
+            return _instanceEnemies;
+        }
+    }
+
+    public static SpatialHashGrid<Loot> Loot
+    {
+        get
+        {
+            if (_instanceLoot == null)
+            {
+                _instanceLoot = new SpatialHashGrid<Loot>(Vector3.zero, Vector2.one * 100, Vector2Int.one * 50);
+            }
+            return _instanceLoot;
+        }
+    }
+} 

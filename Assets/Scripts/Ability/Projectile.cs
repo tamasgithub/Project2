@@ -8,33 +8,38 @@ public abstract class Projectile : NetworkBehaviour
     protected float maxLifeTime = 10.0f;
     protected int damage = 1;
     protected int pierce = 0;
+    protected float size = 1;
+    protected float aoeSize = 1; // for explosions etc
 
     private Vector2 direction;
-    private float lifeTime;
+    protected float LifeTime { get; private set; }
 
     public virtual void LoadStats(int level, AbilityData abilityData, Vector2 direction, Entity _entity)
     {
         LoadBaseStats(level, abilityData);
         this.direction = direction;
-        transform.localScale *= _entity.ProjectileSize;
+        this.size *= _entity.ProjectileSize;
+        transform.localScale *= size;
         this.damage += _entity.Damage;
         this.pierce += _entity.Pierce;
+        aoeSize *= _entity.AreaOfEffectSize;
     }
-    [Server]
-    void Update()
+
+    protected virtual void Update()
     {
         if (!authority) return;
         Move();
-        if (lifeTime >= maxLifeTime)
+        if (LifeTime >= maxLifeTime)
         {
+            OnLifeTimeEnded();
             NetworkServer.Destroy(gameObject);
         }
     }
 
     protected virtual void Move()
     {
+        LifeTime += Time.deltaTime;
         transform.position += (Vector3)direction * baseSpeed * Time.deltaTime;
-        lifeTime += Time.deltaTime;
     }
 
     protected abstract void LoadBaseStats(int level, AbilityData abilityData);
@@ -54,5 +59,10 @@ public abstract class Projectile : NetworkBehaviour
                 NetworkServer.Destroy(gameObject);
             }
         }
+    }
+
+    protected virtual void OnLifeTimeEnded()
+    {
+
     }
 }
