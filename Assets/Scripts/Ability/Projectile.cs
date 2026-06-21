@@ -1,18 +1,24 @@
 using UnityEngine;
 using Mirror;
 
-public class Projectile : NetworkBehaviour
+public abstract class Projectile : NetworkBehaviour
 {
-    public float baseSpeed;
-    public float maxLifeTime = 10.0f;
+    // default if not overridden by AbilityData in LoadBaseStats
+    protected float baseSpeed = 3f;
+    protected float maxLifeTime = 10.0f;
+    protected int damage = 1;
+    protected int pierce = 0;
+
     private Vector2 direction;
     private float lifeTime;
 
-
-    public virtual void Load(Vector2 direction, Entity _entity)
+    public virtual void LoadStats(int level, AbilityData abilityData, Vector2 direction, Entity _entity)
     {
+        LoadBaseStats(level, abilityData);
         this.direction = direction;
-        transform.localScale = Vector3.one * _entity.ProjectileSize;
+        transform.localScale *= _entity.ProjectileSize;
+        this.damage += _entity.Damage;
+        this.pierce += _entity.Pierce;
     }
     [Server]
     void Update()
@@ -31,8 +37,22 @@ public class Projectile : NetworkBehaviour
         lifeTime += Time.deltaTime;
     }
 
-    protected virtual void OnEnemyCollision()
+    protected abstract void LoadBaseStats(int level, AbilityData abilityData);
+
+    // ServerCallback to not log warnings on collision on client side
+    [ServerCallback]
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        NetworkServer.Destroy(gameObject);
+        
+        if (collision.collider.tag == "Enemy")
+        {
+            Enemy enemy = collision.collider.GetComponent<Enemy>();
+            enemy.ReceiveDamage(damage);
+            pierce -= 1;
+            if (pierce < 0)
+            {
+                NetworkServer.Destroy(gameObject);
+            }
+        }
     }
 }

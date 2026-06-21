@@ -30,10 +30,12 @@ public class Entity : NetworkBehaviour
     private float _movementSpeed = 1.0f;
     public float MovementSpeed { get => _movementSpeed; private set => _movementSpeed = value; }
     public float CDR { get; private set; } = 0.0f;
-    public int Damage { get; private set; } = 0;
+    public int Damage { get; private set; } = 1;
     public float ProjectileSize { get; set; } = 1.0f;
 
     public int Level { get; set; } = 1;
+
+    public int Pierce {  get; set; } = 0;
 
     public event Action OnDeath;
     public event Action<int> OnDamageTaken;

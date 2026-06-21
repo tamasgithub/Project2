@@ -14,5 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DaggerAbilityData
   abilityName: 
   sprite: {fileID: 0}
-  abilityCooldown: 3
+  abilityCooldown: 0.25
   daggerPrefab: {fileID: 8802095507399105712, guid: bf12f87a5dbdb0343924f55adca8a068, type: 3}
+  baseSpeed: 15
+  maxLifeTime: 10
+  baseDamage: 1

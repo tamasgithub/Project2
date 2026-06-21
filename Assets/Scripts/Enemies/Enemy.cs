@@ -1,14 +1,14 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mirror;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Enemy : Entity
 {
-    public Experience exp;
-
+    public List<LootTableEntry> lootTable;
+    public List<LootPrefabs> lootPrefabs;
 
     private Rigidbody2D rb;
     private List<GameObject> players;
@@ -16,18 +16,14 @@ public class Enemy : Entity
     private int maxHp = 1;
     private float movementSpeed = 2f;
 
-    private float lastDecayTime;
     private TextMeshProUGUI hpText;
 
     public override void OnStartServer()
     {
-
-        SetBaseData(maxHp + Level * 2, movementSpeed + Level * 0.1f);
+        SetBaseData(maxHp + Level * 1, movementSpeed + Level * 0.1f);
         rb = GetComponent<Rigidbody2D>();
         players = GameObject.FindGameObjectsWithTag("Player").ToList();
 
-
-        lastDecayTime = Time.time;
         OnserverSubscribeToEvents();
 
         // destroy UI on server
@@ -55,21 +51,12 @@ public class Enemy : Entity
     }
 
 
-    // Update is called once per frame
+    [Server]
     void Update()
     {
-        if (!authority) return;
-
-        if (Time.time - lastDecayTime > 1)
-        {
-            ReceiveDamage(1);
-            lastDecayTime = Time.time;
-        }
         Transform targetPos = FindNearestPlayerPos();
         if (targetPos == null) return;
         rb.MovePosition(transform.position + (targetPos.position - transform.position).normalized * MovementSpeed * Time.deltaTime);
-
-
     }
 
     private Transform FindNearestPlayerPos()
@@ -91,9 +78,42 @@ public class Enemy : Entity
     private void OnKilled()
     {
         OnDeath -= OnKilled;
-        GameObject newExpGO = Instantiate(exp.gameObject, transform.position, Quaternion.identity);
-        NetworkServer.Spawn(newExpGO);
+
+        SpawnRandomLoot();
+
         NetworkServer.Destroy(this.gameObject);
+    }
+
+    [Server]
+    private void SpawnRandomLoot()
+    {
+        float roll = Random.Range(0f, GetTotalProbability());
+        float cumulative = 0f;
+
+        foreach (var entry in lootTable)
+        {
+            cumulative += entry.probability;
+
+            if (roll <= cumulative)
+            {
+                GameObject prefab = lootPrefabs
+                    .Find(p => p.LootType == entry.LootType)
+                    .prefab;
+
+                GameObject loot = Instantiate(prefab, transform.position, Quaternion.identity);
+                NetworkServer.Spawn(loot);
+                return;
+            }
+        }
+    }
+
+    private float GetTotalProbability()
+    {
+        float sum = 0f;
+        foreach (var entry in lootTable)
+            sum += entry.probability;
+
+        return sum;
     }
 
     [Client]
@@ -110,4 +130,17 @@ public class Enemy : Entity
             collision.gameObject.GetComponent<Entity>().ReceiveDamage(1);
         }
     }
+}
+
+[System.Serializable]
+public struct LootTableEntry {
+    public Loot.LootType LootType;
+    public float probability;
+}
+
+[System.Serializable]
+public struct LootPrefabs
+{
+    public Loot.LootType LootType;
+    public GameObject prefab;
 }

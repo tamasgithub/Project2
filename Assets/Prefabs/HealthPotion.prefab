@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: -8360393426966022277}
   - component: {fileID: 5980736216319688589}
   m_Layer: 0
-  m_Name: Exp
+  m_Name: HealthPotion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -84,7 +84,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0.24781048, g: 1, b: 0, a: 1}
+  m_Color: {r: 0.6664901, g: 0, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -106,7 +106,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Mirror::Mirror.NetworkIdentity
   sceneId: 0
-  _assetId: 1977807857
+  _assetId: 2597091381
   serverOnly: 0
   visibility: 0
   hasSpawned: 0
@@ -125,3 +125,4 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  _type: 1

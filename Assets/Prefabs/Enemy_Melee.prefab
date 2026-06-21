@@ -120,7 +120,7 @@ GameObject:
   - component: {fileID: -7964079379529151883}
   m_Layer: 0
   m_Name: Enemy_Melee
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -215,7 +215,16 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  exp: {fileID: 1271993941595448370, guid: 536ad02d240c3a94b91b4cd6691c50ca, type: 3}
+  lootTable:
+  - LootType: 0
+    probability: 90
+  - LootType: 1
+    probability: 10
+  lootPrefabs:
+  - LootType: 0
+    prefab: {fileID: 8045666839231644796, guid: 536ad02d240c3a94b91b4cd6691c50ca, type: 3}
+  - LootType: 1
+    prefab: {fileID: 8045666839231644796, guid: ebc18844b3adc25419995a75c5da03c6, type: 3}
 --- !u!50 &2438645692330801031
 Rigidbody2D:
   serializedVersion: 5

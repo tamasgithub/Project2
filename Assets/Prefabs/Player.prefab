@@ -977,7 +977,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  maxHp: 100
+  maxHp: 10
   movementSpeed: 3
 --- !u!114 &1109544146904829314
 MonoBehaviour:

@@ -1,9 +1,19 @@
 using Mirror;
 using UnityEngine;
 
-public class Experience : NetworkBehaviour, ISpatialHashGridData
+public class Loot : NetworkBehaviour, ISpatialHashGridData
 {
+    public enum LootType
+    {
+        EXP,
+        HP_POT
+    }
+
     private Vector2Int sphCellIndex;
+
+    [SerializeField]
+    private LootType _type;
+    public LootType Type { get => _type; set => _type = value; }
 
     public Vector2Int GetCellKey()
     {
@@ -22,7 +32,7 @@ public class Experience : NetworkBehaviour, ISpatialHashGridData
     [Server]
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
-    {        
+    {
         SpatialHashGrid.Instance.Insert(this);
     }
 

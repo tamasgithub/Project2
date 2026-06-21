@@ -7,11 +7,14 @@ public class PlayerAbilityController : NetworkBehaviour
     private readonly List<PeriodicAbility> periodicAbilities = new();
     public DaggerAbilityData data;
 
+    [Server]
     public void Start()
     {
         var a = new DaggerAbility(data, GetComponent<NetworkIdentity>(), GetComponent<Entity>());
-        GetComponent<PlayerAbilityController>().RegisterAbility(a);
+        RegisterAbility(a);
     }
+
+    [Server]
     public void RegisterAbility(Ability ability)
     {
 

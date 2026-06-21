@@ -4,7 +4,7 @@ using Mirror;
 using System;
 public class Player : Entity
 {
-    public int maxHp = 100;
+    public int maxHp = 10;
     public float movementSpeed = 3.0f;
     private long xp = 0;
     private long xpToNextLevel = 5; // update on level up    public event Action<UpgradeRequest> OnLevelUp;
@@ -31,6 +31,7 @@ public class Player : Entity
         {
             hpText = transform.Find("Visuals").GetComponentInChildren<TextMeshProUGUI>();
             OnDamageTaken += UpdateHpUI;
+            OnHpRecovered += UpdateHpUI;
             hpText.text = Hp + "/" + MaxHp;
             return;
         }
@@ -43,16 +44,28 @@ public class Player : Entity
     {
         foreach (ISpatialHashGridData data in SpatialHashGrid.Instance.GetNearObjects(transform.position, 1f))
         {
-            if (data is Experience)
+            if (data is Loot loot)
             {
+                Loot.LootType type = loot.Type;
                 SpatialHashGrid.Instance.Remove(data);
-                NetworkServer.Destroy(((Experience)data).gameObject);
+                NetworkServer.Destroy(loot.gameObject);
 
-                xp++;
-                if (xp >= xpToNextLevel)
+                switch (type)
                 {
-                    OnLevelUp?.Invoke(new ());
+                    case Loot.LootType.HP_POT:
+                        Heal(1);
+                        break;
+                    case Loot.LootType.EXP:
+                    default:
+                        xp++;
+                        if (xp >= xpToNextLevel)
+                        {
+                            OnLevelUp?.Invoke(new());
+                        }
+                        break;
+
                 }
+                
             }
         }
     }
