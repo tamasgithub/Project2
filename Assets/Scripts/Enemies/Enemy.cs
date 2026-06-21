@@ -3,7 +3,7 @@ using System.Linq;
 using Mirror;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 
 public class Enemy : Entity, ISpatialHashGridData
 {
@@ -16,7 +16,10 @@ public class Enemy : Entity, ISpatialHashGridData
     private int maxHp = 1;
     private float movementSpeed = 2f;
 
-    private TextMeshProUGUI hpText;
+    [SerializeField]
+    private Canvas canvas;
+    [SerializeField]
+    public Image hpBar;
     private Vector2Int sphCellIndex;
 
     public override void OnStartServer()
@@ -31,7 +34,6 @@ public class Enemy : Entity, ISpatialHashGridData
         // destroy UI on server
         if (isServerOnly)
         {
-            Canvas canvas = GetComponentInChildren<Canvas>();
             Destroy(canvas.gameObject);
         }
     }
@@ -46,9 +48,6 @@ public class Enemy : Entity, ISpatialHashGridData
 
     public override void OnStartClient()
     {
-        Canvas canvas = GetComponentInChildren<Canvas>();
-        hpText = canvas.transform.GetComponentInChildren<TextMeshProUGUI>();
-        hpText.text = "";
         OnDamageTaken += UpdateHpUI;
     }
 
@@ -128,7 +127,8 @@ public class Enemy : Entity, ISpatialHashGridData
     [Client]
     private void UpdateHpUI(int _)
     {
-        hpText.text = Hp + "/" + MaxHp;
+        canvas.enabled = true;
+        hpBar.fillAmount = Mathf.Clamp01((float)Hp / MaxHp);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

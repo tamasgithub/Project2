@@ -7,6 +7,7 @@ public class UIManager : MonoBehaviour
 {
     public Player player;
     public Image HpBar;
+    public Image XpBar;
     [Header("Upgrades People, Upgrades!")]
     public GameObject upgradeChoicePrefab;
     public Transform upgradeChoices;
@@ -26,12 +27,18 @@ public class UIManager : MonoBehaviour
         }
         player = p;
         player.OnStatChanged += UpdateUI;
+        player.OnXpChanged += UpdateXpBar;
         player.OnLevelUp += ShowUpgradeChoices;
     }
 
     public void UpdateUI()
     {
         HpBar.fillAmount = (float)player.Hp / (float)player.MaxHp;
+    }
+
+    private void UpdateXpBar(long currentXp, long xpToNextLevel)
+    {
+        XpBar.fillAmount = Mathf.Clamp01((float)currentXp / (float)xpToNextLevel);
     }
 
     public void ShowUpgradeChoices(UpgradeRequest request)
