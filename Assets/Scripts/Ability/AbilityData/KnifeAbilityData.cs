@@ -4,4 +4,7 @@ using UnityEngine;
 public class KnifeAbilityData : AbilityData
 {
     public GameObject orbitalPrefab;
+    public int bleedTickDuration = 2; 
+
+
 }

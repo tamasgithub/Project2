@@ -21,7 +21,7 @@ public class KnifeAbility : PermanentAbility
     {
         var gO = GameObject.Instantiate(kniveOrbitalPrefab, _owner.transform);
         orbital = gO.GetComponent<KnifeOrbital>();
-        orbital.Refresh(3);
+        orbital.Refresh(Level, _entity, (KnifeAbilityData)data);
         // daggerProjectile.LoadStats(Level, data, direction, _entity);
         // dagger.transform.rotation = Quaternion.FromToRotation((Vector3)Vector2.up, (Vector3)direction);
         NetworkServer.Spawn(gO);  

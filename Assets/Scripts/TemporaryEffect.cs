@@ -31,7 +31,12 @@ public  class TemporaryEffect
         
     }
 
-    
+    public TemporaryEffect IsBleed(Entity target)
+    {
+
+        this.OnTick = () => target.ReceiveDamage(Math.Max(1, (int)((float)(target.MaxHp) / (float)(GlobalConstants.BLEED_BASE_PERCENTAGE))));
+        return this;
+    }
     public TemporaryEffect SetOnApply(Action action)
     {
         this.OnApply = action;
@@ -42,9 +47,10 @@ public  class TemporaryEffect
         this.OnRemove = action;
         return this;
     }
-    public TemporaryEffect SetTickRate(int rate)
+    public TemporaryEffect SetTickRate(float rate)
     {
         this._tickRate = 1f / rate;
+        this._nextTick = this._tickRate;
         return this;
     }
     public TemporaryEffect SetOnTick(Action action)
