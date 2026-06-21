@@ -36,7 +36,6 @@ public class KnifeOrbital : NetworkBehaviour
     [Server]
     private void OnCollision(Collider2D collider)
     {
-        Debug.Log("Applied");
         if (collider.tag == "Enemy")
         {
             var enemy = collider.GetComponent<Enemy>();
