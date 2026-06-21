@@ -57,8 +57,9 @@ public class Enemy : Entity, ISpatialHashGridData
     public void SetCellKey(Vector2Int index) => sphCellIndex = index;
     public Vector2Int GetCellKey() => sphCellIndex;
 
-    void Update()
+    protected override void Update()
     {
+        base.Update();
         if (!isServer) return;
         Transform targetPos = FindNearestPlayerPos();
         if (targetPos == null) return;

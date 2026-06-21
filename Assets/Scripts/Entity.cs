@@ -9,18 +9,19 @@ public class Entity : NetworkBehaviour
 
     [SyncVar]
     private int _maxHp;
-    public int MaxHp { get => _maxHp; private set => _maxHp = value; }
+    public int MaxHp { get => ApplyMaxHPMods(); private set => _maxHp = value; }
     [SyncVar(hook = nameof(OnHpChanged))]
     private int _hp;
     public int Hp
     {
         get
         {
-            return ApplyMaxHPMods();
+           return  _hp;
         }
         private set
         {
             _hp = Math.Clamp(value, 0, MaxHp);
+          
             if (_hp == 0)
             {
                 OnDeath?.Invoke();
@@ -54,7 +55,7 @@ public class Entity : NetworkBehaviour
     private List<IStatModifier> cdrModifiers = new();
     private List<IStatModifier> projectileSizeModifiers = new();
     #endregion
-
+    private List<TemporaryEffect> temporaryEffects = new();
     protected void SetBaseData(int maxHp, float movementSpeed)
     {
         MaxHp = maxHp;
@@ -65,6 +66,7 @@ public class Entity : NetworkBehaviour
     public void ReceiveDamage(int amount)
     {
         //Damage Modifiers
+
         Hp -= amount;
     }
 
@@ -73,7 +75,18 @@ public class Entity : NetworkBehaviour
         //Heal Modifiers
         Hp += amount;
     }
-
+    [Server]
+    protected virtual void Update()
+    {
+        if (!isServer) return;
+        //Temporary Effects
+        temporaryEffects.FindAll(e => e.IsComplete).ForEach(e => e.OnRemove?.Invoke());
+        temporaryEffects.RemoveAll(e => e.IsComplete);
+        foreach (var effect in temporaryEffects)
+        {
+            effect.Update(Time.deltaTime);
+        }
+    }
     [Client]
     private void OnHpChanged(int hpOld, int hpNew)
     {
@@ -87,6 +100,15 @@ public class Entity : NetworkBehaviour
         }
         OnStatChanged?.Invoke();
     }
+
+    [Server]
+    public void RegisterTemporaryEffect(TemporaryEffect effect)
+    {
+
+        temporaryEffects.Add(effect);
+        effect.OnApply?.Invoke();
+    }
+
     #region Modifier Functions
     public void RegisterMaxHpModifier(IStatModifier mod)
     {

@@ -1010,6 +1010,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   daggerAbilityData: {fileID: 11400000, guid: e2f0a165f59d9ba45a104bed57bedcd0, type: 2}
+  knifeData: {fileID: 11400000, guid: 21214efb3db980242aef5af6757455c1, type: 2}
   bombAbilityData: {fileID: 11400000, guid: 626bed9f16d6b824fa2bba136fd88d60, type: 2}
 --- !u!61 &3718827914382319028
 BoxCollider2D:

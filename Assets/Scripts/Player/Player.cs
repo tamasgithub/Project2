@@ -39,8 +39,9 @@ public class Player : Entity
         Camera.main.gameObject.GetComponent<CameraController>().POI = transform;
     }
 
-    void Update()
+    protected override void Update()
     {
+        base.Update();
         if (!isServer) return;
         foreach (Loot loot in SpatialHashGrid.Loot.GetNearObjects(transform.position, 1f))
         {
