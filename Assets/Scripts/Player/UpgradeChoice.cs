@@ -1,17 +1,22 @@
 public class UpgradeChoice
 {
     public ChoiceType ChoiceType { get; }
-    public UpgradeChoice()
+
+    public Ability Ability{ get; }
+    public UpgradeChoice() { }
+    public UpgradeChoice(Ability ability = null)
     {
+        if(ability != null)
+        {
+            ChoiceType = ChoiceType.ABILITY;
+            Ability = ability;
+            return;
+        }
         
-    }
-    public UpgradeChoice(ChoiceType choiceType)
-    {
-        ChoiceType = choiceType;
     }
 }
 public enum ChoiceType
 {
     ABILITY,
-    ITEM
+    STAT
 }

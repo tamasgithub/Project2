@@ -1,9 +1,11 @@
 using Mirror;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class PlayerAbilityController : NetworkBehaviour
 {
+    public List<Ability> Abilities { get{ return periodicAbilities.Select(x => x as Ability ).ToList(); }}
     private readonly List<PeriodicAbility> periodicAbilities = new();
     public DaggerAbilityData data;
 

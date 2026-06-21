@@ -31,7 +31,6 @@ public class UIManager : MonoBehaviour
 
     public void UpdateUI()
     {
-        Debug.Log($"{player.Hp}  {player.MaxHp}");
         HpBar.fillAmount = (float)player.Hp / (float)player.MaxHp;
     }
 

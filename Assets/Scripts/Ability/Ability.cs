@@ -27,6 +27,7 @@ public abstract class Ability
     {
         Name = data.abilityName;
 
+
     }
 
     public void LevelUp()

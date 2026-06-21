@@ -58,9 +58,9 @@ public class Player : Entity
                     case Loot.LootType.EXP:
                     default:
                         xp++;
-                        if (xp >= xpToNextLevel)
+                        if (xp == xpToNextLevel)
                         {
-                            OnLevelUp?.Invoke(new());
+                            RpcRequestUpgrade();
                         }
                         break;
 
@@ -80,10 +80,10 @@ public class Player : Entity
         }
     }
 
-    [Client]
-    private void RequestUpgrade()
+    [ClientRpc]
+    private void RpcRequestUpgrade()
     {
-
+        OnLevelUp?.Invoke(new (gameObject));
     }
 
     [Command]  
@@ -94,7 +94,7 @@ public class Player : Entity
         //TODO: Update xpToNextLevel
         if(xp >= xpToNextLevel)
         {
-            OnLevelUp.Invoke(new());
+            RpcRequestUpgrade();
         }
     }
 

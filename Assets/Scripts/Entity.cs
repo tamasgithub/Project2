@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Mirror;
 using UnityEngine;
@@ -8,14 +9,14 @@ public class Entity : NetworkBehaviour
 
     [SyncVar]
     private int _maxHp;
-    public int MaxHp { get =>  _maxHp; private set =>  _maxHp = value; } 
+    public int MaxHp { get => _maxHp; private set => _maxHp = value; }
     [SyncVar(hook = nameof(OnHpChanged))]
     private int _hp;
     public int Hp
     {
         get
         {
-            return _hp;
+            return ApplyMaxHPMods();
         }
         private set
         {
@@ -29,18 +30,30 @@ public class Entity : NetworkBehaviour
     [SyncVar]
     private float _movementSpeed = 1.0f;
     public float MovementSpeed { get => _movementSpeed; private set => _movementSpeed = value; }
-    public float CDR { get; private set; } = 0.0f;
-    public int Damage { get; private set; } = 1;
-    public float ProjectileSize { get; set; } = 1.0f;
+    private float _cdr = 0.0f;
+    public float CDR { get{ return ApplyCDRMods(); } private set => _cdr = value; }
+    private int _damage = 1;
+    public int Damage { get { return ApplyDamageMods(); } private set => _damage = value; }
+    private float _projectileSize = 1.0f;
+    public float ProjectileSize { get { return ApplyProjectileSizeMods(); } set => _projectileSize = value; }
 
     public int Level { get; set; } = 1;
 
     public int Pierce {  get; set; } = 0;
 
+    #region Events
     public event Action OnDeath;
     public event Action<int> OnDamageTaken;
     public event Action<int> OnHpRecovered;
     public event Action OnStatChanged;
+    #endregion
+    #region Modifiers
+    private List<IStatModifier> maxHpModifiers = new();
+    private List<IStatModifier> damageModifiers = new();
+    private List<IStatModifier> movementSpeedModifiers = new();
+    private List<IStatModifier> cdrModifiers = new();
+    private List<IStatModifier> projectileSizeModifiers = new();
+    #endregion
 
     protected void SetBaseData(int maxHp, float movementSpeed)
     {
@@ -74,4 +87,109 @@ public class Entity : NetworkBehaviour
         }
         OnStatChanged?.Invoke();
     }
+    #region Modifier Functions
+    public void RegisterMaxHpModifier(IStatModifier mod)
+    {
+        //First Calculate Flat
+        if (mod is StatModifierFlat flat)
+        {
+            maxHpModifiers.Insert(0, flat);
+            return;
+        }
+        maxHpModifiers.Add(mod);
+    }
+    private int ApplyMaxHPMods()
+    {
+        var value = _maxHp;
+        maxHpModifiers.RemoveAll(x => !x.IsActive);
+        foreach (var mod in maxHpModifiers)
+        {
+            value = (int)mod.Calculate(value);
+        }
+        return value;
+    }
+    public void RegisterDamageModifier(IStatModifier mod)
+    {
+        //First Calculate Flat
+        if (mod is StatModifierFlat flat)
+        {
+            damageModifiers.Insert(0, flat);
+            return;
+        }
+        damageModifiers.Add(mod);
+    }
+    private int ApplyDamageMods()
+    {
+        var value = _damage;
+        damageModifiers.RemoveAll(x => !x.IsActive);
+        foreach (var mod in damageModifiers)
+        {
+            value = (int)mod.Calculate(value);
+        }
+       
+        return value;
+    }
+    public void RegisterMovementSpeedModifier(IStatModifier mod)
+    {
+        //First Calculate Flat
+        if (mod is StatModifierFlat flat)
+        {
+            movementSpeedModifiers.Insert(0, flat);
+            return;
+        }
+        movementSpeedModifiers.Add(mod);
+    }
+    public float ApplyMovementSpeedMods()
+    {
+        var value = _movementSpeed;
+        movementSpeedModifiers.RemoveAll(x => !x.IsActive);
+        foreach (var mod in movementSpeedModifiers)
+        {
+            value = mod.Calculate(value);
+        }
+        return value;
+    }
+
+    public void RegisterCDRModifier(IStatModifier mod)
+    {
+        if (mod is StatModifierFlat flat)
+        {
+            cdrModifiers.Insert(0, flat);
+            return;
+        }
+        cdrModifiers.Add(mod);
+    }
+
+    private float ApplyCDRMods()
+    {
+        var value = _cdr;
+        cdrModifiers.RemoveAll(x => !x.IsActive);
+        foreach (var mod in cdrModifiers)
+        {
+            value = mod.Calculate(value);
+        }
+        return value;
+    }
+
+    public void RegisterProjectileSizeModifier(IStatModifier mod)
+    {
+        if (mod is StatModifierFlat flat)
+        {
+            projectileSizeModifiers.Insert(0, flat);
+            return;
+        }
+        projectileSizeModifiers.Add(mod);
+    }
+
+     private float ApplyProjectileSizeMods()
+    {
+        var value = _projectileSize;
+        projectileSizeModifiers.RemoveAll(x => !x.IsActive);
+        foreach (var mod in projectileSizeModifiers)
+        {
+            value = mod.Calculate(value);
+        }
+        return value;
+    }
+    #endregion 
 }
