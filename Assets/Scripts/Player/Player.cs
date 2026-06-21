@@ -103,7 +103,10 @@ public class Player : Entity
         {
             ApplyStatUpgrade(choice);
         }
-        
+        if(choice.Type == ChoiceType.ABILITY)
+        {
+            GetComponent<PlayerAbilityController>()?.HandleUpgradeChoice(choice);
+        }
 
         xp -= xpToNextLevel;
         xpToNextLevel *= Mathf.RoundToInt(1.5f);

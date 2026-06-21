@@ -19,6 +19,11 @@ public class KnifeAbility : PermanentAbility
         base.OnEquip();
         SpawnOrbital();
     }
+    public override void LevelUp()
+    {
+        base.LevelUp();
+        orbital.Refresh(Level, _entity, (KnifeAbilityData)data);
+    }
     private void SpawnOrbital()
     {
         var gO = GameObject.Instantiate(kniveOrbitalPrefab, _owner.transform);

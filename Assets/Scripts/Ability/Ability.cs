@@ -30,8 +30,7 @@ public abstract class Ability
 
 
     }
-
-    public void LevelUp()
+    public virtual void LevelUp()
     {
         Level++;
     }

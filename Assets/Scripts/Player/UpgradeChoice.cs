@@ -12,7 +12,7 @@ public class UpgradeChoice
         Value = value;
         IsFlat = flat;
     }
-    public UpgradeChoice(AbilityName name)
+    public UpgradeChoice(AbilityName name )
     {
         Type = ChoiceType.ABILITY;
         AbilityName = name;
@@ -20,6 +20,7 @@ public class UpgradeChoice
     public AbilityName AbilityName;
     public StatName StatName = StatName.MAX_HP;
     public bool IsFlat;
+    public bool AbilityIsOwned;
     public float Value;
     public UpgradeChoice()
     {
