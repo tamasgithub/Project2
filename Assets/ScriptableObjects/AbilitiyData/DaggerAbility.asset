@@ -18,4 +18,5 @@ MonoBehaviour:
   daggerPrefab: {fileID: 8802095507399105712, guid: bf12f87a5dbdb0343924f55adca8a068, type: 3}
   baseSpeed: 10
   maxLifeTime: 5
+  spreadAngle: 25
   baseDamage: 1

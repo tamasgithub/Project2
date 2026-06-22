@@ -6,7 +6,8 @@ public class DaggerAbility : PeriodicAbility
 {
 
     private GameObject daggerPrefab;
-    private int extraDaggers = 0;
+    private int extraDaggers = 4;
+    private DaggerAbilityData daggerData;
     private float spread = 15f;
     public DaggerAbility(AbilityData data, NetworkIdentity owner, Entity entity) : base(data, owner, entity)
     {
@@ -18,9 +19,11 @@ public class DaggerAbility : PeriodicAbility
     {
         var facedirection = _owner.transform.GetComponent<PlayerInputController>().FaceDirection;
         SpawnDagger(facedirection);
-        for (int i = 0; i < extraDaggers; i++)
+        var half = (int)(extraDaggers + 1) / 2;
+        for (int i = -half; i <= half; i++)
         {
-            SpawnDagger(facedirection.Rotate(spread * (-extraDaggers/2 + i*2)));
+            if (i == 0) continue;
+            SpawnDagger(facedirection.Rotate(daggerData.spreadAngle * i));
         }
     }
 
@@ -29,6 +32,7 @@ public class DaggerAbility : PeriodicAbility
         base.OnEquip();
         if (data is DaggerAbilityData daggerData)
         {
+            this.daggerData = daggerData;
             daggerPrefab = daggerData.daggerPrefab;
         }
         else

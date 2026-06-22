@@ -36,7 +36,8 @@ public enum AbilityName
 {
     DaggerAbility,
     KnifeAbility,
-    BombAbility
+    BombAbility,
+    ChakramAbility
 }
 
 public enum StatName
