@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using Mirror;
 using TMPro;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -124,11 +126,18 @@ public class Enemy : Entity, ISpatialHashGridData
         return sum;
     }
 
+    Tween hitflash;
     [Client]
     private void UpdateHpUI(int _)
     {
-        canvas.enabled = true;
+        canvas.gameObject.SetActive(true);
+
         hpBar.fillAmount = Mathf.Clamp01((float)Hp / MaxHp);
+        
+        DOTween.Kill(hitflash);
+        var renderer = GetComponent<SpriteRenderer>();
+        renderer.color = Color.white;
+        hitflash = DOTween.To(() => renderer.color, (col) => renderer.color = col, Color.red, 0.2f);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

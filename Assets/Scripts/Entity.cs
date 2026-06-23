@@ -66,7 +66,7 @@ public class Entity : NetworkBehaviour
     public void ReceiveDamage(int amount)
     {
         //Damage Modifiers
-
+        
         Hp -= amount;
     }
 

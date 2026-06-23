@@ -18,13 +18,13 @@ public class ChakramAbility : PermanentAbility
     public override void LevelUp()
     {
         base.LevelUp();
-        orbital.Refresh(Level);
+        orbital.Refresh(Level,_owner.GetComponent<Entity>());
     }
     private void SpawnOrbital()
     {
         var gO = GameObject.Instantiate(chakramPrefab, _owner.transform);
         orbital = gO.GetComponent<ChakramOrbital>();
-        orbital.Refresh(6);
+        orbital.Refresh(6,_owner.GetComponent<Entity>());
         NetworkServer.Spawn(gO);  
     } 
     
