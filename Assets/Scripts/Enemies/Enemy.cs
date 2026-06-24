@@ -14,7 +14,7 @@ public class Enemy : Entity, ISpatialHashGridData
 
     private Rigidbody2D rb;
     private List<GameObject> players;
-
+    private ObjectPool ObjectPool { get => ObjectPool.Instance; }
     private int maxHp = 1;
     private float movementSpeed = 2f;
 
@@ -29,7 +29,6 @@ public class Enemy : Entity, ISpatialHashGridData
         SetBaseData(maxHp + Level * 1, movementSpeed + Level * 0.1f);
         rb = GetComponent<Rigidbody2D>();
         players = GameObject.FindGameObjectsWithTag("Player").ToList();
-
         OnserverSubscribeToEvents();
         SpatialHashGrid.Enemies.Insert(this);
 
@@ -88,10 +87,13 @@ public class Enemy : Entity, ISpatialHashGridData
     {
         OnDeath -= OnKilled;
         SpatialHashGrid.Enemies.Remove(this);
-
+        if (!isServer)
+        {
+            Debug.Log("WTF is going on");
+        }
         SpawnRandomLoot();
 
-        NetworkServer.Destroy(this.gameObject);
+        NetworkServer.Destroy(gameObject);
     }
 
     [Server]
@@ -106,12 +108,8 @@ public class Enemy : Entity, ISpatialHashGridData
 
             if (roll <= cumulative)
             {
-                GameObject prefab = lootPrefabs
-                    .Find(p => p.LootType == entry.LootType)
-                    .prefab;
-
-                GameObject loot = Instantiate(prefab, transform.position, Quaternion.identity);
-                NetworkServer.Spawn(loot);
+                PoolableObjectType type = entry.LootType == Loot.LootType.EXP ? PoolableObjectType.EXP : PoolableObjectType.HP_POTION;
+                PoolableObject loot = ObjectPool.Get(type, transform.position, Quaternion.identity);
                 return;
             }
         }

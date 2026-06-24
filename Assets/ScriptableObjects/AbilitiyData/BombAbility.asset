@@ -17,7 +17,7 @@ MonoBehaviour:
   abilityCooldown: 3
   bombPrefab: {fileID: 5708401123752541376, guid: e8ae676eb68e3c1428de2ba04d3924b3, type: 3}
   maxLifeTime: 2
-  baseDamage: 300
+  baseDamage: 30
   lifeTimeColorGradient:
     serializedVersion: 2
     key0: {r: 0, g: 0, b: 0, a: 1}

@@ -7,13 +7,15 @@ public class Player : Entity
 {
     public int maxHp = 10;
     public float movementSpeed = 3.0f;
-    private long xp = 0;
-    private long xpToNextLevel = 5; // update on level up    public event Action<UpgradeRequest> OnLevelUp;
-
-    private Image coplayerHpBar;
     // the arguments are current and needed xp
     public event Action<long, long> OnXpChanged;
     public event Action<UpgradeRequest> OnLevelUp;
+
+    private long xp = 0;
+    private long xpToNextLevel = 5; // update on level up    public event Action<UpgradeRequest> OnLevelUp;
+    private Image coplayerHpBar;
+    private ObjectPool ObjectPool { get => ObjectPool.Instance; }
+
 
 
     public override void OnStartServer()
@@ -55,8 +57,6 @@ public class Player : Entity
         foreach (Loot loot in SpatialHashGrid.Loot.GetNearObjects(transform.position, 1f))
         {
             Loot.LootType type = loot.Type;
-            SpatialHashGrid.Loot.Remove(loot);
-            NetworkServer.Destroy(loot.gameObject);
             switch (type)
             {
                 case Loot.LootType.HP_POT:
@@ -73,6 +73,7 @@ public class Player : Entity
                     break;
 
             }
+            ObjectPool.Return(loot);
 
         }
 

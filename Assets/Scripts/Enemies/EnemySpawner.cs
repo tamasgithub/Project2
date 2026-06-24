@@ -13,12 +13,13 @@ public class EnemySpawner : NetworkBehaviour
     public Vector2 spawnPosition = Vector2.zero;
 
     private int waveNumber = 0;
-
+    private ObjectPool objectPool;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public override void OnStartServer()
     {
+        objectPool = FindAnyObjectByType<ObjectPool>();
         StartCoroutine(PeriodicSpawning());
     }
 

@@ -15,17 +15,18 @@ public class DamageSource : NetworkBehaviour
         isPlayer = _owner is Player;
     }
 
-    [Server]
+    [ServerCallback]
     void OnEnable()
     {
         CombatTickManager.OnTick += DealDamage;
     }
-    [Server]
+
+    [ServerCallback]
     void OnDisable()
     {
         CombatTickManager.OnTick -= DealDamage;
     }
-    [Server]
+    [ServerCallback]
     void OnTriggerEnter2D(Collider2D collision)
     {
         if (isPlayer && collision.tag == "Enemy")
@@ -44,7 +45,7 @@ public class DamageSource : NetworkBehaviour
             }
         }
     }
-    [Server]
+    [ServerCallback]
     void OnTriggerExit2D(Collider2D collision)
     {
         if (isPlayer && collision.tag == "Enemy")
@@ -70,7 +71,7 @@ public class DamageSource : NetworkBehaviour
         foreach (var target in targets.Select( t => t as Enemy).ToList())
         {
                 target.ReceiveDamage(dmg);
-                Debug.Log("Test");
+                //Debug.Log("Test");
             }
         }
     }

@@ -68,6 +68,8 @@ public class Entity : NetworkBehaviour
         //Damage Modifiers
         
         Hp -= amount;
+        PoolableObject dmgNr = ObjectPool.Instance.Get(PoolableObjectType.DMG_NR, transform.position, Quaternion.identity);
+        dmgNr.GetComponent<DamageNumber>().SetDamage(amount, this is Player);
     }
 
     public void Heal(int amount)
@@ -75,7 +77,8 @@ public class Entity : NetworkBehaviour
         //Heal Modifiers
         Hp += amount;
     }
-    [Server]
+
+    [ServerCallback]
     protected virtual void Update()
     {
         if (!isServer) return;

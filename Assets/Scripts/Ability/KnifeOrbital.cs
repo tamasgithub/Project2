@@ -27,9 +27,9 @@ public class KnifeOrbital : NetworkBehaviour
         }
     }
 
-    [Server]
     void Update()
     {
+        if (!isServer) return;
         transform.Rotate(Vector3.forward * rotationSpeed * Time.deltaTime);
     }
 
