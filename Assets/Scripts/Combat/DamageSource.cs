@@ -66,12 +66,12 @@ public class DamageSource : NetworkBehaviour
     [Server]
     private void DealDamage()
     {
+        // Calculate
         var dmg = _owner.Damage;
         if(isPlayer){
         foreach (var target in targets.Select( t => t as Enemy).ToList())
         {
                 target.ReceiveDamage(dmg);
-                //Debug.Log("Test");
             }
         }
     }

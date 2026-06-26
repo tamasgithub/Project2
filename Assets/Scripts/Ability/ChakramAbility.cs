@@ -10,7 +10,7 @@ public class ChakramAbility : PermanentAbility
         chakramPrefab = data.orbital;
         AbilityName = AbilityName.ChakramAbility;
     }
-     public override void OnEquip()
+    public override void OnEquip()
     {
         base.OnEquip();
         SpawnOrbital();
@@ -18,14 +18,14 @@ public class ChakramAbility : PermanentAbility
     public override void LevelUp()
     {
         base.LevelUp();
-        orbital.Refresh(Level,_owner.GetComponent<Entity>());
+        orbital.Init(Level, _owner.netId);
     }
     private void SpawnOrbital()
     {
-        var gO = GameObject.Instantiate(chakramPrefab, _owner.transform);
+        var gO = GameObject.Instantiate(chakramPrefab);
         orbital = gO.GetComponent<ChakramOrbital>();
-        orbital.Refresh(6,_owner.GetComponent<Entity>());
-        NetworkServer.Spawn(gO);  
-    } 
-    
+        orbital.Init(6, _owner.netId);
+        NetworkServer.Spawn(gO);
+    }
+
 }

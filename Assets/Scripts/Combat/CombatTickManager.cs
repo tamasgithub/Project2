@@ -5,7 +5,6 @@ using UnityEngine;
 public class CombatTickManager : NetworkBehaviour
 {
     public static event Action OnTick;
-    [Header("Combat")]
     public int combatTicksPerSecond = 8;
     private float _combatTickRate = 1f;
     private float _combatTicks = 0f;
