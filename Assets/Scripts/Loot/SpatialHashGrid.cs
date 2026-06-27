@@ -66,8 +66,8 @@ public class SpatialHashGrid<T> where T : ISpatialHashGridData
             for (int j = cell.y - radiusInCells.y; j <= cell.y + radiusInCells.y; j++)
             {
                 Vector2Int cellKey = new Vector2Int(i, j);
-                //Debug.Log($"Checking {cellKey}");
-                //Debug.Log($"{cells.GetValueOrDefault(cellKey, new()).Count} objects in cell {cellKey}");
+                // Debug.Log($"Checking {cellKey}");
+                // Debug.Log($"{cells.GetValueOrDefault(cellKey, new()).Count} objects in cell {cellKey}");
                 foreach (T data in cells.GetValueOrDefault(cellKey, new()))
                 {
                     if (Vector2.Distance(data.GetPosition(), position) <= radius)
@@ -93,6 +93,7 @@ public class SpatialHashGrid<T> where T : ISpatialHashGridData
 public static class SpatialHashGrid
 {
     private static SpatialHashGrid<Enemy> _instanceEnemies;
+    private static SpatialHashGrid<ServerEnemy> _instanceServerEnemies;
     private static SpatialHashGrid<Loot> _instanceLoot;
 
     public static SpatialHashGrid<Enemy> Enemies
@@ -118,4 +119,17 @@ public static class SpatialHashGrid
             return _instanceLoot;
         }
     }
+
+    public static SpatialHashGrid<ServerEnemy> ServerEnemies
+    {
+        get
+        {
+            if (_instanceServerEnemies == null)
+            {
+                _instanceServerEnemies = new SpatialHashGrid<ServerEnemy>(Vector3.zero, Vector2.one * 100, Vector2Int.one * 50);
+            }
+            return _instanceServerEnemies;
+        }
+    }
+    
 } 

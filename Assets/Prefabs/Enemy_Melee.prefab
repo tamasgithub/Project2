@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2154976260859527939}
   - component: {fileID: 4220114717143515160}
   - component: {fileID: 4580940209772801715}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: HP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -86,7 +86,7 @@ GameObject:
   - component: {fileID: 2935499920643990681}
   - component: {fileID: 4492049652722622216}
   - component: {fileID: 4066069232880482068}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: HPBG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -162,7 +162,7 @@ GameObject:
   - component: {fileID: 8561730405883606342}
   - component: {fileID: 3252372197448336187}
   - component: {fileID: 6912178712758600468}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -268,7 +268,7 @@ GameObject:
   - component: {fileID: 4147109015431710018}
   - component: {fileID: 750504839272380536}
   - component: {fileID: -7964079379529151883}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Enemy_Melee
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -500,7 +500,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3251571013986363591}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HpBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -391,9 +391,10 @@ MonoBehaviour:
   enemies:
   - {fileID: 6611726484612143875, guid: f0122740e4f6a5d4b9c75aacbe83fb40, type: 3}
   spawnFrequency: 5
-  baseSpawnAmount: 3
+  baseSpawnAmount: 20
   spawnRadius: 3
   spawnPosition: {x: 0, y: 0}
+  enemyPrefab: {fileID: 3623344103373701304, guid: f3e49dd99cb49c544903b9e70704434f, type: 3}
 --- !u!114 &725280385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -479,7 +480,7 @@ Transform:
   m_GameObject: {fileID: 947796672}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.13675, y: 4.2735, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -721,8 +722,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2141804448}
+  - component: {fileID: 2141804450}
   - component: {fileID: 2141804447}
   - component: {fileID: 2141804449}
+  - component: {fileID: 2141804451}
+  - component: {fileID: 2141804452}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -745,7 +749,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  combatTicksPerSecond: 8
+  combatTicksPerSecond: 4
 --- !u!4 &2141804448
 Transform:
   m_ObjectHideFlags: 0
@@ -778,6 +782,54 @@ MonoBehaviour:
   serverOnly: 0
   visibility: 0
   hasSpawned: 0
+--- !u!114 &2141804450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2141804446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f1d271cf7574f24aaa7a453c89e4926, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyManager
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  ticksPerSeconds: 8
+--- !u!114 &2141804451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2141804446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 297aac832713a7947816406a29344b35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyVisualsManager
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  enemyPrefab: {fileID: 3623344103373701304, guid: f3e49dd99cb49c544903b9e70704434f, type: 3}
+--- !u!114 &2141804452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2141804446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ecd08c6562c1cf4a98e85dd49c799d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CollisionTickManager
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  collisionTicksPerSecond: 60
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

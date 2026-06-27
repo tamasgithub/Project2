@@ -1,46 +1,46 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
+
 using Mirror;
 using UnityEngine;
 
-public class Entity : NetworkBehaviour
+public class ServerEntity : ISpatialHashGridData
 {
-
-    [SyncVar]
-    private int _maxHp;
+    public string id = GUID.Generate().ToString();
+    public Vector2 Position = Vector2.zero;
+    private int _maxHp = 5;
     public int MaxHp { get => ApplyMaxHPMods(); private set => _maxHp = value; }
-    [SyncVar(hook = nameof(OnHpChanged))]
-    private int _hp;
+    private int _hp = 5;
     public int Hp
     {
         get
         {
-           return  _hp;
+            return _hp;
         }
         private set
         {
             _hp = Math.Clamp(value, 0, MaxHp);
-          
             if (_hp == 0)
             {
                 OnDeath?.Invoke();
             }
         }
     }
-    [SyncVar]
+    public bool IsDead {get { return _hp <= 0; }}
     private float _movementSpeed = 1.0f;
-    public float MovementSpeed { get {return ApplyMovementSpeedMods();}  private set => _movementSpeed = value; }
+    public float MovementSpeed { get { return ApplyMovementSpeedMods(); } private set => _movementSpeed = value; }
+    public List<DamageEvent> damageEvents = new();
+
     private float _cdr = 0.0f;
-    public float CDR { get{ return ApplyCDRMods(); } private set => _cdr = value; }
+    public float CDR { get { return ApplyCDRMods(); } private set => _cdr = value; }
     private int _damage = 1;
     public int Damage { get { return ApplyDamageMods(); } private set => _damage = value; }
     private float _projectileSize = 1.0f;
     public float ProjectileSize { get { return ApplyProjectileSizeMods(); } set => _projectileSize = value; }
     public float AreaOfEffectSize { get; set; } = 1.0f;
-    public int Pierce {  get; set; } = 0;
-	
-	public int Level { get; set; } = 1;
+    public int Pierce { get; set; } = 0;
+
+    public int Level { get; set; } = 1;
 
     #region Events
     public event Action OnDeath;
@@ -63,13 +63,16 @@ public class Entity : NetworkBehaviour
         MovementSpeed = movementSpeed;
     }
 
-    public void ReceiveDamage(int amount)
+    public void ReceiveDamage(DamageEvent damageEvent)
     {
         //Damage Modifiers
-        
-        Hp -= amount;
-        PoolableObject dmgNr = ObjectPool.Instance.Get(PoolableObjectType.DMG_NR, transform.position, Quaternion.identity);
-        dmgNr.GetComponent<DamageNumber>().SetDamage(amount, this is Player);
+        if (damageEvent.amount > 0)
+        {
+            Hp -= damageEvent.amount;
+
+            damageEvents.Add(damageEvent); 
+
+        }
     }
 
     public void Heal(int amount)
@@ -78,10 +81,10 @@ public class Entity : NetworkBehaviour
         Hp += amount;
     }
 
-    [ServerCallback]
+
     protected virtual void Update()
     {
-        if (!isServer) return;
+
         //Temporary Effects
         // temporaryEffects.FindAll(e => e.IsComplete).ForEach(e => e.OnRemove?.Invoke());
         // temporaryEffects.RemoveAll(e => e.IsComplete);
@@ -90,7 +93,6 @@ public class Entity : NetworkBehaviour
             effect.Update(Time.deltaTime);
         }
     }
-    [Client]
     private void OnHpChanged(int hpOld, int hpNew)
     {
         if (hpNew < hpOld)
@@ -151,7 +153,7 @@ public class Entity : NetworkBehaviour
         {
             value = (int)mod.Calculate(value);
         }
-       
+
         return value;
     }
     public void RegisterMovementSpeedModifier(IStatModifier mod)
@@ -206,7 +208,7 @@ public class Entity : NetworkBehaviour
         projectileSizeModifiers.Add(mod);
     }
 
-     private float ApplyProjectileSizeMods()
+    private float ApplyProjectileSizeMods()
     {
         var value = _projectileSize;
         // projectileSizeModifiers.RemoveAll(x => !x.IsActive);
@@ -216,5 +218,11 @@ public class Entity : NetworkBehaviour
         }
         return value;
     }
-    #endregion 
+
+    // ISpatialHashGridData implementation
+    private Vector2Int sphCellIndex;
+    public Vector2 GetPosition() => Position;
+    public void SetCellKey(Vector2Int index) => sphCellIndex = index;
+    public Vector2Int GetCellKey() => sphCellIndex;
+    #endregion
 }

@@ -5,9 +5,10 @@ using Mirror.BouncyCastle.Asn1.X509;
 using UnityEngine;
 public class DamageSource : NetworkBehaviour
 {
-    private Entity _owner; 
+    private Entity _owner;
     private bool isPlayer;
     private HashSet<Entity> targets = new();
+    public float radius = 1.0f;
 
     public void Load(Entity owner)
     {
@@ -26,54 +27,33 @@ public class DamageSource : NetworkBehaviour
     {
         CombatTickManager.OnTick -= DealDamage;
     }
-    [ServerCallback]
-    void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (isPlayer && collision.tag == "Enemy")
-        {
-            if (collision.TryGetComponent<Enemy>(out var e))
-            {
-                targets.Add(e);
-            }
-        }
-
-        else if (!isPlayer && collision.tag == "Player")
-        {
-            if (collision.TryGetComponent<Player>(out var p))
-            {
-                targets.Add(p);
-            }
-        }
-    }
-    [ServerCallback]
-    void OnTriggerExit2D(Collider2D collision)
-    {
-        if (isPlayer && collision.tag == "Enemy")
-        {
-            if (collision.TryGetComponent<Enemy>(out var e))
-            {
-                targets.Remove(e);
-            }
-        }
-        else if (!isPlayer && collision.tag == "Player")
-        {
-            if (collision.TryGetComponent<Player>(out var p))
-            {
-                targets.Remove(p);
-            }
-        }
-    }
+    
     [Server]
     private void DealDamage()
     {
         // Calculate
-        var dmg = _owner.Damage;
-        if(isPlayer){
-        foreach (var target in targets.Select( t => t as Enemy).ToList())
+        var enemies = SpatialHashGrid.ServerEnemies.GetNearObjects((Vector2)transform.position, radius);
+        // var dmg = _owner.Damage;
+        foreach (var enemy in enemies)
         {
-                target.ReceiveDamage(dmg);
+            if (Vector2.Distance(enemy.Position, (Vector2)transform.position) <= radius + 1f) //0.5f hardocded enemy hitbox
+            {
+                enemy.ReceiveDamage(new DamageEvent(2));
             }
         }
+        // if (isPlayer)
+        // {
+        //     foreach (var target in targets)
+        //     {
+        //         target?.ReceiveDamage(dmg);
+        //     }
+        // }
     }
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.forward, radius);
+    }
+#endif
 
 }

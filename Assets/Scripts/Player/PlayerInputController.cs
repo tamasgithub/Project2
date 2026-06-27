@@ -16,7 +16,7 @@ public class PlayerInputController : NetworkBehaviour
         player = GetComponent<Player>();
     }
 
-   
+
     void Update()
     {
         if (!isClient) return;
@@ -39,12 +39,12 @@ public class PlayerInputController : NetworkBehaviour
 
         //Update Facedirection
         FaceDirection = input;
-        RcpMovePlayer( input);
+        RcpMovePlayer(input);
     }
 
     [ClientRpc]
     private void RcpMovePlayer(Vector2 input)
     {
-        transform.position += (Vector3) input * Time.deltaTime * player.MovementSpeed;
+        transform.position = Vector3.Lerp(transform.position, transform.position + (Vector3)input, Time.deltaTime * player.MovementSpeed);
     }
 }

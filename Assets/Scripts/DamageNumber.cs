@@ -8,6 +8,7 @@ public class DamageNumber : PoolableObject
     Animation Animation => GetComponentInChildren<Animation>();
     TextMeshPro TextMeshPro => GetComponentInChildren<TextMeshPro>();
     Renderer Renderer => GetComponentInChildren<Renderer>();
+    
     public override void OnStartClient()
     {
         ClientOnReturn();
@@ -16,6 +17,8 @@ public class DamageNumber : PoolableObject
     public override void OnGet()
     {
         Animation.Play();
+        var length = Animation.clip.length;
+        Invoke("OnAnimationEnd", length);
         Renderer.enabled = true;
     }
 
