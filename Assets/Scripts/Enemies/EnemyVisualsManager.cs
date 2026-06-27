@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class EnemyVisualsManager : NetworkBehaviour
 {
-    List<ServerEnemy> enemies = new();
+    List<EnemyDto> enemies = new();
     Dictionary<string, GameObject> visuals = new();
     private Material mat;
     public GameObject enemyPrefab;
@@ -27,7 +27,7 @@ public class EnemyVisualsManager : NetworkBehaviour
         {
             InstantiateVisual(enemy);
             var totalDamage = 0;
-            foreach (var dmgEvent in enemy.damageEvents)
+            foreach (var dmgEvent in enemy.DamageEvents)
             {
                 totalDamage += dmgEvent.amount;
 
@@ -43,10 +43,10 @@ public class EnemyVisualsManager : NetworkBehaviour
 
     }
 
-    public void InstantiateVisual(ServerEnemy enemy)
+    public void InstantiateVisual(EnemyDto enemy)
     {
 
-        if (!visuals.ContainsKey(enemy.id))
+        if (!visuals.ContainsKey(enemy.Id))
         {
             var visual = Instantiate(enemyPrefab, (Vector3)enemy.Position, quaternion.identity, enemyParent.transform);
             if (mat == null)
@@ -58,7 +58,7 @@ public class EnemyVisualsManager : NetworkBehaviour
 
                 visual.GetComponentInChildren<SpriteRenderer>().sharedMaterial = mat;
             }
-            visuals.Add(enemy.id, visual);
+            visuals.Add(enemy.Id, visual);
         }
     }
     private void LateUpdate()
@@ -69,7 +69,7 @@ public class EnemyVisualsManager : NetworkBehaviour
         {
             try
             {
-                visuals[enemy.id].transform.position = Vector3.Lerp(visuals[enemy.id].transform.position, enemy.Position, Time.deltaTime);
+                visuals[enemy.Id].transform.position = Vector3.Lerp(visuals[enemy.Id].transform.position, enemy.Position, Time.deltaTime);
             }
             catch
             {

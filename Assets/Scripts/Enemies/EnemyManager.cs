@@ -8,6 +8,7 @@ public class EnemyManager : NetworkBehaviour
     public static EnemyManager Instance;
     private List<GameObject> players;
     private List<ServerEnemy> enemies = new();
+    private List<EnemyDto> enemyDtos = new();
     public float ticksPerSeconds = 8;
     private float _tickRate;
     private float _tick;
@@ -44,14 +45,14 @@ public class EnemyManager : NetworkBehaviour
 
     private void UpdatePositions(float deltaTime)
     {
-        var targetPos = (Vector2)FindNearestPlayerPos()?.position;
+        var targetPos = (Vector2)FindNearestPlayerPos().position;
         if (targetPos == null) return;
         foreach (var enemy in enemies)
         {
             enemy.Position += (targetPos - enemy.Position).normalized * enemy.MovementSpeed * deltaTime;
 
             //Anit clumping push
-            // if (count >= 1) continue;
+
             foreach (ServerEnemy se in SpatialHashGrid.ServerEnemies.GetNearObjects(enemy.Position, 1f))
             {
                 if (se == enemy) continue;
@@ -59,8 +60,9 @@ public class EnemyManager : NetworkBehaviour
                 enemy.Position += direction * 1 * Time.deltaTime;
             }
 
-            
+
             SpatialHashGrid.ServerEnemies.Update(enemy);
+            enemyDtos.Add(enemy.ToDto());
         }
     }
 
@@ -68,10 +70,11 @@ public class EnemyManager : NetworkBehaviour
     {
         var msg = new EnemySnapshot()
         {
-            enemies = enemies
+            enemies = enemyDtos
         };
-        
+
         NetworkServer.SendToAll(msg);
+        enemyDtos.Clear();
     }
 
     private Transform FindNearestPlayerPos()

@@ -726,6 +726,7 @@ GameObject:
   - component: {fileID: 2141804447}
   - component: {fileID: 2141804449}
   - component: {fileID: 2141804451}
+  - component: {fileID: 2141804452}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -813,6 +814,22 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   enemyPrefab: {fileID: 3623344103373701304, guid: f3e49dd99cb49c544903b9e70704434f, type: 3}
+--- !u!114 &2141804452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2141804446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ecd08c6562c1cf4a98e85dd49c799d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CollisionTickManager
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  collisionTicksPerSecond: 60
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

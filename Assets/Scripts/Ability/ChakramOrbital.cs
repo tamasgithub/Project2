@@ -44,7 +44,7 @@ public class ChakramOrbital : NetworkBehaviour
     {
         foreach (Transform child in transform)
         {
-            child.Find("Collider").GetComponent<CollisionTrigger>().OnCollisionEnter += OnHit;
+            child.Find("Collider").GetComponent<AreaTrigger>().OnCollisionEnter += OnHit;
             child.Find("Collider").GetComponent<DamageSource>().Load(_owner);
 
         }
@@ -54,6 +54,7 @@ public class ChakramOrbital : NetworkBehaviour
     private void OnHit(ServerEntity collision)
     {
         if (collision is not ServerEnemy enemy) return;
+        enemy.ReceiveDamage(new DamageEvent(3));
         if (state == ChakramState.ORBIT)
         {
 

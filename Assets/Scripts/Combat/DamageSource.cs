@@ -27,43 +27,7 @@ public class DamageSource : NetworkBehaviour
     {
         CombatTickManager.OnTick -= DealDamage;
     }
-    // [ServerCallback]
-    // void OnTriggerEnter2D(Collider2D collision)
-    // {
-    //     if (isPlayer && collision.tag == "Enemy")
-    //     {
-    //         if (collision.TryGetComponent<Enemy>(out var e))
-    //         {
-    //             targets.Add(e);
-    //         }
-    //     }
-
-    //     else if (!isPlayer && collision.tag == "Player")
-    //     {
-    //         if (collision.TryGetComponent<Player>(out var p))
-    //         {
-    //             targets.Add(p);
-    //         }
-    //     }
-    // }
-    // [ServerCallback]
-    // void OnTriggerExit2D(Collider2D collision)
-    // {
-    //     if (isPlayer && collision.tag == "Enemy")
-    //     {
-    //         if (collision.TryGetComponent<Enemy>(out var e))
-    //         {
-    //             targets.Remove(e);
-    //         }
-    //     }
-    //     else if (!isPlayer && collision.tag == "Player")
-    //     {
-    //         if (collision.TryGetComponent<Player>(out var p))
-    //         {
-    //             targets.Remove(p);
-    //         }
-    //     }
-    // }
+    
     [Server]
     private void DealDamage()
     {
@@ -74,12 +38,7 @@ public class DamageSource : NetworkBehaviour
         {
             if (Vector2.Distance(enemy.Position, (Vector2)transform.position) <= radius + 0.5f) //0.5f hardocded enemy hitbox
             {
-                Debug.Log("Hit");
-                var dmg = new DamageEvent();
-                dmg.amount = 2;
-                enemy.damageEvents.Add(dmg);
-                // PoolableObject dmgNr = ObjectPool.Instance.Get(PoolableObjectType.DMG_NR, (Vector3)enemy.Position, Quaternion.identity);
-                // dmgNr.GetComponent<DamageNumber>().SetDamage(1, true);
+                // enemy.ReceiveDamage(new DamageEvent(2));
             }
         }
         // if (isPlayer)

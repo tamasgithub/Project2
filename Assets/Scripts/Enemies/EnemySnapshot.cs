@@ -3,5 +3,5 @@ using Mirror;
 
 public struct EnemySnapshot : NetworkMessage
 {
-    public List<ServerEnemy> enemies;
+    public List<EnemyDto> enemies;
 }
