@@ -391,7 +391,7 @@ MonoBehaviour:
   enemies:
   - {fileID: 6611726484612143875, guid: f0122740e4f6a5d4b9c75aacbe83fb40, type: 3}
   spawnFrequency: 5
-  baseSpawnAmount: 3
+  baseSpawnAmount: 20
   spawnRadius: 3
   spawnPosition: {x: 0, y: 0}
   enemyPrefab: {fileID: 3623344103373701304, guid: f3e49dd99cb49c544903b9e70704434f, type: 3}

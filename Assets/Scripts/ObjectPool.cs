@@ -15,7 +15,7 @@ public class ObjectPool : NetworkBehaviour
     private Dictionary<PoolableObjectType, HashSet<PoolableObject>> activeObjects;
     Dictionary<PoolableObjectType, Transform> parents;
 
-    public override void OnStartServer()
+    public  void Start()
     {
         Instance = this;
         availableObjects = new(poolInfos.Count);
@@ -38,17 +38,19 @@ public class ObjectPool : NetworkBehaviour
         Debug.Log("ObjectPool initialized");
     }
 
-    [Server]
+    // [Server]
     public PoolableObject Get(PoolableObjectType type, Vector3 position, Quaternion rotation)
     {
-        if (!isServer) return null;
+        // if (!isServer) return null;
+        
         //Debug.Log("Get poolable object of type " + type);
 
         if (isFake)
         {
             GameObject go = Instantiate(poolInfos.Find(i => i.type == type).prefab, position, rotation);
-            NetworkServer.Spawn(go);
-            go.GetComponent<PoolableObject>().OnGet();
+            // NetworkServer.Spawn(go);
+            go.GetComponent<PoolableObject>().OnGet
+            ();
             return go.GetComponent<PoolableObject>();
         }
 
@@ -77,10 +79,10 @@ public class ObjectPool : NetworkBehaviour
         return poolableObject;
     }
 
-    [Server]
+    // [Server]
     public void Return(PoolableObject returnedObject)
     {
-        if (!isServer) return;
+        // if (!isServer) return;
         if (isFake)
         {
             returnedObject.OnReturn();

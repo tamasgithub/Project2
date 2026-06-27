@@ -66,8 +66,8 @@ public class SpatialHashGrid<T> where T : ISpatialHashGridData
             for (int j = cell.y - radiusInCells.y; j <= cell.y + radiusInCells.y; j++)
             {
                 Vector2Int cellKey = new Vector2Int(i, j);
-                //Debug.Log($"Checking {cellKey}");
-                //Debug.Log($"{cells.GetValueOrDefault(cellKey, new()).Count} objects in cell {cellKey}");
+                // Debug.Log($"Checking {cellKey}");
+                // Debug.Log($"{cells.GetValueOrDefault(cellKey, new()).Count} objects in cell {cellKey}");
                 foreach (T data in cells.GetValueOrDefault(cellKey, new()))
                 {
                     if (Vector2.Distance(data.GetPosition(), position) <= radius)

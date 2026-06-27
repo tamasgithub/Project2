@@ -8,9 +8,10 @@ public class ServerEntity : ISpatialHashGridData
 {
     public string id = GUID.Generate().ToString();
     public Vector2 Position = Vector2.zero;
-    public int MaxHp;
+    public int MaxHp = 10;
     public int HP;
     public float MovementSpeed = 1.0f;
+    public List<DamageEvent> damageEvents = new ();
 
     // // private float _cdr = 0.0f;
     // // public float CDR { get{ return ApplyCDRMods(); } private set => _cdr = value; }

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PoolableObject : NetworkBehaviour
 {
-    public PoolableObjectType PoolableObjectType { get; protected set; }
+    public PoolableObjectType PoolableObjectType; 
     public virtual void OnGet() { }
     public virtual void OnReturn() { }
 
