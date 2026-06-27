@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Mirror;
 using UnityEngine;
@@ -11,7 +12,7 @@ public class EnemySpawner : NetworkBehaviour
     public float baseSpawnAmount = 10f;
     public float spawnRadius = 5f;
     public Vector2 spawnPosition = Vector2.zero;
-
+    public GameObject enemyPrefab;
     private int waveNumber = 0;
     private ObjectPool objectPool;
 
@@ -21,6 +22,7 @@ public class EnemySpawner : NetworkBehaviour
     {
         objectPool = FindAnyObjectByType<ObjectPool>();
         StartCoroutine(PeriodicSpawning());
+
     }
 
     
@@ -49,11 +51,19 @@ public class EnemySpawner : NetworkBehaviour
                 Mathf.Cos(angle),
                 Mathf.Sin(angle)
             ) * spawnRadius;
-
-            GameObject newEnemyGO = Instantiate(enemy.gameObject, position, Quaternion.identity);
-            newEnemyGO.GetComponent<Enemy>().Level = waveNumber;
-            NetworkServer.Spawn(newEnemyGO);
+            var e = new ServerEnemy();
+            e.Position = position;
+         
+            EnemyManager.Instance.RegisterEnemy(e);
+            // GameObject newEnemyGO = Instantiate(enemy.gameObject, position, Quaternion.identity);
+            // newEnemyGO.GetComponent<Enemy>().Level = waveNumber;
+            // NetworkServer.Spawn(newEnemyGO);
         }
+    }
+    [Client]
+    private void SpawnEnemy()
+    {
+        
     }
 
 

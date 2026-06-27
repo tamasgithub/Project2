@@ -69,9 +69,9 @@ public class DamageSource : NetworkBehaviour
         // Calculate
         var dmg = _owner.Damage;
         if(isPlayer){
-        foreach (var target in targets.Select( t => t as Enemy).ToList())
+        foreach (var target in targets)
         {
-                target.ReceiveDamage(dmg);
+                target?.ReceiveDamage(dmg);
             }
         }
     }

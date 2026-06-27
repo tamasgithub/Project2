@@ -93,6 +93,7 @@ public class SpatialHashGrid<T> where T : ISpatialHashGridData
 public static class SpatialHashGrid
 {
     private static SpatialHashGrid<Enemy> _instanceEnemies;
+    private static SpatialHashGrid<ServerEnemy> _instanceServerEnemies;
     private static SpatialHashGrid<Loot> _instanceLoot;
 
     public static SpatialHashGrid<Enemy> Enemies
@@ -118,4 +119,17 @@ public static class SpatialHashGrid
             return _instanceLoot;
         }
     }
+
+    public static SpatialHashGrid<ServerEnemy> ServerEnemies
+    {
+        get
+        {
+            if (_instanceServerEnemies == null)
+            {
+                _instanceServerEnemies = new SpatialHashGrid<ServerEnemy>(Vector3.zero, Vector2.one * 100, Vector2Int.one * 50);
+            }
+            return _instanceServerEnemies;
+        }
+    }
+    
 } 

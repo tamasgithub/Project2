@@ -83,8 +83,8 @@ public class Entity : NetworkBehaviour
     {
         if (!isServer) return;
         //Temporary Effects
-        temporaryEffects.FindAll(e => e.IsComplete).ForEach(e => e.OnRemove?.Invoke());
-        temporaryEffects.RemoveAll(e => e.IsComplete);
+        // temporaryEffects.FindAll(e => e.IsComplete).ForEach(e => e.OnRemove?.Invoke());
+        // temporaryEffects.RemoveAll(e => e.IsComplete);
         foreach (var effect in temporaryEffects)
         {
             effect.Update(Time.deltaTime);
