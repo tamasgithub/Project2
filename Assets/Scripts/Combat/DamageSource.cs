@@ -36,9 +36,9 @@ public class DamageSource : NetworkBehaviour
         // var dmg = _owner.Damage;
         foreach (var enemy in enemies)
         {
-            if (Vector2.Distance(enemy.Position, (Vector2)transform.position) <= radius + 0.5f) //0.5f hardocded enemy hitbox
+            if (Vector2.Distance(enemy.Position, (Vector2)transform.position) <= radius + 1f) //0.5f hardocded enemy hitbox
             {
-                // enemy.ReceiveDamage(new DamageEvent(2));
+                enemy.ReceiveDamage(new DamageEvent(2));
             }
         }
         // if (isPlayer)

@@ -9,5 +9,6 @@ public struct EnemyDto
     public int MaxHp;
     public int Hp;
     public List<DamageEvent> DamageEvents;
+    public bool isDead;
 }
 

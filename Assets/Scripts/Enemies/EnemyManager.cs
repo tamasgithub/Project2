@@ -7,11 +7,13 @@ public class EnemyManager : NetworkBehaviour
 {
     public static EnemyManager Instance;
     private List<GameObject> players;
-    private List<ServerEnemy> enemies = new();
+    private HashSet<ServerEnemy> enemies = new();
+    private HashSet<ServerEnemy> toRemove = new();
     private List<EnemyDto> enemyDtos = new();
     public float ticksPerSeconds = 8;
     private float _tickRate;
     private float _tick;
+ 
     void Awake()
     {
         Instance = this;
@@ -47,23 +49,33 @@ public class EnemyManager : NetworkBehaviour
     {
         var targetPos = (Vector2)FindNearestPlayerPos().position;
         if (targetPos == null) return;
+        toRemove.Clear();
         foreach (var enemy in enemies)
         {
+            if (enemy.IsDead)
+            {
+                toRemove.Add(enemy);
+                SpatialHashGrid.ServerEnemies.Remove(enemy);
+                enemyDtos.Add(enemy.ToDto());
+                continue;
+            }
             enemy.Position += (targetPos - enemy.Position).normalized * enemy.MovementSpeed * deltaTime;
 
             //Anit clumping push
 
-            foreach (ServerEnemy se in SpatialHashGrid.ServerEnemies.GetNearObjects(enemy.Position, 1f))
+            foreach (ServerEnemy other in SpatialHashGrid.ServerEnemies.GetNearObjects(enemy.Position, 1f))
             {
-                if (se == enemy) continue;
-                var direction = (enemy.Position - se.Position).normalized;
+                if (other == enemy) continue;
+                var direction = (enemy.Position - other.Position).normalized;
                 enemy.Position += direction * 1 * Time.deltaTime;
             }
-
-
             SpatialHashGrid.ServerEnemies.Update(enemy);
             enemyDtos.Add(enemy.ToDto());
+
         }
+
+        enemies.ExceptWith(toRemove);
+
     }
 
     private void SendSnapShot()

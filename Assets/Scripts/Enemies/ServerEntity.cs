@@ -8,9 +8,9 @@ public class ServerEntity : ISpatialHashGridData
 {
     public string id = GUID.Generate().ToString();
     public Vector2 Position = Vector2.zero;
-    private int _maxHp;
+    private int _maxHp = 5;
     public int MaxHp { get => ApplyMaxHPMods(); private set => _maxHp = value; }
-    private int _hp;
+    private int _hp = 5;
     public int Hp
     {
         get
@@ -26,7 +26,7 @@ public class ServerEntity : ISpatialHashGridData
             }
         }
     }
-
+    public bool IsDead {get { return _hp <= 0; }}
     private float _movementSpeed = 1.0f;
     public float MovementSpeed { get { return ApplyMovementSpeedMods(); } private set => _movementSpeed = value; }
     public List<DamageEvent> damageEvents = new();
@@ -69,6 +69,7 @@ public class ServerEntity : ISpatialHashGridData
         if (damageEvent.amount > 0)
         {
             Hp -= damageEvent.amount;
+
             damageEvents.Add(damageEvent); 
 
         }

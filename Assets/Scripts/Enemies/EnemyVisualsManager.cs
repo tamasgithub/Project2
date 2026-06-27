@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Mirror;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class EnemyVisualsManager : NetworkBehaviour
 {
-    List<EnemyDto> enemies = new();
+    Dictionary<string, EnemyDto> enemies = new();
+    Dictionary<string, EnemyDto> currentEnemies = new();
     Dictionary<string, GameObject> visuals = new();
     private Material mat;
     public GameObject enemyPrefab;
@@ -22,8 +25,15 @@ public class EnemyVisualsManager : NetworkBehaviour
     private void UpdateData(EnemySnapshot snapshot)
     {
         if (snapshot.IsUnityNull()) return;
-        enemies = snapshot.enemies;
-        foreach (var enemy in enemies)
+
+        currentEnemies.Clear();
+        foreach (var dto in snapshot.enemies)
+        {
+            enemies[dto.Id] = dto;
+            Debug.Log(dto.DamageEvents.Count);
+            currentEnemies[dto.Id] = dto;
+        }
+        foreach (var enemy in enemies.Values)
         {
             InstantiateVisual(enemy);
             var totalDamage = 0;
@@ -32,17 +42,32 @@ public class EnemyVisualsManager : NetworkBehaviour
                 totalDamage += dmgEvent.amount;
 
             }
+           
             if (totalDamage > 0 && ObjectPool.Instance != null)
             {
                 PoolableObject dmgNr = ObjectPool.Instance?.Get(PoolableObjectType.DMG_NR, (Vector3)enemy.Position, Quaternion.identity);
-               
+
                 dmgNr.GetComponent<DamageNumber>().SetDamage(totalDamage, true);
             }
-
         }
 
-    }
 
+        foreach (var key in enemies.Keys.ToList())
+        {
+            if (!currentEnemies.ContainsKey(key))
+            {
+                
+                if (visuals.Remove(key, out var gO))
+                {
+                    Destroy(gO);
+                }
+                enemies.Remove(key);
+            }
+        }
+
+
+    }
+    //Could Probably be optimized
     public void InstantiateVisual(EnemyDto enemy)
     {
 
@@ -65,11 +90,11 @@ public class EnemyVisualsManager : NetworkBehaviour
     {
         if (!isClient) return;
         if (enemies.Count < 1) return;
-        foreach (var enemy in enemies)
+        foreach (var enemy in enemies.Values)
         {
             try
             {
-                visuals[enemy.Id].transform.position = Vector3.Lerp(visuals[enemy.Id].transform.position, enemy.Position, Time.deltaTime);
+                visuals[enemy.Id].transform.position = Vector3.Lerp(visuals[enemy.Id].transform.position, enemy.Position, 2f* Time.deltaTime);
             }
             catch
             {

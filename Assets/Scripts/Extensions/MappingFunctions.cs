@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 public static class MappingFunctions
 {
     static public EnemyDto ToDto(this ServerEnemy enemy)
@@ -8,7 +10,7 @@ public static class MappingFunctions
             Position = enemy.Position,
             MaxHp = enemy.MaxHp,
             Hp = enemy.Hp,
-            DamageEvents = enemy.damageEvents
+            DamageEvents = new List<DamageEvent>(enemy.damageEvents)
         };
     }
 }

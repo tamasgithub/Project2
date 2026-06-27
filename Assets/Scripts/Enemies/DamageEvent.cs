@@ -2,7 +2,7 @@ public struct DamageEvent
 {
     public int amount;
     public DamageFlag flag;
-
+    
     public DamageEvent(int amount, DamageFlag flag = DamageFlag.NONE)
     {
         this.amount = amount;
