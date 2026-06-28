@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerInputController : NetworkBehaviour
 {
-    public Vector2 FaceDirection { get; private set; } = Vector2.down;
+    [SyncVar] public Vector2 FaceDirection = Vector2.down;
     private InputAction moveAction;
     [SyncVar] private Vector2 moveInput;
     private Entity player;
@@ -29,7 +29,7 @@ public class PlayerInputController : NetworkBehaviour
         {
             UpdateMovement();
         }
-        
+
 
 
     }
@@ -37,10 +37,13 @@ public class PlayerInputController : NetworkBehaviour
     private void ReadPlayerInput()
     {
         if (!isOwned) return;
-        // if (!moveAction.IsPressed()) return;
+
         // if(!hasAuthority)
         moveInput = moveAction.ReadValue<Vector2>();
-
+        if (moveAction.IsPressed())
+        {
+            CmdUpdateFacedirection(moveInput.normalized);
+        }
         CmdMovePlayer(moveInput);
     }
     [ServerCallback]
@@ -50,10 +53,15 @@ public class PlayerInputController : NetworkBehaviour
     }
     [Command]
     private void CmdMovePlayer(Vector2 input)
-    {
-
-        //Update Facedirection
+    {      //Update Facedirection
         moveInput = input;
+
+    }
+
+    [Command]
+    private void CmdUpdateFacedirection(Vector2 input)
+    {      //Update Facedirection
+        FaceDirection = input;
 
     }
 

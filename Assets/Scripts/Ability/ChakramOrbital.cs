@@ -27,7 +27,7 @@ public class ChakramOrbital : NetworkBehaviour
     private SyncList<Transform> _chakrams = new();
     private int _detachCount = 0;
     private int _returnCount = 0;
-    
+
     void Start()
     {
         if (!isServer) return;
@@ -39,6 +39,18 @@ public class ChakramOrbital : NetworkBehaviour
         SetupCollision();
     }
 
+    public override void OnStartClient()
+    {
+        if (NetworkClient.spawned.TryGetValue(ownerNetId, out var identity))
+            _owner = identity.GetComponent<Entity>();
+    }
+
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+        if (NetworkClient.spawned.TryGetValue(ownerNetId, out var identity))
+            _owner = identity.GetComponent<Entity>();
+    }
     [Server]
     private void SetupCollision()
     {
@@ -163,6 +175,7 @@ public class ChakramOrbital : NetworkBehaviour
             case ChakramState.ORBIT:
                 for (int i = 0; i < _chakrams.Count; i++)
                 {
+            
                     transform.GetChild(i).transform.position = _owner.transform.position + offset[i];    
                 }
                 break;
