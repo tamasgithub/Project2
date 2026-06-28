@@ -44,7 +44,7 @@ public class ChakramOrbital : NetworkBehaviour
     {
         foreach (Transform child in transform)
         {
-            child.Find("Collider").GetComponent<AreaTrigger>().OnCollisionEnter += OnHit;
+            child.Find("Collider").GetComponent<AreaTrigger>().OnTriggerEnter += OnHit;
             child.Find("Collider").GetComponent<DamageSource>().Load(_owner);
 
         }
@@ -79,18 +79,7 @@ public class ChakramOrbital : NetworkBehaviour
         }
         state = ChakramState.DETACH;
     }
-    public override void OnStartClient()
-    {
-        if (NetworkClient.spawned.TryGetValue(ownerNetId, out var identity))
-            _owner = identity.GetComponent<Entity>();
-    }
-
-    public override void OnStartServer()
-    {
-        base.OnStartServer();
-        if (NetworkClient.spawned.TryGetValue(ownerNetId, out var identity))
-            _owner = identity.GetComponent<Entity>();
-    }
+    
     private void MoveToHoverPos()
     {
         var complete = true;

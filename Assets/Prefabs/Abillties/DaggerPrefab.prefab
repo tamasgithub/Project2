@@ -26,8 +26,8 @@ Transform:
   m_GameObject: {fileID: 4278352313413593413}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.34, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: -0.0887, z: 0}
+  m_LocalScale: {x: 0.34, y: 0.6929194, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6228666910945435679}
@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 3041190268725231556}
   - component: {fileID: 3141758819842163803}
   - component: {fileID: 8436233590736260215}
+  - component: {fileID: 4172564057878828157}
   m_Layer: 0
   m_Name: DaggerPrefab
   m_TagString: Untagged
@@ -200,7 +201,7 @@ PolygonCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8802095507399105712}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -243,3 +244,19 @@ PolygonCollider2D:
       - {x: -0.17801034, y: -0.2984824}
       - {x: 0.18028152, y: -0.29821956}
   m_UseDelaunayMesh: 1
+--- !u!114 &4172564057878828157
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8802095507399105712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c0bcf8273710294680315d0b24f071f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AreaTrigger
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  radius: 0.24

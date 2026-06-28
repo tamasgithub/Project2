@@ -10,7 +10,6 @@ public abstract class Projectile : NetworkBehaviour
     protected int pierce = 0;
     protected float size = 1;
     protected float aoeSize = 1; // for explosions etc
-
     private Vector2 direction;
     protected float LifeTime { get; private set; }
 
@@ -23,8 +22,17 @@ public abstract class Projectile : NetworkBehaviour
         this.damage += _entity.Damage;
         this.pierce += _entity.Pierce;
         aoeSize *= _entity.AreaOfEffectSize;
+
     }
 
+    void OnEnable()
+    {
+        GetComponent<AreaTrigger>().OnTriggerEnter += OnCollision;
+    }
+    void OnDisable()
+    {
+        GetComponent<AreaTrigger>().OnTriggerEnter -= OnCollision;
+    }
     protected virtual void Update()
     {
         if (!authority) return;
@@ -46,13 +54,12 @@ public abstract class Projectile : NetworkBehaviour
 
     // ServerCallback to not log warnings on collision on client side
     [ServerCallback]
-    private void OnCollisionEnter2D(Collision2D collision)
+    public virtual void OnCollision(ServerEntity collision)
     {
-        
-        if (collision.collider.tag == "Enemy")
+
+        if (collision is not ServerEnemy enemy) return;
         {
-            Enemy enemy = collision.collider.GetComponent<Enemy>();
-            enemy.ReceiveDamage(damage);
+            enemy.ReceiveDamage(new DamageEvent(damage));
             pierce -= 1;
             if (pierce < 0)
             {

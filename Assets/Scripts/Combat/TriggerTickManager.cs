@@ -11,7 +11,7 @@ public class TriggerTickManager : NetworkBehaviour
     void Start()
     {
         if (!isServer) return;
-        _collisionTickRate = 1.0f / collisionTicksPerSecond;
+        _collisionTickRate = 1.0f / GlobalConstants.TRIGGER_CHECK_RATE;
 
     }
     

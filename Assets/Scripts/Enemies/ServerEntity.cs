@@ -82,7 +82,7 @@ public class ServerEntity : ISpatialHashGridData
     }
 
 
-    protected virtual void Update()
+    public void Update(float deltaTime)
     {
 
         //Temporary Effects
@@ -90,7 +90,7 @@ public class ServerEntity : ISpatialHashGridData
         // temporaryEffects.RemoveAll(e => e.IsComplete);
         foreach (var effect in temporaryEffects)
         {
-            effect.Update(Time.deltaTime);
+            effect.Update(deltaTime);
         }
     }
     private void OnHpChanged(int hpOld, int hpNew)

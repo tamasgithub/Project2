@@ -31,10 +31,10 @@ public  class TemporaryEffect
         
     }
 
-    public TemporaryEffect IsBleed(Entity target)
+    public TemporaryEffect IsBleed(ServerEntity target)
     {
-
-        this.OnTick = () => target.ReceiveDamage(Math.Max(1, (int)((float)(target.MaxHp) / (float)(GlobalConstants.BLEED_BASE_PERCENTAGE))));
+        var damage = Math.Max(1, (int)((float)(target.MaxHp) / (float)(GlobalConstants.BLEED_BASE_PERCENTAGE)));
+        this.OnTick = () => target.ReceiveDamage(new DamageEvent(damage, DamageFlag.BLEED));
         return this;
     }
     public TemporaryEffect SetOnApply(Action action)

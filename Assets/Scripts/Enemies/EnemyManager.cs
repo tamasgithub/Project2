@@ -6,18 +6,19 @@ using Mirror;
 public class EnemyManager : NetworkBehaviour
 {
     public static EnemyManager Instance;
-    private List<GameObject> players;
+    private List<GameObject> players = new();
     private HashSet<ServerEnemy> enemies = new();
     private HashSet<ServerEnemy> toRemove = new();
     private List<EnemyDto> enemyDtos = new();
+    private List<DamageEventDto> damageDtos = new();
     public float ticksPerSeconds = 8;
     private float _tickRate;
     private float _tick;
- 
+
     void Awake()
     {
         Instance = this;
-        _tickRate = 1.0f / ticksPerSeconds;
+        _tickRate = 1.0f / GlobalConstants.ENEMY_STATE_UPDATEFREQUENCY;
     }
 
     public override void OnStartServer()
@@ -34,8 +35,11 @@ public class EnemyManager : NetworkBehaviour
         _tick += Time.deltaTime;
         if (_tick >= _tickRate)
         {
-            UpdatePositions(_tick);
-            SendSnapShot();
+            if (UpdateEnemies(_tick))
+            {
+                SendMessages();
+            }
+
             foreach (var enemy in enemies)
             {
                 enemy.damageEvents.Clear();
@@ -45,13 +49,29 @@ public class EnemyManager : NetworkBehaviour
 
     }
 
-    private void UpdatePositions(float deltaTime)
+    private bool UpdateEnemies(float deltaTime)
     {
-        var targetPos = (Vector2)FindNearestPlayerPos().position;
-        if (targetPos == null) return;
+        Transform t = FindNearestPlayerPos();
+        if (t == null) return false;
+        var targetPos = t != null ? (Vector2)t.position : Vector2.zero;
+
+
         toRemove.Clear();
+
         foreach (var enemy in enemies)
         {
+            enemy.Update(deltaTime);
+            //Damage Events
+            var dmgDto = new DamageEventDto();
+            dmgDto.TargetId = enemy.id;
+            foreach (var damageEvent in enemy.damageEvents)
+            {
+                dmgDto.Amount += damageEvent.amount;
+                dmgDto.Flags |= damageEvent.flag;
+            }
+            if (dmgDto.Amount > 0) damageDtos.Add(dmgDto);
+
+            //Dont Calculate Position if enemy is dead
             if (enemy.IsDead)
             {
                 toRemove.Add(enemy);
@@ -75,18 +95,27 @@ public class EnemyManager : NetworkBehaviour
         }
 
         enemies.ExceptWith(toRemove);
-
+        return true;
     }
 
-    private void SendSnapShot()
+    private void SendMessages()
     {
-        var msg = new EnemySnapshot()
+        var enemyStatusMsg = new EnemyStatusMessage()
         {
             enemies = enemyDtos
         };
 
-        NetworkServer.SendToAll(msg);
+        NetworkServer.SendToAll(enemyStatusMsg);
         enemyDtos.Clear();
+
+
+        var damageEventsMsg = new DamageEventsMessage()
+        {
+            damageEventDtos = damageDtos
+        };
+        NetworkServer.SendToAll(damageEventsMsg);
+
+        damageDtos.Clear();
     }
 
     private Transform FindNearestPlayerPos()

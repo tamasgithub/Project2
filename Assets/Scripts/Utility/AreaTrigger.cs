@@ -7,8 +7,8 @@ public class AreaTrigger : NetworkBehaviour
 {
     public float radius = 1.0f;
     private HashSet<ServerEntity> _inside = new();
-    public event Action<ServerEntity> OnCollisionEnter;
-    public event Action<ServerEntity> OnCollisionExit;
+    public event Action<ServerEntity> OnTriggerEnter;
+    public event Action<ServerEntity> OnTriggerExit;
 
     [ServerCallback]
     void OnEnable()
@@ -34,7 +34,7 @@ public class AreaTrigger : NetworkBehaviour
                 newlyEntered.Add(enemy);
                 if (!_inside.Contains(enemy))
                 {
-                    OnCollisionEnter?.Invoke(enemy);
+                    OnTriggerEnter?.Invoke(enemy);
                     
                 }
             }
@@ -44,7 +44,7 @@ public class AreaTrigger : NetworkBehaviour
         {
             if (!newlyEntered.Contains(current))
             {
-                OnCollisionExit?.Invoke(current);
+                OnTriggerExit?.Invoke(current);
             }
         }
 

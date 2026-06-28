@@ -36,7 +36,10 @@ public class Bomb : Projectile
         currentColor = lifeTimeColorGradient.Evaluate(LifeTime / maxLifeTime);
 
     }
-
+    public override void OnCollision(ServerEntity collision)
+    {
+       //Dont 
+    }
     [Client]
     private void OnColorChanged(Color oldColor, Color newColor)
     {
@@ -50,9 +53,9 @@ public class Bomb : Projectile
         explosion.transform.localScale = Vector2.one * aoeSize;
         explosion.GetComponent<Explosion>().explosionVisualDuration = explosionVisualDuration;
         NetworkServer.Spawn(explosion);
-        foreach (Enemy enemy in SpatialHashGrid.Enemies.GetNearObjects(transform.position, aoeSize / 2))
+        foreach (ServerEnemy enemy in SpatialHashGrid.ServerEnemies.GetNearObjects(transform.position, aoeSize / 2.0f))
         {
-            enemy.ReceiveDamage(damage);
+            enemy.ReceiveDamage(new DamageEvent(3));
         }
     }
 }

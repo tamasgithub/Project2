@@ -10,7 +10,7 @@ public static class MappingFunctions
             Position = enemy.Position,
             MaxHp = enemy.MaxHp,
             Hp = enemy.Hp,
-            DamageEvents = new List<DamageEvent>(enemy.damageEvents)
+          
         };
     }
 }
