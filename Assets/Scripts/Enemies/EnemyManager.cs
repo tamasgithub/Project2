@@ -35,6 +35,7 @@ public class EnemyManager : NetworkBehaviour
         _tick += Time.deltaTime;
         if (_tick >= _tickRate)
         {
+            if (enemies.Count < 1) return;
             if (UpdateEnemies(_tick))
             {
                 SendMessages();
