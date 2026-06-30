@@ -7,6 +7,9 @@ public class SurvivorNetworkManager : NetworkManager
     public static event Action<NetworkConnectionToClient> PlayerJoined;
     public static event Action<NetworkConnectionToClient> PlayerLeft;
 
+    public int minPlayersPerLobby = 2;
+    public int maxPlayersPerLobby = 5;
+
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
         base.OnServerAddPlayer(conn);
