@@ -18,7 +18,7 @@ public class EnemyManager : NetworkBehaviour
     void Awake()
     {
         Instance = this;
-        _tickRate = 1.0f / GlobalConstants.ENEMY_STATE_UPDATEFREQUENCY;
+        _tickRate = 1.0f / GlobalConstants.ENEMY_STATE_UPDATE_RATE;
     }
 
     public override void OnStartServer()
@@ -88,7 +88,7 @@ public class EnemyManager : NetworkBehaviour
             {
                 if (other == enemy) continue;
                 var direction = (enemy.Position - other.Position).normalized;
-                enemy.Position += direction * 1 * Time.deltaTime;
+                enemy.Position += direction * 10f * Time.deltaTime;
             }
             SpatialHashGrid.ServerEnemies.Update(enemy);
             enemyDtos.Add(enemy.ToDto());

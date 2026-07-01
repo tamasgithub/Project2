@@ -19,10 +19,13 @@ public class ServerEntity : ISpatialHashGridData
         }
         private set
         {
+            
             _hp = Math.Clamp(value, 0, MaxHp);
-            if (_hp == 0)
+            if (_hp <= 0)
             {
-                OnDeath?.Invoke();
+                // OnDeath?.Invoke();
+                OnKilled();
+                
             }
         }
     }
@@ -61,6 +64,11 @@ public class ServerEntity : ISpatialHashGridData
         MaxHp = maxHp;
         Hp = maxHp;
         MovementSpeed = movementSpeed;
+    }
+
+    public virtual void OnKilled()
+    {
+        
     }
 
     public void ReceiveDamage(DamageEvent damageEvent)

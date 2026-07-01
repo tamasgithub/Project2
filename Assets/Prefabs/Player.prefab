@@ -1238,6 +1238,7 @@ GameObject:
   - component: {fileID: 1109544146904829314}
   - component: {fileID: 8181427223836314476}
   - component: {fileID: 3718827914382319028}
+  - component: {fileID: 1517584564430594112}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1347,6 +1348,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  FaceDirection: {x: 0, y: -1}
 --- !u!114 &8181427223836314476
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1412,6 +1414,28 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!95 &1517584564430594112
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7899670447764900027}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: -8096178915444821780, guid: bd2c861c2a805404aa73933310b2de8c, type: 3}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &8292666100727892424
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,7 +7,7 @@ using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Enemy : Entity, ISpatialHashGridData
+public class Enemy : Entity,  ISpatialHashGridData
 {
     public List<LootTableEntry> lootTable;
     public List<LootPrefabs> lootPrefabs;

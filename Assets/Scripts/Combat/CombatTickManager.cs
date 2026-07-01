@@ -11,7 +11,7 @@ public class CombatTickManager : NetworkBehaviour
     void Start()
     {
         if (!isServer) return;
-        _combatTickRate = 1.0f / combatTicksPerSecond;
+        _combatTickRate = 1.0f / 2;
 
     }
     
