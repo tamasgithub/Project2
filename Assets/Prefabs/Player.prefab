@@ -132,6 +132,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4145281164950575257}
   - component: {fileID: 1557564661620721545}
+  - component: {fileID: 2597496045446456139}
   m_Layer: 0
   m_Name: Square
   m_TagString: Untagged
@@ -203,7 +204,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 2714460757110524744, guid: 2e2c318b08b7aa540af56409d7687641, type: 3}
+  m_Sprite: {fileID: 7840026163958965654, guid: 716ba75e550d74b41ac58ce8707b19aa, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -213,6 +214,28 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!95 &2597496045446456139
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1186955414968519061}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 7623933667586914862, guid: 716ba75e550d74b41ac58ce8707b19aa, type: 3}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &2008497250770766056
 GameObject:
   m_ObjectHideFlags: 0
@@ -1238,7 +1261,8 @@ GameObject:
   - component: {fileID: 1109544146904829314}
   - component: {fileID: 8181427223836314476}
   - component: {fileID: 3718827914382319028}
-  - component: {fileID: 1517584564430594112}
+  - component: {fileID: 6388469193110647833}
+  - component: {fileID: 6055957618338081699}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1349,6 +1373,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   FaceDirection: {x: 0, y: -1}
+  velocity: 0
 --- !u!114 &8181427223836314476
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1414,28 +1439,36 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!95 &1517584564430594112
-Animator:
-  serializedVersion: 7
+--- !u!114 &6388469193110647833
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7899670447764900027}
   m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: -8096178915444821780, guid: bd2c861c2a805404aa73933310b2de8c, type: 3}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c714a09a3151c2342bb953092fdd582a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationController
+  flipThreshold: 0.2
+  runSpeedMultiplier: 0.3
+--- !u!114 &6055957618338081699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7899670447764900027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c0bcf8273710294680315d0b24f071f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AreaTrigger
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  radius: 0.5
 --- !u!1 &8292666100727892424
 GameObject:
   m_ObjectHideFlags: 0

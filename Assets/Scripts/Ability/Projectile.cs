@@ -20,7 +20,7 @@ public abstract class Projectile : NetworkBehaviour
         this.size *= _entity.ProjectileSize;
         transform.localScale *= size;
         this.damage += _entity.Damage;
-        this.pierce += _entity.Pierce;
+        this.pierce += _entity.Pierce ;
         aoeSize *= _entity.AreaOfEffectSize;
 
     }
