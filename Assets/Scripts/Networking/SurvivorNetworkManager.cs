@@ -9,7 +9,17 @@ public class SurvivorNetworkManager : NetworkManager
 
     public int minPlayersPerLobby = 2;
     public int maxPlayersPerLobby = 5;
-
+    
+    public override void Start()
+    {
+        base.Start();
+        if (Application.isBatchMode)
+        {
+           StartServer();
+            Debug.Log("Server Started"); 
+        }
+        
+    }
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
         base.OnServerAddPlayer(conn);
