@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Mirror;
 using UnityEngine;
 
 public class PlayerAnimationController : MonoBehaviour
@@ -38,6 +39,7 @@ public class PlayerAnimationController : MonoBehaviour
     }
     void Update()
     {
+        if (!NetworkClient.active) return;
         if (_input.velocity > 0.2f)
         {
             SetAnimationState("Run");
@@ -50,7 +52,7 @@ public class PlayerAnimationController : MonoBehaviour
 
     public void SetAnimationState(string state)
     {
-        if (!_animations.ContainsKey(state)) Debug.LogWarning($"Tried to play Unknown Animation: {state} ");
+        // if (!_animations.ContainsKey(state)) Debug.LogWarning($"Tried to play Unknown Animation: {state} ");
         if (_state != state)
         {
             _state = state;

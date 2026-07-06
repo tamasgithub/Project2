@@ -59,7 +59,6 @@ public class PlayerInputController : NetworkBehaviour
         transform.position += (Vector3)moveInput * player.MovementSpeed * Time.deltaTime;
         velocity = moveInput.magnitude * player.MovementSpeed;
 
-        Debug.Log(velocity);
     }
     [Command]
     private void CmdMovePlayer(Vector2 input)
