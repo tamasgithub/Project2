@@ -26,7 +26,7 @@ public class Player : Entity
         // destroy UI on server
         if (isServerOnly)
         {
-            Destroy(transform.Find("CoplayerVisuals"));
+            Destroy(transform.Find("CoplayerVisuals").gameObject);
         }
     }
 
