@@ -31,6 +31,9 @@ public class ChakramOrbital : NetworkBehaviour
     void Start()
     {
         if (!isServer) return;
+        if (NetworkClient.spawned.TryGetValue(ownerNetId, out var identity))
+            _owner = identity.GetComponent<Entity>();
+
         foreach (Transform child in transform)
         {
             _chakrams.Add(child);
@@ -45,12 +48,19 @@ public class ChakramOrbital : NetworkBehaviour
             _owner = identity.GetComponent<Entity>();
     }
 
-    public override void OnStartServer()
-    {
-        base.OnStartServer();
-        if (NetworkClient.spawned.TryGetValue(ownerNetId, out var identity))
-            _owner = identity.GetComponent<Entity>();
-    }
+    // public override void OnStartServer()
+    // {
+    //     base.OnStartServer();
+    //     if (NetworkClient.spawned.TryGetValue(ownerNetId, out var identity))
+    //         _owner = identity.GetComponent<Entity>();
+
+    //     foreach (Transform child in transform)
+    //     {
+    //         _chakrams.Add(child);
+    //         chakramPositions.Add(new Vector3());
+    //     }
+    //     SetupCollision();
+    // }
     [Server]
     private void SetupCollision()
     {
@@ -70,7 +80,7 @@ public class ChakramOrbital : NetworkBehaviour
         if (state == ChakramState.ORBIT)
         {
 
-            DetachChakrams((Vector3) enemy.Position);
+            DetachChakrams((Vector3)enemy.Position);
             return;
         }
     }
@@ -91,7 +101,7 @@ public class ChakramOrbital : NetworkBehaviour
         }
         state = ChakramState.DETACH;
     }
-    
+
     private void MoveToHoverPos()
     {
         var complete = true;
@@ -165,7 +175,7 @@ public class ChakramOrbital : NetworkBehaviour
                     break;
 
             }
-            
+
 
         }
 
@@ -175,8 +185,8 @@ public class ChakramOrbital : NetworkBehaviour
             case ChakramState.ORBIT:
                 for (int i = 0; i < _chakrams.Count; i++)
                 {
-            
-                    transform.GetChild(i).transform.position = _owner.transform.position + offset[i];    
+
+                    transform.GetChild(i).transform.position = _owner.transform.position + offset[i];
                 }
                 break;
             default:

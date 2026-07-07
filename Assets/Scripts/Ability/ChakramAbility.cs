@@ -25,8 +25,8 @@ public class ChakramAbility : PermanentAbility
         Debug.Log("SPAWN ORBITALS");
         var gO = GameObject.Instantiate(chakramPrefab);
         orbital = gO.GetComponent<ChakramOrbital>();
-        orbital.Init(6, _owner.netId);
         NetworkServer.Spawn(gO);
+        orbital.Init(6, _owner.netId);
     }
 
 }
