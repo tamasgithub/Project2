@@ -22,10 +22,10 @@ public class PlayerAbilityController : NetworkBehaviour
     public ChakramAbilityData chakramAbilityData;
 
 
-    public override void OnStartLocalPlayer()
+    public override void OnStartServer()
     {
-        base.OnStartLocalPlayer();
-    
+        base.OnStartServer();
+        Debug.Log("Start On Server");
         // if (!isServer) return;
         Entity entity = GetComponent<Entity>();
         RegisterAbility(new DaggerAbility(daggerAbilityData, GetComponent<NetworkIdentity>(), entity));
