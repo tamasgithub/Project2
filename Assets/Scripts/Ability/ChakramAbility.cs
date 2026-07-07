@@ -22,6 +22,7 @@ public class ChakramAbility : PermanentAbility
     }
     private void SpawnOrbital()
     {
+        Debug.Log("SPAWN ORBITALS");
         var gO = GameObject.Instantiate(chakramPrefab);
         orbital = gO.GetComponent<ChakramOrbital>();
         orbital.Init(6, _owner.netId);

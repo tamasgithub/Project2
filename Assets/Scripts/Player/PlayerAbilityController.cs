@@ -22,15 +22,17 @@ public class PlayerAbilityController : NetworkBehaviour
     public ChakramAbilityData chakramAbilityData;
 
 
-    public void Start()
+    public override void OnStartLocalPlayer()
     {
+        base.OnStartLocalPlayer();
+    
         // if (!isServer) return;
         Entity entity = GetComponent<Entity>();
-        // RegisterAbility(new DaggerAbility(daggerAbilityData, GetComponent<NetworkIdentity>(), entity));
+        RegisterAbility(new DaggerAbility(daggerAbilityData, GetComponent<NetworkIdentity>(), entity));
         RegisterAbility(new ChakramAbility(chakramAbilityData, GetComponent<NetworkIdentity>(), entity));
-        // RegisterAbility(new BombAbility(bombAbilityData, GetComponent<NetworkIdentity>(), entity));
+        RegisterAbility(new BombAbility(bombAbilityData, GetComponent<NetworkIdentity>(), entity));
 
-        // RegisterAbility(new KnifeAbility(knifeAbilityData, GetComponent<NetworkIdentity>(), GetComponent<Entity>()));
+        RegisterAbility(new KnifeAbility(knifeAbilityData, GetComponent<NetworkIdentity>(), GetComponent<Entity>()));
 
     }
 
