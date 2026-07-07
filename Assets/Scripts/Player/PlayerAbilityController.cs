@@ -24,7 +24,7 @@ public class PlayerAbilityController : NetworkBehaviour
 
     public void Start()
     {
-        if (!isServer) return;
+        // if (!isServer) return;
         Entity entity = GetComponent<Entity>();
         // RegisterAbility(new DaggerAbility(daggerAbilityData, GetComponent<NetworkIdentity>(), entity));
         RegisterAbility(new ChakramAbility(chakramAbilityData, GetComponent<NetworkIdentity>(), entity));
