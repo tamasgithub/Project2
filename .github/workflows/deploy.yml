@@ -1,0 +1,26 @@
+name: Build Server (Jan)
+
+on: push
+
+jobs:
+  deploy:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Get SSH Key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{secrets.SSH_KEY_JAN}}" > ~/.ssh/id_key
+    - name: Deploy using SSH
+      run: ssh -i ~/.ssh/id_key jan@192.168.0.234
+    - name: Kill Runnign Server Process
+      run: fuser -k 7777/udp
+    - name: Go To directory Build Server
+      run: cd ~/Documents/Game/Project2/
+      run: xvfb-run -a ./build.sh
+    - name: Start Server
+      run: ./Builds/LinuxServer/MyServer.x86_64 -batchmode -nographics
+
+
+
+
+
