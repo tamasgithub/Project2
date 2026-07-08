@@ -11,9 +11,7 @@ public class ChakramOrbital : NetworkBehaviour
 {
     [SyncVar(hook = nameof(OnOwnerAssigned))] private NetworkIdentity _identity;
     [SyncVar] private ChakramState state = ChakramState.ORBIT;
-    private uint ownerNetId;
     private SyncList<Vector3> chakramPositions = new();
-
     private List<Vector3> offset = new List<Vector3>()
     {
         Vector3.up,
@@ -23,21 +21,13 @@ public class ChakramOrbital : NetworkBehaviour
     };
     private SyncList<Vector3> hoverPositions = new SyncList<Vector3>();
     private List<float> _returnDelays = new();
-    private Entity _owner;
     private List<Transform> _chakrams = new();
     private int _detachCount = 0;
     private int _returnCount = 0;
 
     void Start()
     {
-        if (isClient)
-        {
-            Debug.Log("Client knows Identity: " + _identity != null);
-        }
         if (!isServer) return;
-        if (NetworkServer.spawned.TryGetValue(ownerNetId, out var identity))
-            _owner = identity.GetComponent<Entity>();
-
         foreach (Transform child in transform)
         {
             _chakrams.Add(child);
@@ -63,7 +53,7 @@ public class ChakramOrbital : NetworkBehaviour
         foreach (Transform child in transform)
         {
             child.Find("Collider").GetComponent<AreaTrigger>().OnTriggerEnter += OnHit;
-            child.Find("Collider").GetComponent<DamageSource>().Load(_owner);
+            child.Find("Collider").GetComponent<DamageSource>().Load(_identity.GetComponent<Entity>());
 
         }
     }

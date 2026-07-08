@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 public class PlayerInputController : NetworkBehaviour
 {
     [SyncVar]
-    private Vector2 _faceDirection;
+    private Vector2 _faceDirection = Vector2.down;
     private Vector2 moveInput;
 
     void Update()
@@ -32,6 +32,12 @@ public class PlayerInputController : NetworkBehaviour
     private void CmdMovePlayer(Vector2 input)
     {
         moveInput = input;
+        if(moveInput.magnitude > 0)
+        {
+            _faceDirection = moveInput.normalized; 
+        }
+       
+        
     }
 
     public Vector2 FaceDirection()
