@@ -39,14 +39,15 @@ public class ChakramOrbital : NetworkBehaviour
 
     public void OnOwnerAssigned(NetworkIdentity old, NetworkIdentity identity)
     {
-        
+        Debug.Log("Old" + old);
+        Debug.Log("New" + identity);
     }
 
     public void Init(NetworkIdentity identity)
     {
         _identity = identity;
     }
-    
+
     [Server]
     private void SetupCollision()
     {
@@ -111,7 +112,7 @@ public class ChakramOrbital : NetworkBehaviour
             _returnDelays[i] -= Time.deltaTime;
             if (_returnDelays[i] >= 0) return;
 
-                  chakramPositions[i] = Vector3.MoveTowards(chakramPositions[i], _identity.transform.position + offset[i], Time.deltaTime * 50f);
+            chakramPositions[i] = Vector3.MoveTowards(chakramPositions[i], _identity.transform.position + offset[i], Time.deltaTime * 50f);
             complete = (Vector3.Distance(chakramPositions[i], _identity.transform.position + offset[i]) <= 0.1f) && complete;
 
         }
@@ -126,13 +127,20 @@ public class ChakramOrbital : NetworkBehaviour
 
     float delay = 0;
     private void Update()
-    {   
-        // if (_owner == null) Destroy(gameObject);
+    {
         if (isServer)
         {
             switch (state)
             {
 
+                case ChakramState.ORBIT:
+                    for (int i = 0; i < transform.childCount; i++)
+                    {
+                        // Debug.Log(_identity.transform.position);
+                        chakramPositions[i] = _identity.transform.position + offset[i];
+
+                    }
+                    break;
                 case ChakramState.DETACH:
                     MoveToHoverPos();
                     delay = 0;
@@ -161,17 +169,10 @@ public class ChakramOrbital : NetworkBehaviour
 
         }
 
-        if (!isClient) return;
+      
         switch (state)
         {
-            case ChakramState.ORBIT:
-                for (int i = 0; i < transform.childCount; i++)
-                {
-                    // Debug.Log(_identity.transform.position);
-                    transform.GetChild(i).transform.position = _identity.transform.position + offset[i];
-                    
-                }
-                break;
+
             default:
                 for (int i = 0; i < transform.childCount; i++)
                 {

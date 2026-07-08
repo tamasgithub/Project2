@@ -69,12 +69,7 @@ public class EnemyVisualsManager : NetworkBehaviour
             {
                 visual?.HandleDamageEvent(dmgEvent);
 
-                if (dmgEvent.Amount > 0 && ObjectPool.Instance != null)
-                {
-                    PoolableObject dmgNr = ObjectPool.Instance?.Get(PoolableObjectType.DMG_NR, visual.transform.position, Quaternion.identity);
-
-                    dmgNr.GetComponent<DamageNumber>().SetDamage(dmgEvent.Amount, true);
-                }
+                
             }
 
         }
