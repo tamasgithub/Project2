@@ -15,3 +15,15 @@ MonoBehaviour:
   abilityName: 
   sprite: {fileID: 0}
   orbital: {fileID: 5385442585998681296, guid: eb7cf92bfe7ba4b458b46b339343a988, type: 3}
+  orbitalCount:
+    steps:
+    - Level: 1
+      Value: 2
+    - Level: 2
+      Value: 3
+    - Level: 3
+      Value: 5
+  hoverDuration:
+    steps:
+    - Level: 0
+      Value: 0

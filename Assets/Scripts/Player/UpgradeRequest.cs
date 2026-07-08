@@ -12,6 +12,7 @@ public class UpgradeRequest
         new UpgradeChoice( AbilityName.DaggerAbility),
         new UpgradeChoice( AbilityName.BombAbility),
         new UpgradeChoice( AbilityName.KnifeAbility),
+        new UpgradeChoice(AbilityName.ChakramAbility),
         //Stats
         new UpgradeChoice(StatName.MAX_HP, 1),
         new UpgradeChoice(StatName.MOVEMENTSPEED,1.5f, false),

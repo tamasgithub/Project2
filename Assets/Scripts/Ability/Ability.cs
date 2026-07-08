@@ -1,4 +1,5 @@
 using Mirror;
+using System.Reflection;
 using UnityEngine;
 
 public abstract class Ability
@@ -27,12 +28,25 @@ public abstract class Ability
     public virtual void OnEquip()
     {
         Name = data.abilityName;
-
-
+        UpgradeStats();
     }
     public virtual void LevelUp()
     {
         Level++;
+        //Upgrade all Stats using reflection
+        UpgradeStats();
+    }
+    
+    protected void UpgradeStats()
+    {
+       var fields = GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+        foreach (var field in fields)
+        {
+            if (field.GetValue(this) is IUpgradableStat stat)
+            {
+                stat.Upgrade(Level);
+            }
+        } 
     }
     
     

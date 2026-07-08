@@ -9,44 +9,50 @@ using UnityEngine;
 
 public class ChakramOrbital : NetworkBehaviour
 {
-    [SyncVar(hook = nameof(OnOwnerAssigned))] private NetworkIdentity _identity;
+    [SyncVar] private NetworkIdentity _identity;
+    [SyncVar (hook = nameof(OnChakramCountChanged))] private int _chakramCount;
     [SyncVar] private ChakramState state = ChakramState.ORBIT;
     private SyncList<Vector3> chakramPositions = new();
     private List<Vector3> offset = new List<Vector3>()
     {
-        Vector3.up,
-        Vector3.down,
-        Vector3.left,
-        Vector3.right,
+
     };
     private SyncList<Vector3> hoverPositions = new SyncList<Vector3>();
     private List<float> _returnDelays = new();
-    private List<Transform> _chakrams = new();
-    private int _detachCount = 0;
-    private int _returnCount = 0;
 
     void Start()
     {
         if (!isServer) return;
         foreach (Transform child in transform)
         {
-            _chakrams.Add(child);
             chakramPositions.Add(new Vector3());
         }
 
         SetupCollision();
     }
 
-    public void OnOwnerAssigned(NetworkIdentity old, NetworkIdentity identity)
-    {
-        Debug.Log("Old" + old);
-        Debug.Log("New" + identity);
-    }
-
-    public void Init(NetworkIdentity identity)
+    public void Init(NetworkIdentity identity, int chakramCount)
     {
         _identity = identity;
+        _chakramCount = chakramCount;
+        var fraction = 360.0f / chakramCount;
+        offset.Clear();
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            transform.GetChild(i).gameObject.SetActive(i < chakramCount);
+            offset.Add(Vector2.up.Rotate(fraction * i));
+        }
+       
     }
+    public void OnChakramCountChanged(int old, int count)
+    {
+        offset.Clear();
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            transform.GetChild(i).gameObject.SetActive(i < _chakramCount);
+        }
+    }
+
 
     [Server]
     private void SetupCollision()
@@ -74,17 +80,12 @@ public class ChakramOrbital : NetworkBehaviour
     [Server]
     private void DetachChakrams(Vector3 target)
     {
-        _returnCount = 0;
-        _detachCount = 0;
-        var index = 0;
-        hoverPositions = new();
-        foreach (var chakram in _chakrams)
+
+        hoverPositions.Clear();
+        for (int i = 0; i < _chakramCount; i++)
         {
-            var direction = (chakram.position - target) * 2;
+            var direction = (chakramPositions[i] - target) * 2;
             hoverPositions.Add(target - direction * 2);
-            chakramPositions[index] = chakram.position;
-            _detachCount++;
-            index++;
         }
         state = ChakramState.DETACH;
     }
@@ -92,7 +93,7 @@ public class ChakramOrbital : NetworkBehaviour
     private void MoveToHoverPos()
     {
         var complete = true;
-        for (int i = 0; i < chakramPositions.Count; i++)
+        for (int i = 0; i < _chakramCount; i++)
         {
             chakramPositions[i] = Vector3.MoveTowards(chakramPositions[i], hoverPositions[i], Time.deltaTime * 50f);
             complete = (Vector3.Distance(chakramPositions[i], hoverPositions[i]) <= 0.1f) && complete;
@@ -107,13 +108,14 @@ public class ChakramOrbital : NetworkBehaviour
     private void ReturnToOwner()
     {
         var complete = true;
-        for (int i = 0; i < chakramPositions.Count; i++)
+        for (int i = 0; i < _chakramCount; i++)
         {
             _returnDelays[i] -= Time.deltaTime;
-            if (_returnDelays[i] >= 0) return;
+            Debug.Log($"Delay{i} {_returnDelays[i]}");
+            if (_returnDelays[i] > 0) return;
 
             chakramPositions[i] = Vector3.MoveTowards(chakramPositions[i], _identity.transform.position + offset[i], Time.deltaTime * 50f);
-            complete = (Vector3.Distance(chakramPositions[i], _identity.transform.position + offset[i]) <= 0.1f) && complete;
+            complete = (Vector3.Distance(chakramPositions[i], _identity.transform.position + offset[i]) <= 0.2f) && complete;
 
         }
         if (complete)
@@ -124,19 +126,18 @@ public class ChakramOrbital : NetworkBehaviour
 
     }
 
-
     float delay = 0;
     private void Update()
     {
+        Debug.Log(state);
         if (isServer)
         {
             switch (state)
             {
 
                 case ChakramState.ORBIT:
-                    for (int i = 0; i < transform.childCount; i++)
+                    for (int i = 0; i < _chakramCount; i++)
                     {
-                        // Debug.Log(_identity.transform.position);
                         chakramPositions[i] = _identity.transform.position + offset[i];
 
                     }
@@ -150,11 +151,11 @@ public class ChakramOrbital : NetworkBehaviour
                     if (delay >= 3.0f)
                     {
                         state = ChakramState.RETURN;
-                        _returnDelays = new();
+                        _returnDelays.Clear();
                         var counter = 0;
                         foreach (var item in chakramPositions)
                         {
-                            _returnDelays.Add(0.4f * counter);
+                            _returnDelays.Add(0.2f * counter);
                             counter++;
                         }
                     }
@@ -169,12 +170,12 @@ public class ChakramOrbital : NetworkBehaviour
 
         }
 
-      
+
         switch (state)
         {
 
             default:
-                for (int i = 0; i < transform.childCount; i++)
+                for (int i = 0; i < _chakramCount; i++)
                 {
                     transform.GetChild(i).transform.position = chakramPositions[i];
                 }
