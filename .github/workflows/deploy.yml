@@ -9,18 +9,15 @@ jobs:
       - name: Get SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{secrets.SSH_KEY_JAN}}" > ~/.ssh/id_key
+          echo "${{ secrets.SSH_KEY_JAN }}" > ~/.ssh/id_key
           chmod 600 ~/.ssh/id_key
+
       - name: Deploy using SSH
-        run: | 
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_key jan@[2a02:8070:888:8460:26ac:c7e5:4ce1:851]
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_key jan@[2a02:8070:888:8460:26ac:c7e5:4ce1:851] << 'EOF'
           cd ~/Documents/Game/Project2
           git pull
           fuser -k 7777/udp || true
           xvfb-run -a ./build.sh
-          ./Builds/LinuxServer/MyServer.x86_64 -batchmode -nographics
-
-
-
-
-
+          nohup ./Builds/LinuxServer/MyServer.x86_64 -batchmode -nographics >/tmp/server.log 2>&1 &
+          EOF
