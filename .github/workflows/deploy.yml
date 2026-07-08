@@ -14,8 +14,9 @@ jobs:
         run: ssh -i ~/.ssh/id_key jan@[2a02:8070:888:8460:26ac:c7e5:4ce1:851]
       - name: Kill Runnign Server Process
         run: fuser -k 7777/udp
-      - name: Go To directory Build Server
+      - name: Go To directory
         run: cd ~/Documents/Game/Project2/
+      - name: Build Server
         run: xvfb-run -a ./build.sh
       - name: Start Server
         run: ./Builds/LinuxServer/MyServer.x86_64 -batchmode -nographics
