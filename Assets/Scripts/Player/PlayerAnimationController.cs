@@ -20,8 +20,8 @@ public class PlayerAnimationController : MonoBehaviour
         _renderer = GetComponentInChildren<SpriteRenderer>();
         // Value References
         _input = GetComponent<PlayerInputController>();
-        _input.onFaceDirectionChanged +=
-        (dir) => { if (Mathf.Abs(dir.x) < flipThreshold) return; _renderer.flipX = dir.x < 0.0f; };
+        // _input.onFaceDirectionChanged +=
+        // (dir) => { if (Mathf.Abs(dir.x) < flipThreshold) return; _renderer.flipX = dir.x < 0.0f; };
         // _input.onMoveInputChanged +=
         // (dir, velocity) => { if (velocity > 0.1f) { SetAnimationState("Run"); } else { SetAnimationState("Idle"); } };
     }
@@ -37,36 +37,36 @@ public class PlayerAnimationController : MonoBehaviour
 
         }
     }
-    void Update()
-    {
-        if (!NetworkClient.active) return;
-        if (_input.velocity > 0.2f)
-        {
-            SetAnimationState("Run");
-        }
-        else
-        {
-            SetAnimationState("Idle");
-        }
-    }
+    // void Update()
+    // {
+    //     if (!NetworkClient.active) return;
+    //     if (_input.velocity > 0.2f)
+    //     {
+    //         SetAnimationState("Run");
+    //     }
+    //     else
+    //     {
+    //         SetAnimationState("Idle");
+    //     }
+    // }
 
-    public void SetAnimationState(string state)
-    {
-        // if (!_animations.ContainsKey(state)) Debug.LogWarning($"Tried to play Unknown Animation: {state} ");
-        if (_state != state)
-        {
-            _state = state;
-            if (_state == "Run")
-            {
-                _animator.speed = _input.velocity * runSpeedMultiplier;
-            }
-            else
-            {
-                _animator.speed = 1;
-            }
-            _animator.Play(state);
-        }
-    }
+    // public void SetAnimationState(string state)
+    // {
+    //     // if (!_animations.ContainsKey(state)) Debug.LogWarning($"Tried to play Unknown Animation: {state} ");
+    //     if (_state != state)
+    //     {
+    //         _state = state;
+    //         if (_state == "Run")
+    //         {
+    //             _animator.speed = _input.velocity * runSpeedMultiplier;
+    //         }
+    //         else
+    //         {
+    //             _animator.speed = 1;
+    //         }
+    //         _animator.Play(state);
+    //     }
+    // }
 
 
 }

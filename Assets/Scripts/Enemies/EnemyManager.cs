@@ -31,6 +31,7 @@ public class EnemyManager : NetworkBehaviour
 
     void Update()
     {
+        if (enemies.Count < 1) return;
         if (!isServer) return;
         _tick += Time.deltaTime;
         if (_tick >= _tickRate)

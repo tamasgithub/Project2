@@ -9,9 +9,9 @@ using UnityEngine;
 
 public class ChakramOrbital : NetworkBehaviour
 {
-
+    [SyncVar(hook = nameof(OnOwnerAssigned))] private NetworkIdentity _identity;
     [SyncVar] private ChakramState state = ChakramState.ORBIT;
-    [SyncVar] private uint ownerNetId;
+    private uint ownerNetId;
     private SyncList<Vector3> chakramPositions = new();
 
     private List<Vector3> offset = new List<Vector3>()
@@ -24,14 +24,18 @@ public class ChakramOrbital : NetworkBehaviour
     private SyncList<Vector3> hoverPositions = new SyncList<Vector3>();
     private List<float> _returnDelays = new();
     private Entity _owner;
-    private SyncList<Transform> _chakrams = new();
+    private List<Transform> _chakrams = new();
     private int _detachCount = 0;
     private int _returnCount = 0;
 
     void Start()
     {
+        if (isClient)
+        {
+            Debug.Log("Client knows Identity: " + _identity != null);
+        }
         if (!isServer) return;
-        if (NetworkClient.spawned.TryGetValue(ownerNetId, out var identity))
+        if (NetworkServer.spawned.TryGetValue(ownerNetId, out var identity))
             _owner = identity.GetComponent<Entity>();
 
         foreach (Transform child in transform)
@@ -39,28 +43,20 @@ public class ChakramOrbital : NetworkBehaviour
             _chakrams.Add(child);
             chakramPositions.Add(new Vector3());
         }
+
         SetupCollision();
     }
 
-    public override void OnStartClient()
+    public void OnOwnerAssigned(NetworkIdentity old, NetworkIdentity identity)
     {
-        if (NetworkClient.spawned.TryGetValue(ownerNetId, out var identity))
-            _owner = identity.GetComponent<Entity>();
+        
     }
 
-    // public override void OnStartServer()
-    // {
-    //     base.OnStartServer();
-    //     if (NetworkClient.spawned.TryGetValue(ownerNetId, out var identity))
-    //         _owner = identity.GetComponent<Entity>();
-
-    //     foreach (Transform child in transform)
-    //     {
-    //         _chakrams.Add(child);
-    //         chakramPositions.Add(new Vector3());
-    //     }
-    //     SetupCollision();
-    // }
+    public void Init(NetworkIdentity identity)
+    {
+        _identity = identity;
+    }
+    
     [Server]
     private void SetupCollision()
     {
@@ -125,8 +121,8 @@ public class ChakramOrbital : NetworkBehaviour
             _returnDelays[i] -= Time.deltaTime;
             if (_returnDelays[i] >= 0) return;
 
-            chakramPositions[i] = Vector3.MoveTowards(chakramPositions[i], _owner.transform.position + offset[i], Time.deltaTime * 50f);
-            complete = (Vector3.Distance(chakramPositions[i], _owner.transform.position + offset[i]) <= 0.1f) && complete;
+                  chakramPositions[i] = Vector3.MoveTowards(chakramPositions[i], _identity.transform.position + offset[i], Time.deltaTime * 50f);
+            complete = (Vector3.Distance(chakramPositions[i], _identity.transform.position + offset[i]) <= 0.1f) && complete;
 
         }
         if (complete)
@@ -137,15 +133,11 @@ public class ChakramOrbital : NetworkBehaviour
 
     }
 
-    public void Init(int level, uint ownerId)
-    {
-        ownerNetId = ownerId;
-    }
 
     float delay = 0;
     private void Update()
-    {
-        if (_owner == null) Destroy(gameObject);
+    {   
+        // if (_owner == null) Destroy(gameObject);
         if (isServer)
         {
             switch (state)
@@ -183,10 +175,11 @@ public class ChakramOrbital : NetworkBehaviour
         switch (state)
         {
             case ChakramState.ORBIT:
-                for (int i = 0; i < _chakrams.Count; i++)
+                for (int i = 0; i < transform.childCount; i++)
                 {
-
-                    transform.GetChild(i).transform.position = _owner.transform.position + offset[i];
+                    // Debug.Log(_identity.transform.position);
+                    transform.GetChild(i).transform.position = _identity.transform.position + offset[i];
+                    
                 }
                 break;
             default:
