@@ -11,10 +11,12 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY_JAN }}" > ~/.ssh/id_key
           chmod 600 ~/.ssh/id_key
-
+      - name: Test IPv6 connectivity
+        run: |
+          ping6 -c 3 2a02:8070:888:8460:26ac:c7e5:4ce1:851 || true
       - name: Deploy using SSH
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_key jan@[2a02:8070:888:8460:26ac:c7e5:4ce1:851] << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_key jan@2a02:8070:888:8460:26ac:c7e5:4ce1:851 << 'EOF'
           cd ~/Documents/Game/Project2
           git pull
           fuser -k 7777/udp || true
