@@ -123,6 +123,7 @@ namespace Mirror.Examples.Basic
         /// </summary>
         public override void OnStartClient()
         {
+
             // Instantiate the player UI as child of the Players Panel
             playerUIObject = Instantiate(playerUIPrefab, CanvasUI.GetPlayersPanel());
             playerUI = playerUIObject.GetComponent<PlayerUI>();

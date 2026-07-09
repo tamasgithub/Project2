@@ -5,6 +5,7 @@ using Mirror;
 
 public class EnemyManager : NetworkBehaviour
 {
+    public int lobbyId = -1;
     public static EnemyManager Instance;
     private List<GameObject> players = new();
     private HashSet<ServerEnemy> enemies = new();
@@ -31,7 +32,7 @@ public class EnemyManager : NetworkBehaviour
 
     void Update()
     {
-        if (!isServer) return;
+        if (!isServer || lobbyId < 0) return;
         _tick += Time.deltaTime;
         if (_tick >= _tickRate)
         {
@@ -50,6 +51,7 @@ public class EnemyManager : NetworkBehaviour
 
     }
 
+    [Server]
     private bool UpdateEnemies(float deltaTime)
     {
         Transform t = FindNearestPlayerPos();
@@ -99,14 +101,14 @@ public class EnemyManager : NetworkBehaviour
         return true;
     }
 
+    [Server]
     private void SendMessages()
     {
         var enemyStatusMsg = new EnemyStatusMessage()
         {
             enemies = enemyDtos
         };
-
-        NetworkServer.SendToAll(enemyStatusMsg);
+        SurvivorNetworkManager.SendToClientsInGame(enemyStatusMsg, lobbyId);
         enemyDtos.Clear();
 
 
@@ -114,11 +116,11 @@ public class EnemyManager : NetworkBehaviour
         {
             damageEventDtos = damageDtos
         };
-        NetworkServer.SendToAll(damageEventsMsg);
-
+        SurvivorNetworkManager.SendToClientsInGame(damageEventsMsg, lobbyId);
         damageDtos.Clear();
     }
 
+    [Server]
     private Transform FindNearestPlayerPos()
     {
         Transform nearestTarget = null;
@@ -133,11 +135,14 @@ public class EnemyManager : NetworkBehaviour
         }
         return nearestTarget;
     }
+
+    [Server]
     public void RegisterEnemy(ServerEnemy enemy)
     {
         enemies.Add(enemy);
         SpatialHashGrid.ServerEnemies.Insert(enemy);
     }
+    [Server]
     public void UnregisterEnemy(ServerEnemy enemy)
     {
         enemies.Remove(enemy);

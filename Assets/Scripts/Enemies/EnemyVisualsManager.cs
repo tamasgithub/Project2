@@ -16,16 +16,20 @@ public class EnemyVisualsManager : NetworkBehaviour
     private Material mat;
     public GameObject enemyPrefab;
     private GameObject enemyParent;
+
     public override void OnStartClient()
     {
         base.OnStartClient();
         NetworkClient.RegisterHandler<EnemyStatusMessage>(UpdateData);
         NetworkClient.RegisterHandler<DamageEventsMessage>(HandleDamageEvents);
+        Debug.Log("OnStartClient EnemyVisualsManager");
         enemyParent = new GameObject("EnemyVisuals");
     }
 
     private void UpdateData(EnemyStatusMessage snapshot)
     {
+        if (!IsPlayerInGameScene()) return;
+
         if (snapshot.IsUnityNull()) return;
 
         currentEnemies.Clear();
@@ -59,6 +63,7 @@ public class EnemyVisualsManager : NetworkBehaviour
 
     private void HandleDamageEvents(DamageEventsMessage msg)
     {
+        if (!IsPlayerInGameScene()) return;
         damageEvents.Clear();
         damageEvents.AddRange(msg.damageEventDtos);
         if (damageEvents.Count < 1) return;
@@ -82,7 +87,7 @@ public class EnemyVisualsManager : NetworkBehaviour
     }
 
     //Could Probably be optimized
-    public void InstantiateVisual(EnemyDto enemy)
+    private void InstantiateVisual(EnemyDto enemy)
     {
 
         if (!visuals.ContainsKey(enemy.Id))
@@ -117,9 +122,14 @@ public class EnemyVisualsManager : NetworkBehaviour
                 Debug.LogError("Missing Enemy Visual");
             }
         }
+    }
 
+    private bool IsPlayerInGameScene()
+    {
+        if (NetworkClient.connection?.identity == null)
+            return false;
 
-
+        return NetworkClient.connection.identity.gameObject.scene.name == "GameScene";
     }
 
 }
