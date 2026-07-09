@@ -58,8 +58,8 @@ public class UI_UpgradeChoice : MonoBehaviour, IPointerClickHandler, IPointerEnt
         {
             levels.GetChild(i).GetComponent<Image>().color = active;
         }
-        // var controller = FindObjectsByType(typeof(PlayerAbilityController)).FirstOrDefault() as PlayerAbilityController;
-        // if(controller != null) sprite.sprite = controller.abilityData.FirstOrDefault(x => x.name == ability.AbilityName).data.sprite;     
+        var controller = FindObjectsByType(typeof(PlayerAbilityController)).FirstOrDefault() as PlayerAbilityController;
+        if(controller != null) sprite.sprite = controller.abilityData.FirstOrDefault(x => x.name == ability.AbilityName).data.sprite;     
         
     }
 }

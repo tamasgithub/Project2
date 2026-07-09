@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ChakramData
   m_EditorClassIdentifier: Assembly-CSharp::ChakramAbilityData
   abilityName: 
-  sprite: {fileID: 0}
+  sprite: {fileID: 3925668153593726738, guid: 2a36c1d762f2a8644bf3cd5450932615, type: 3}
   orbital: {fileID: 5385442585998681296, guid: eb7cf92bfe7ba4b458b46b339343a988, type: 3}
   orbitalCount:
     steps:

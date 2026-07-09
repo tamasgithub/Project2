@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BombAbility
   m_EditorClassIdentifier: Assembly-CSharp::BombAbilityData
   abilityName: 
-  sprite: {fileID: 0}
+  sprite: {fileID: -4376231836577913517, guid: cd3f6daaf0258a34a83e25b0fea5242b, type: 3}
   abilityCooldown: 3
   bombPrefab: {fileID: 5708401123752541376, guid: e8ae676eb68e3c1428de2ba04d3924b3, type: 3}
   maxLifeTime: 2
