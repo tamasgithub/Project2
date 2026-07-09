@@ -16,6 +16,7 @@ public class PlayerAbilityController : NetworkBehaviour
     }
     private readonly List<PeriodicAbility> periodicAbilities = new();
     private readonly List<PermanentAbility> permanentAbilities = new();
+    public List<AbilityRegisterItem> abilityData = new ();
     public DaggerAbilityData daggerAbilityData;
     public BombAbilityData bombAbilityData;
     public KnifeAbilityData knifeAbilityData;
@@ -91,4 +92,11 @@ public class PlayerAbilityController : NetworkBehaviour
         }
     }
 
+}
+
+[System.Serializable]
+public struct AbilityRegisterItem
+{
+    public AbilityName name;
+    public AbilityData data;
 }

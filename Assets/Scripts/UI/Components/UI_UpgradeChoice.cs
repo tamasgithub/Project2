@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using DG.Tweening;
 using Mirror.BouncyCastle.Crypto.Modes;
 using TMPro;
@@ -12,6 +13,7 @@ public class UI_UpgradeChoice : MonoBehaviour, IPointerClickHandler, IPointerEnt
     private UpgradeChoice _choice;
     public Transform levels;
     public TextMeshProUGUI text;
+    public Image sprite;
     public Color active;
     private Tween _tween;
     public void Load(UpgradeChoice choice, Action onClick, Ability ability = null)
@@ -21,16 +23,17 @@ public class UI_UpgradeChoice : MonoBehaviour, IPointerClickHandler, IPointerEnt
         switch (choice.Type)
         {
             case ChoiceType.ABILITY:
-                // LoadAbility();`
+
                 if (ability != null) LoadAbility(ability);
                 text.text = _choice.AbilityName.ToString();
+
                 break;
             case ChoiceType.STAT:
                 var op = _choice.IsFlat ? '+' : '*';
-                text.text = $"{ _choice.StatName}: {op} {_choice.Value}";
+                text.text = $"{_choice.StatName}: {op} {_choice.Value}";
                 break;
         }
-        
+
     }
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -55,5 +58,8 @@ public class UI_UpgradeChoice : MonoBehaviour, IPointerClickHandler, IPointerEnt
         {
             levels.GetChild(i).GetComponent<Image>().color = active;
         }
+        // var controller = FindObjectsByType(typeof(PlayerAbilityController)).FirstOrDefault() as PlayerAbilityController;
+        // if(controller != null) sprite.sprite = controller.abilityData.FirstOrDefault(x => x.name == ability.AbilityName).data.sprite;     
+        
     }
 }
