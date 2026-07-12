@@ -43,4 +43,16 @@ public static class HierarchyUtility
 
         return current;
     }
+
+    public static T FindInScene<T>(Scene scene) where T : Component
+    {
+        foreach (GameObject root in scene.GetRootGameObjects())
+        {
+            T component = root.GetComponentInChildren<T>(true);
+            if (component != null)
+                return component;
+        }
+
+        return null;
+    }
 }

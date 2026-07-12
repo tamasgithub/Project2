@@ -46,18 +46,17 @@ public partial class Player : Entity
             OnHpRecovered += UpdateHpUI;
         }
 
-        Lobby lobby = FindAnyObjectByType<Lobby>();
-        if (lobby != null && lobby.LobbyId == lobbyId)
+        if (ShouldJoinLobby())
         {
             if (isInGame)
             {
                 MoveToClientGameScene();
-            } else
+            }
+            else
             {
                 MoveToClientLobbyScene();
             }
         }
-
 
         /*Camera.main.gameObject.GetComponent<CameraController>().POI = transform;
         if (authority)

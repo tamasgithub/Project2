@@ -216,6 +216,8 @@ public class SurvivorNetworkManager : NetworkManager
         games[lobbyId] = scene;
         clientsInGames[lobbyId] = new List<NetworkConnectionToClient>();
 
+        HierarchyUtility.FindInScene<EnemyManager>(scene).lobbyId = lobbyId;
+
         foreach (NetworkConnectionToClient conn in clientsInLobbies[lobbyId])
         {
             conn.Send(new GameSceneMessage());
@@ -243,20 +245,20 @@ public class SurvivorNetworkManager : NetworkManager
         }
     }
 
-    public static void SendToClientsInLobby<T>(T msg, int lobbyId) where T : struct, NetworkMessage
+    public void SendToClientsInLobby<T>(T msg, int lobbyId) where T : struct, NetworkMessage
     {
-        /*foreach (NetworkConnectionToClient conn in clientsInLobbies[lobbyId])
+        foreach (NetworkConnectionToClient conn in clientsInLobbies[lobbyId])
         {
             conn.Send(msg);
-        }*/
+        }
     }
 
-    public static void SendToClientsInGame<T>(T msg, int lobbyId) where T : struct, NetworkMessage
+    public void SendToClientsInGame<T>(T msg, int lobbyId) where T : struct, NetworkMessage
     {
-        /*foreach (NetworkConnectionToClient conn in clientsInGames[lobbyId])
+        foreach (NetworkConnectionToClient conn in clientsInGames[lobbyId])
         {
             conn.Send(msg);
-        }*/
+        }
     }
 
     #endregion

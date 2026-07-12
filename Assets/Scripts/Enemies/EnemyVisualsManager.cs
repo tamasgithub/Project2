@@ -6,8 +6,9 @@ using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 
-public class EnemyVisualsManager : NetworkBehaviour
+public class EnemyVisualsManager : MonoBehaviour
 {
     Dictionary<string, EnemyDto> enemies = new();
     Dictionary<string, EnemyDto> currentEnemies = new();
@@ -15,15 +16,19 @@ public class EnemyVisualsManager : NetworkBehaviour
     List<DamageEventDto> damageEvents = new();
     private Material mat;
     public GameObject enemyPrefab;
-    private GameObject enemyParent;
+    private Transform enemyParent;
 
-    public override void OnStartClient()
+    public void Start()
     {
-        base.OnStartClient();
+        if (!NetworkClient.active)
+        {
+            Destroy(this);
+            return;
+        }
         NetworkClient.RegisterHandler<EnemyStatusMessage>(UpdateData);
         NetworkClient.RegisterHandler<DamageEventsMessage>(HandleDamageEvents);
         Debug.Log("OnStartClient EnemyVisualsManager");
-        enemyParent = new GameObject("EnemyVisuals");
+        enemyParent = HierarchyUtility.GetOrCreatePath("EnemyVisuals", SceneManager.GetSceneByName("GameScene"));
     }
 
     private void UpdateData(EnemyStatusMessage snapshot)
@@ -92,7 +97,7 @@ public class EnemyVisualsManager : NetworkBehaviour
 
         if (!visuals.ContainsKey(enemy.Id))
         {
-            var visual = Instantiate(enemyPrefab, (Vector3)enemy.Position, quaternion.identity, enemyParent.transform).GetComponent<EnemyVisual>();
+            var visual = Instantiate(enemyPrefab, (Vector3)enemy.Position, quaternion.identity, enemyParent).GetComponent<EnemyVisual>();
 
             if (mat == null)
             {
@@ -108,7 +113,7 @@ public class EnemyVisualsManager : NetworkBehaviour
     }
     private void LateUpdate()
     {
-        if (!isClient) return;
+        if (!NetworkClient.active) return;
         if (enemies.Count < 1) return;
         foreach (var enemy in enemies.Values)
         {

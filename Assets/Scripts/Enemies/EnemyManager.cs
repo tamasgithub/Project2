@@ -16,6 +16,8 @@ public class EnemyManager : NetworkBehaviour
     private float _tickRate;
     private float _tick;
 
+    private SurvivorNetworkManager networkManager;
+
     void Awake()
     {
         Instance = this;
@@ -27,7 +29,7 @@ public class EnemyManager : NetworkBehaviour
         players = GameObject.FindGameObjectsWithTag("Player").ToList();
         SurvivorNetworkManager.PlayerJoined += (conn) => players.Add(conn.identity.gameObject);
         SurvivorNetworkManager.PlayerLeft += (conn) => players.Remove(conn.identity.gameObject);
-
+        networkManager = FindAnyObjectByType<SurvivorNetworkManager>();
     }
 
     void Update()
@@ -108,7 +110,7 @@ public class EnemyManager : NetworkBehaviour
         {
             enemies = enemyDtos
         };
-        SurvivorNetworkManager.SendToClientsInGame(enemyStatusMsg, lobbyId);
+        networkManager.SendToClientsInGame(enemyStatusMsg, lobbyId);
         enemyDtos.Clear();
 
 
@@ -116,7 +118,7 @@ public class EnemyManager : NetworkBehaviour
         {
             damageEventDtos = damageDtos
         };
-        SurvivorNetworkManager.SendToClientsInGame(damageEventsMsg, lobbyId);
+        networkManager.SendToClientsInGame(damageEventsMsg, lobbyId);
         damageDtos.Clear();
     }
 

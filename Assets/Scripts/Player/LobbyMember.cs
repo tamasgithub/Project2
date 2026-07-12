@@ -22,24 +22,25 @@ public partial class Player : Entity
     public static event Action<Player> OnPlayerMovedToLobby;
     public static event Action<Player> OnPlayerMovedToGame;
 
-
     public void OnLobbyIdChanged(int oldLobbyId, int lobbyId)
     {
-        if (oldLobbyId == lobbyId) return;
-
         this.lobbyId = lobbyId;
         Debug.Log($"Player {userName}: lobbyId updated {this.lobbyId} -> {lobbyId}");
 
-        Lobby lobby = FindAnyObjectByType<Lobby>();
-
-        if (lobbyId == lobby.LobbyId)
+        if (ShouldJoinLobby())
         {
             MoveToClientLobbyScene();
         }
         else
         {
-            Debug.Log("lobbyId does not match lobby.lobbyId " + lobby.LobbyId);
+            Debug.Log("lobbyId does not match lobby.lobbyId");
         }
+    }
+
+    private bool ShouldJoinLobby()
+    {
+        Lobby lobby = FindAnyObjectByType<Lobby>();
+        return lobby != null && lobbyId == lobby.LobbyId;
     }
 
     [Client]
