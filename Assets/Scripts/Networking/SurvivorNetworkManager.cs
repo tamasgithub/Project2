@@ -267,14 +267,6 @@ public class SurvivorNetworkManager : NetworkManager
     {
         NetworkClient.ReplaceHandler<LobbySceneMessage>(OnLobbySceneMessage, false);
         NetworkClient.ReplaceHandler<GameSceneMessage>(OnGameSceneMessage, false);
-        /*Debug.LogError(NetworkMessageId<LobbyRequestMessage>.Id);
-        Debug.LogError(NetworkMessageId<LobbySceneMessage>.Id);
-        Debug.LogError(NetworkMessageId<LobbySceneReadyMessage>.Id);
-        Debug.LogError(NetworkMessageId<GameStartRequestMessage>.Id);
-        Debug.LogError(NetworkMessageId<GameSceneMessage>.Id);
-        Debug.LogError(NetworkMessageId<GameSceneReadyMessage>.Id);
-        Debug.LogError(NetworkMessageId<DamageEventsMessage>.Id);
-        Debug.LogError(NetworkMessageId<EnemyStatusMessage>.Id);*/
     }
 
     public void RequestLobbyCreation(string userName)

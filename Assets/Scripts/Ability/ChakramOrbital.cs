@@ -5,6 +5,7 @@ using DG.Tweening;
 using Mirror;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 public class ChakramOrbital : NetworkBehaviour
@@ -43,6 +44,9 @@ public class ChakramOrbital : NetworkBehaviour
     {
         if (NetworkClient.spawned.TryGetValue(ownerNetId, out var identity))
             _owner = identity.GetComponent<Entity>();
+
+
+        SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("GameScene"));
     }
 
     public override void OnStartServer()
@@ -70,7 +74,7 @@ public class ChakramOrbital : NetworkBehaviour
         if (state == ChakramState.ORBIT)
         {
 
-            DetachChakrams((Vector3) enemy.Position);
+            DetachChakrams((Vector3)enemy.Position);
             return;
         }
     }
@@ -91,7 +95,7 @@ public class ChakramOrbital : NetworkBehaviour
         }
         state = ChakramState.DETACH;
     }
-    
+
     private void MoveToHoverPos()
     {
         var complete = true;
@@ -165,7 +169,7 @@ public class ChakramOrbital : NetworkBehaviour
                     break;
 
             }
-            
+
 
         }
 
@@ -175,8 +179,8 @@ public class ChakramOrbital : NetworkBehaviour
             case ChakramState.ORBIT:
                 for (int i = 0; i < _chakrams.Count; i++)
                 {
-            
-                    transform.GetChild(i).transform.position = _owner.transform.position + offset[i];    
+
+                    transform.GetChild(i).transform.position = _owner.transform.position + offset[i];
                 }
                 break;
             default:

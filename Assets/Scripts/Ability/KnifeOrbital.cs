@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 public class KnifeOrbital : NetworkBehaviour
@@ -31,6 +32,8 @@ public class KnifeOrbital : NetworkBehaviour
             Refresh();
         }
 
+
+        SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("GameScene"));
     }
 
 

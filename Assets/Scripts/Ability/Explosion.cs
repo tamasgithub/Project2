@@ -1,5 +1,6 @@
 using Mirror;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Explosion : NetworkBehaviour
 {
@@ -10,6 +11,11 @@ public class Explosion : NetworkBehaviour
         if (isServer)
         {
             Invoke(nameof(SelfDestroy), explosionVisualDuration);
+        }
+
+        if (isClient)
+        {
+            SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("GameScene"));
         }
     }
 

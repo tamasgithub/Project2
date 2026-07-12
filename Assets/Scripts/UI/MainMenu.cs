@@ -2,6 +2,7 @@ using Edgegap;
 using Mirror;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
@@ -14,12 +15,29 @@ public class MainMenu : MonoBehaviour
     private SurvivorNetworkManager _networkManager;
     private SurvivorNetworkManager NetworkManager
     {
-        get { if (_networkManager == null)
+        get
+        {
+            if (_networkManager == null)
             {
                 _networkManager = FindAnyObjectByType<SurvivorNetworkManager>();
             }
             return _networkManager;
         }
+    }
+
+    private void Awake()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        gameObject.SetActive(scene.name == "MainMenuScene");
     }
 
     public void OpenDialog(GameObject dialogGO)
@@ -41,7 +59,7 @@ public class MainMenu : MonoBehaviour
     {
         if (int.TryParse(lobbyIdInput.text.Replace("\u200B", ""), System.Globalization.NumberStyles.HexNumber, null, out int value))
         {
-           NetworkManager.RequestLobbyJoining(nameInput.text.Replace("\u200B", ""), value);
+            NetworkManager.RequestLobbyJoining(nameInput.text.Replace("\u200B", ""), value);
         }
         else
         {

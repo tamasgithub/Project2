@@ -1,6 +1,7 @@
 using System;
 using Mirror;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public partial class Player : Entity
@@ -77,10 +78,11 @@ public partial class Player : Entity
         }
 
 
-        Lobby lobby = FindAnyObjectByType<Lobby>();
+        Lobby lobby = FindAnyObjectByType<Lobby>(FindObjectsInactive.Include);
         if (lobbyId == lobby.LobbyId)
         {
             MoveToClientGameScene();
+            GetComponent<PlayerInputController>().enabled = true;
         }
         else
         {

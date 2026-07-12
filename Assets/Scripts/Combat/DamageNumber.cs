@@ -2,15 +2,20 @@ using System;
 using Mirror;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DamageNumber : PoolableObject
 {
     Animation Animation => GetComponentInChildren<Animation>();
     TextMeshPro TextMeshPro => GetComponentInChildren<TextMeshPro>();
     Renderer Renderer => GetComponentInChildren<Renderer>();
-    
+
     public override void OnStartClient()
     {
+        Scene scene = SceneManager.GetSceneByName("GameScene");
+        SceneManager.MoveGameObjectToScene(gameObject, scene);
+        Transform parent = HierarchyUtility.GetOrCreatePath("ObjectPool/Combat/DamageNumbers", scene    );
+        transform.SetParent(parent, false);
         ClientOnReturn();
     }
 

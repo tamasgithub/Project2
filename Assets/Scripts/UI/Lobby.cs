@@ -5,6 +5,7 @@ using Mirror;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Lobby : MonoBehaviour
@@ -38,12 +39,13 @@ public class Lobby : MonoBehaviour
         Player.OnPlayerMovedToLobby += HandlePlayerJoinedLobby;
         Player.OnPlayerDisconnected += CleanupLobby;
         Player.OnPlayerDataChanged += OnPlayerDataChanged;
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-
+        gameObject.SetActive(scene.name == "LobbyScene");
     }
 
     private void OnDestroy()
@@ -51,6 +53,8 @@ public class Lobby : MonoBehaviour
         Player.OnPlayerMovedToLobby -= HandlePlayerJoinedLobby;
         Player.OnPlayerDisconnected -= CleanupLobby;
         Player.OnPlayerDataChanged -= OnPlayerDataChanged;
+
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void HandlePlayerJoinedLobby(Player newPlayer)
@@ -63,7 +67,6 @@ public class Lobby : MonoBehaviour
                 return;
             }
         }
-        Debug.LogError("Received player " + newPlayer.userName + " for the first time");
         if (playersInLobby.Count >= networkManager.maxPlayersPerLobby)
         {
             Debug.LogError("Server should not move a player into an already full lobby!");
@@ -123,7 +126,7 @@ public class Lobby : MonoBehaviour
     [Client]
     private void UpdatePlayerUIs()
     {
-        Debug.Log("Update player UIs for " + playersInLobby.Count + " players");
+        //Debug.Log("Update player UIs for " + playersInLobby.Count + " players");
         for (int i = 0; i < networkManager.maxPlayersPerLobby; i++)
         {
             Transform playerUI = playersContainer.GetChild(i).GetChild(0);

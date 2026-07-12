@@ -5,9 +5,10 @@ using Mirror;
 using TMPro;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class Enemy : Entity,  ISpatialHashGridData
+public class Enemy : Entity, ISpatialHashGridData
 {
     public List<LootTableEntry> lootTable;
     public List<LootPrefabs> lootPrefabs;
@@ -46,11 +47,15 @@ public class Enemy : Entity,  ISpatialHashGridData
         SurvivorNetworkManager.PlayerJoined += (conn) => players.Add(conn.identity.gameObject);
         SurvivorNetworkManager.PlayerLeft += (conn) => players.Remove(conn.identity.gameObject);
         OnDeath += OnKilled;
-        
+
     }
 
     public override void OnStartClient()
     {
+        Scene scene = SceneManager.GetSceneByName("GameScene");
+        SceneManager.MoveGameObjectToScene(gameObject, scene);
+        Transform parent = HierarchyUtility.GetOrCreatePath("Enemies", scene);
+        transform.SetParent(parent, false);
         OnDamageTaken += UpdateHpUI;
     }
 
@@ -76,7 +81,7 @@ public class Enemy : Entity,  ISpatialHashGridData
         transform.position = transform.position + (targetPos.position - transform.position).normalized * MovementSpeed * Time.deltaTime;
         SpatialHashGrid.Enemies.Update(this);
     }
-    
+
 
     private Transform FindNearestPlayerPos()
     {
@@ -142,7 +147,7 @@ public class Enemy : Entity,  ISpatialHashGridData
         canvas.gameObject.SetActive(true);
 
         hpBar.fillAmount = Mathf.Clamp01((float)Hp / MaxHp);
-        
+
         // DOTween.Kill(hitflash);
         // var renderer = GetComponent<SpriteRenderer>();
         // renderer.color = Color.white;
