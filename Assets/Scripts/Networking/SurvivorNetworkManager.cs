@@ -154,6 +154,7 @@ public class SurvivorNetworkManager : NetworkManager
             Debug.Log($"Server: Setting {player.gameObject.name}'s lobby id to {lobbyId}");
             clientsInLobbies[lobbyId].Add(conn);
             player.lobbyId = lobbyId;
+            conn.identity.AssignClientAuthority(conn);
         }
         else
         {

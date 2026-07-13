@@ -54,7 +54,7 @@ public class ChakramOrbital : NetworkBehaviour
         SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("GameScene"));
     }
 
-    }
+    
     public void OnChakramCountChanged(int old, int count)
     {
         offset.Clear();

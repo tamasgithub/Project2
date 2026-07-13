@@ -32,15 +32,7 @@ public class KnifeOrbital : NetworkBehaviour
         // _entity = _owner.GetComponent<Entity>();
         // transform.SetParent(_owner.transform);
          
-        // Refresh();
-        if (NetworkClient.spawned.TryGetValue(ownerNetId, out var identity))
-        {
-            _owner = identity.GetComponent<Entity>();
-            transform.SetParent(_owner.transform);
-            Refresh();
-        }
-
-
+        // Refresh();       
         SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("GameScene"));
     }
 
