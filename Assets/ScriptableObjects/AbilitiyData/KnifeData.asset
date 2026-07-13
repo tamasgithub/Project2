@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: KnifeData
   m_EditorClassIdentifier: Assembly-CSharp::KnifeAbilityData
   abilityName: 
-  sprite: {fileID: 0}
+  sprite: {fileID: 1246711850759149545, guid: 3413c8649b3803e45836cd87f6ee8448, type: 3}
   orbitalPrefab: {fileID: 4958329893351844561, guid: 4226ad131ec1d24479ed0fca92e56c95, type: 3}
+  bleedTickDuration: 2
+  rotationSpeed: 0

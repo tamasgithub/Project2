@@ -29,7 +29,7 @@ public class EnemySpawner : NetworkBehaviour
 
     private IEnumerator PeriodicSpawning()
     {
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(4);
         Debug.Log("Periodic Spawning started");
         int enemyIndex = 0;
         while (true)

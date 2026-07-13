@@ -755,6 +755,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UI_UpgradeChoice
   levels: {fileID: 643506029970799052}
   text: {fileID: 7859380615003667092}
+  sprite: {fileID: 3089029119751500326}
   active: {r: 1, g: 0.4738788, b: 0, a: 1}
 --- !u!1 &3777964738116740977
 GameObject:

@@ -16,16 +16,20 @@ public class PlayerAbilityController : NetworkBehaviour
     }
     private readonly List<PeriodicAbility> periodicAbilities = new();
     private readonly List<PermanentAbility> permanentAbilities = new();
+    public List<AbilityRegisterItem> abilityData = new ();
     public DaggerAbilityData daggerAbilityData;
     public BombAbilityData bombAbilityData;
     public KnifeAbilityData knifeAbilityData;
     public ChakramAbilityData chakramAbilityData;
 
 
-    public void Start()
+    public override void OnStartServer()
     {
-        if (!isServer) return;
+        base.OnStartServer();
+        Debug.Log("Start On Server");
+        // if (!isServer) return;
         Entity entity = GetComponent<Entity>();
+        Debug.Log("playercontroller:" + entity.netId);
         // RegisterAbility(new DaggerAbility(daggerAbilityData, GetComponent<NetworkIdentity>(), entity));
         //RegisterAbility(new ChakramAbility(chakramAbilityData, GetComponent<NetworkIdentity>(), entity));
         // RegisterAbility(new BombAbility(bombAbilityData, GetComponent<NetworkIdentity>(), entity));
@@ -88,4 +92,11 @@ public class PlayerAbilityController : NetworkBehaviour
         }
     }
 
+}
+
+[System.Serializable]
+public struct AbilityRegisterItem
+{
+    public AbilityName name;
+    public AbilityData data;
 }

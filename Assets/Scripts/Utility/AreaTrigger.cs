@@ -6,10 +6,15 @@ using UnityEngine;
 public class AreaTrigger : NetworkBehaviour
 {
     public float radius = 1.0f;
+    private float _currentRadius;
     private HashSet<ServerEntity> _inside = new();
     public event Action<ServerEntity> OnTriggerEnter;
     public event Action<ServerEntity> OnTriggerExit;
 
+    void Start()
+    {
+        _currentRadius = transform.localScale.magnitude * radius;
+    }
     [ServerCallback]
     void OnEnable()
     {
@@ -26,10 +31,10 @@ public class AreaTrigger : NetworkBehaviour
     private void CheckTrigger()
     {
         var newlyEntered = new HashSet<ServerEntity>();
-        var enemies = SpatialHashGrid.ServerEnemies.GetNearObjects((Vector2)transform.position, radius);
+        var enemies = SpatialHashGrid.ServerEnemies.GetNearObjects((Vector2)transform.position,_currentRadius);
         foreach (var enemy in enemies)
         {
-            if (Vector2.Distance(enemy.Position, (Vector2)transform.position) <= radius + 0.5f) //0.5f hardocded enemy hitbox
+            if (Vector2.Distance(enemy.Position, (Vector2)transform.position) <= _currentRadius + 0.5f) //0.5f hardocded enemy hitbox
             {
                 newlyEntered.Add(enemy);
                 if (!_inside.Contains(enemy))
@@ -56,7 +61,7 @@ public class AreaTrigger : NetworkBehaviour
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
-        UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.forward, radius);
+        UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.forward, radius * transform.localScale.magnitude);
     }
 #endif
 

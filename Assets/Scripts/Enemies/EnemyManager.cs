@@ -34,11 +34,12 @@ public class EnemyManager : NetworkBehaviour
 
     void Update()
     {
+        if (enemies.Count < 1) return;
         if (!isServer || lobbyId < 0) return;
         _tick += Time.deltaTime;
         if (_tick >= _tickRate)
         {
-            
+
             if (UpdateEnemies(_tick))
             {
                 SendMessages();
@@ -74,7 +75,13 @@ public class EnemyManager : NetworkBehaviour
                 dmgDto.Amount += damageEvent.amount;
                 dmgDto.Flags |= damageEvent.flag;
             }
-            if (dmgDto.Amount > 0) damageDtos.Add(dmgDto);
+            if (dmgDto.Amount > 0)
+            {
+                damageDtos.Add(dmgDto);
+
+                PoolableObject dmgNr = ObjectPool.Instance?.Get(PoolableObjectType.DMG_NR, enemy.Position, Quaternion.identity);
+                dmgNr.GetComponent<DamageNumber>().SetDamage(dmgDto.Amount, true);
+            }
 
             //Dont Calculate Position if enemy is dead
             if (enemy.IsDead)

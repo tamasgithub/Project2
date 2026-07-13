@@ -1,0 +1,22 @@
+name: Build Server (Jan)
+
+on: push
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stop server
+        run: fuser -k 7777/udp || true
+
+      - name: Build
+        run: xvfb-run -a ./build.sh
+
+      - name: Start server
+        run: |
+          nohup ./Builds/LinuxServer/MyServer.x86_64 \
+            -batchmode \
+            -nographics \
+            >/tmp/server.log 2>&1 &

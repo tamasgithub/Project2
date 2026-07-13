@@ -13,5 +13,41 @@ MonoBehaviour:
   m_Name: ChakramData
   m_EditorClassIdentifier: Assembly-CSharp::ChakramAbilityData
   abilityName: 
-  sprite: {fileID: 0}
+  sprite: {fileID: 3925668153593726738, guid: 2a36c1d762f2a8644bf3cd5450932615, type: 3}
   orbital: {fileID: 5385442585998681296, guid: eb7cf92bfe7ba4b458b46b339343a988, type: 3}
+  orbitalCount:
+    steps:
+    - Level: 1
+      Value: 2
+    - Level: 2
+      Value: 3
+    - Level: 3
+      Value: 5
+  hoverDuration:
+    steps:
+    - Level: 1
+      Value: 5
+    - Level: 2
+      Value: 2
+  detachDistance:
+    steps:
+    - Level: 1
+      Value: 1.5
+    - Level: 2
+      Value: 1.8
+    - Level: 3
+      Value: 2
+    - Level: 4
+      Value: 3
+  individualDelay:
+    steps:
+    - Level: 1
+      Value: 0.6
+    - Level: 2
+      Value: 0.5
+    - Level: 3
+      Value: 0.4
+    - Level: 4
+      Value: 0.3
+    - Level: 5
+      Value: 0.2

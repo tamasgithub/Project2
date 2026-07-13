@@ -17,7 +17,7 @@ public class DaggerAbility : PeriodicAbility
     [Server]
     public override void Cast()
     {
-        var facedirection = _owner.transform.GetComponent<PlayerInputController>().FaceDirection;
+        var facedirection = _owner.GetComponent<PlayerInputController>().FaceDirection();
         SpawnDagger(facedirection);
         var half = (int)(extraDaggers + 1) / 2;
         for (int i = -half; i <= half; i++)

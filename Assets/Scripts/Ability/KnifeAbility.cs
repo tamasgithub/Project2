@@ -22,13 +22,13 @@ public class KnifeAbility : PermanentAbility
     public override void LevelUp()
     {
         base.LevelUp();
-        orbital.Init(Level, _entity.netId, (KnifeAbilityData)data);
+        orbital.Init(Level, _owner, (KnifeAbilityData)data);
     }
     private void SpawnOrbital()
     {
         var gO = GameObject.Instantiate(kniveOrbitalPrefab, _owner.transform);
         orbital = gO.GetComponent<KnifeOrbital>();
-        orbital.Init(Level, _entity.netId, (KnifeAbilityData)data);
+        orbital.Init(Level, _owner, (KnifeAbilityData)data);
         // daggerProjectile.LoadStats(Level, data, direction, _entity);
         // dagger.transform.rotation = Quaternion.FromToRotation((Vector3)Vector2.up, (Vector3)direction);
         NetworkServer.Spawn(gO);  

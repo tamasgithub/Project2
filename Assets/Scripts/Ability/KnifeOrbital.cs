@@ -9,10 +9,13 @@ public class KnifeOrbital : NetworkBehaviour
 {
 
     private float rotationSpeed = 20.0f;
-    [SyncVar] private uint ownerNetId;
+    [SyncVar(hook = nameof(OnOwnerAssigned))] private NetworkIdentity _owner;
+
+
+
     [SyncVar] private float rotation;
-    [SyncVar] private int _level;
-    private Entity _owner;
+    [SyncVar] private int _level = 1;
+    private Entity _entity;
     public override void OnStartServer()
     {
         base.OnStartServer();
@@ -23,8 +26,13 @@ public class KnifeOrbital : NetworkBehaviour
         }
     }
 
-    public override void OnStartClient()
+    private void OnOwnerAssigned(NetworkIdentity old, NetworkIdentity newOwner)
     {
+        
+        // _entity = _owner.GetComponent<Entity>();
+        // transform.SetParent(_owner.transform);
+         
+        // Refresh();
         if (NetworkClient.spawned.TryGetValue(ownerNetId, out var identity))
         {
             _owner = identity.GetComponent<Entity>();
@@ -36,22 +44,27 @@ public class KnifeOrbital : NetworkBehaviour
         SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("GameScene"));
     }
 
-
-
-
-    public void Init(int level, uint ownerId, KnifeAbilityData data)
+    public void Init(int level, NetworkIdentity owner, KnifeAbilityData data)
     {
-        this.ownerNetId = ownerId;
-        _level = level;
+        _level = level > 0 ? level : 1;
+        _owner = owner;
         Refresh();
-
+        RpcSynchronizeClient(_level, owner);
     }
 
+    [ClientRpc]
+    private void RpcSynchronizeClient(int level, NetworkIdentity owner)
+    {
+        _level = level;
+        _owner = owner;
+        Refresh();
+    }
     private void Refresh()
     {
         var angle = 360f / _level;
         for (int i = 0; i < _level; i++)
         {
+            
             transform.GetChild(i).gameObject.SetActive(true);
             transform.GetChild(i).eulerAngles = Vector3.forward * angle * i;
         }

@@ -123,7 +123,7 @@ public class ObjectPool : NetworkBehaviour
 
     private void ExtendPool(PoolInfo info, int size)
     {
-        Debug.Log($"Extend pool of type {info.type}");
+        // Debug.Log($"Extend pool of type {info.type}");
         availableObjects.TryGetValue(info.type, out var queue);
         Transform parent = parents[info.type];
         for (int i = 0; i < size; i++)

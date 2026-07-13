@@ -4,4 +4,8 @@ using UnityEngine;
 public class ChakramAbilityData : AbilityData
 {
     public GameObject orbital;
+    public UpgradableStat<int> orbitalCount = new UpgradableStat<int>();
+    public UpgradableStat<float> hoverDuration = new UpgradableStat<float>();
+    public UpgradableStat<float> detachDistance = new UpgradableStat<float>();
+    public UpgradableStat<float> individualDelay = new UpgradableStat<float>();
 }
