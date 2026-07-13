@@ -1,12 +1,18 @@
+using System;
+using Mirror;
 using TMPro;
 using UnityEngine;
-using Mirror;
-using System;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-public class Player : Entity
+
+public partial class Player : Entity
 {
+    public static event Action<Player> OnPlayerDisconnected;
+    public static event Action<Player> OnPlayerDataChanged;
+
     public int maxHp = 10;
     public float movementSpeed = 3.0f;
+    public GameObject cameraPrefab;
     // the arguments are current and needed xp
     public event Action<long, long> OnXpChanged;
     public event Action<UpgradeRequest> OnLevelUp;
@@ -17,17 +23,11 @@ public class Player : Entity
     private ObjectPool ObjectPool { get => ObjectPool.Instance; }
 
 
-
     public override void OnStartServer()
     {
         base.OnStartServer();
 
         SetBaseData(maxHp, movementSpeed);
-        // destroy UI on server
-        if (isServerOnly)
-        {
-            Destroy(transform.Find("CoplayerVisuals").gameObject);
-        }
     }
 
     public override void OnStartClient()
@@ -44,10 +44,25 @@ public class Player : Entity
             coplayerHpBar.fillAmount = Mathf.Clamp01((float)Hp / maxHp);
             OnDamageTaken += UpdateHpUI;
             OnHpRecovered += UpdateHpUI;
-            return;
         }
 
-        Camera.main.gameObject.GetComponent<CameraController>().POI = transform;
+        if (ShouldJoinLobby())
+        {
+            if (isInGame)
+            {
+                MoveToClientGameScene();
+            }
+            else
+            {
+                MoveToClientLobbyScene();
+            }
+        }
+
+        /*Camera.main.gameObject.GetComponent<CameraController>().POI = transform;
+        if (authority)
+        {
+            Instantiate(cameraPrefab);
+        }*/
     }
 
     protected override void Update()
@@ -78,7 +93,6 @@ public class Player : Entity
         }
 
     }
-
 
     [Client]
     private void UpdateHpUI(int _)
@@ -135,5 +149,16 @@ public class Player : Entity
                     RegisterProjectileSizeModifier(new StatModifierPercent(choice.Value));
                     break;
             }
+    }
+   
+    public override void OnStopClient()
+    {
+        base.OnStopClient();
+        OnPlayerDisconnected?.Invoke(this);
+    }
+
+    public void DataChanged()
+    {
+        OnPlayerDataChanged?.Invoke(this);
     }
 }

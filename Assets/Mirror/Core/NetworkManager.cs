@@ -681,6 +681,12 @@ namespace Mirror
             {
                 if (singleton != null)
                 {
+                    Debug.Log("Managers: " + FindObjectsByType<NetworkManager>().Length);
+
+                    foreach (var nm in FindObjectsByType<NetworkManager>())
+                    {
+                        Debug.Log($"{nm.name} in scene {nm.gameObject.scene.name}");
+                    }
                     Debug.LogWarning("Multiple NetworkManagers detected in the scene. Only one NetworkManager can exist at a time. The duplicate NetworkManager will be destroyed.");
                     Destroy(gameObject);
 

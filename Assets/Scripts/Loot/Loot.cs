@@ -1,5 +1,6 @@
 using Mirror;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Loot : PoolableObject, ISpatialHashGridData
 {
@@ -23,8 +24,18 @@ public class Loot : PoolableObject, ISpatialHashGridData
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        if (!isServer) return;
-        PoolableObjectType = _type == LootType.EXP ? PoolableObjectType.EXP : PoolableObjectType.HP_POTION;
+        if (isServer)
+        {
+            PoolableObjectType = _type == LootType.EXP ? PoolableObjectType.EXP : PoolableObjectType.HP_POTION;
+        }
+        if (isClient)
+        {
+            Scene scene = SceneManager.GetSceneByName("GameScene");
+            SceneManager.MoveGameObjectToScene(gameObject, scene);
+            Transform parent = HierarchyUtility.GetOrCreatePath("ObjectPool/Loot/" + _type, scene);
+            transform.SetParent(parent, false);
+        }
+
     }
 
     public override void OnGet()

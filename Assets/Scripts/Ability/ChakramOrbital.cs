@@ -5,6 +5,7 @@ using DG.Tweening;
 using Mirror;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 public class ChakramOrbital : NetworkBehaviour
@@ -49,6 +50,9 @@ public class ChakramOrbital : NetworkBehaviour
             transform.GetChild(i).gameObject.SetActive(i < chakramCount);
             offset.Add(Vector2.up.Rotate(fraction * i));
         }
+        
+        SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("GameScene"));
+    }
 
     }
     public void OnChakramCountChanged(int old, int count)

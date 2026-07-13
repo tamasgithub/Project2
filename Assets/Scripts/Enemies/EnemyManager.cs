@@ -5,6 +5,7 @@ using Mirror;
 
 public class EnemyManager : NetworkBehaviour
 {
+    public int lobbyId = -1;
     public static EnemyManager Instance;
     private List<GameObject> players = new();
     private HashSet<ServerEnemy> enemies = new();
@@ -14,6 +15,8 @@ public class EnemyManager : NetworkBehaviour
     public float ticksPerSeconds = 8;
     private float _tickRate;
     private float _tick;
+
+    private SurvivorNetworkManager networkManager;
 
     void Awake()
     {
@@ -26,13 +29,13 @@ public class EnemyManager : NetworkBehaviour
         players = GameObject.FindGameObjectsWithTag("Player").ToList();
         SurvivorNetworkManager.PlayerJoined += (conn) => players.Add(conn.identity.gameObject);
         SurvivorNetworkManager.PlayerLeft += (conn) => players.Remove(conn.identity.gameObject);
-
+        networkManager = FindAnyObjectByType<SurvivorNetworkManager>();
     }
 
     void Update()
     {
         if (enemies.Count < 1) return;
-        if (!isServer) return;
+        if (!isServer || lobbyId < 0) return;
         _tick += Time.deltaTime;
         if (_tick >= _tickRate)
         {
@@ -51,6 +54,7 @@ public class EnemyManager : NetworkBehaviour
 
     }
 
+    [Server]
     private bool UpdateEnemies(float deltaTime)
     {
         Transform t = FindNearestPlayerPos();
@@ -106,14 +110,14 @@ public class EnemyManager : NetworkBehaviour
         return true;
     }
 
+    [Server]
     private void SendMessages()
     {
         var enemyStatusMsg = new EnemyStatusMessage()
         {
             enemies = enemyDtos
         };
-
-        NetworkServer.SendToAll(enemyStatusMsg);
+        networkManager.SendToClientsInGame(enemyStatusMsg, lobbyId);
         enemyDtos.Clear();
 
 
@@ -121,11 +125,11 @@ public class EnemyManager : NetworkBehaviour
         {
             damageEventDtos = damageDtos
         };
-        NetworkServer.SendToAll(damageEventsMsg);
-
+        networkManager.SendToClientsInGame(damageEventsMsg, lobbyId);
         damageDtos.Clear();
     }
 
+    [Server]
     private Transform FindNearestPlayerPos()
     {
         Transform nearestTarget = null;
@@ -140,11 +144,14 @@ public class EnemyManager : NetworkBehaviour
         }
         return nearestTarget;
     }
+
+    [Server]
     public void RegisterEnemy(ServerEnemy enemy)
     {
         enemies.Add(enemy);
         SpatialHashGrid.ServerEnemies.Insert(enemy);
     }
+    [Server]
     public void UnregisterEnemy(ServerEnemy enemy)
     {
         enemies.Remove(enemy);

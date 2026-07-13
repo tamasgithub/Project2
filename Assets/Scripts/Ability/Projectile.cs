@@ -1,5 +1,6 @@
 using UnityEngine;
 using Mirror;
+using UnityEngine.SceneManagement;
 
 public abstract class Projectile : NetworkBehaviour
 {
@@ -27,11 +28,22 @@ public abstract class Projectile : NetworkBehaviour
 
     void OnEnable()
     {
-        GetComponent<AreaTrigger>().OnTriggerEnter += OnCollision;
+        if (isServer)
+        {
+            GetComponent<AreaTrigger>().OnTriggerEnter += OnCollision;
+        }
+
+        if (isClient)
+        {
+            SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("GameScene"));
+        }
     }
     void OnDisable()
     {
-        GetComponent<AreaTrigger>().OnTriggerEnter -= OnCollision;
+        if (isServer)
+        {
+            GetComponent<AreaTrigger>().OnTriggerEnter -= OnCollision;
+        }
     }
     protected virtual void Update()
     {

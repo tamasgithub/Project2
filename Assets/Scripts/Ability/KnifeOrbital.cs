@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 public class KnifeOrbital : NetworkBehaviour
@@ -32,6 +33,15 @@ public class KnifeOrbital : NetworkBehaviour
         // transform.SetParent(_owner.transform);
          
         // Refresh();
+        if (NetworkClient.spawned.TryGetValue(ownerNetId, out var identity))
+        {
+            _owner = identity.GetComponent<Entity>();
+            transform.SetParent(_owner.transform);
+            Refresh();
+        }
+
+
+        SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("GameScene"));
     }
 
     public void Init(int level, NetworkIdentity owner, KnifeAbilityData data)

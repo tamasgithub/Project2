@@ -8,13 +8,16 @@ public class CombatTickManager : NetworkBehaviour
     public int combatTicksPerSecond = 8;
     private float _combatTickRate = 1f;
     private float _combatTicks = 0f;
+
+    [ServerCallback]
     void Start()
     {
         if (!isServer) return;
         _combatTickRate = 1.0f / 2;
 
     }
-    
+
+    [ServerCallback]
     private void Update()
     {
         if (!isServer) return;
