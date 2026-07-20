@@ -7,7 +7,9 @@ public static class BuildScript
     {
         string[] scenes = new string[]
         {
-            "Assets/Scenes/GameScene.unity" // change this to your scene
+            "Assets/Scenes/MainMenuScene.unity",
+            "Assets/Scenes/LobbyScene.unity" ,
+            "Assets/Scenes/GameScene.unity" ,
         };
 
         BuildPlayerOptions options = new BuildPlayerOptions
