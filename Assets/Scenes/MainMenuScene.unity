@@ -2852,7 +2852,7 @@ MonoBehaviour:
   onlineScene: 
   offlineSceneLoadDelay: 0
   transport: {fileID: 1098268092}
-  networkAddress: localhost
+  networkAddress: kabusabu.duckdns.org
   maxConnections: 100
   disconnectInactiveConnections: 0
   disconnectInactiveTimeout: 60
