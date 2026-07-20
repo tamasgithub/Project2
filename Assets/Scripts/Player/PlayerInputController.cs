@@ -35,7 +35,7 @@ public class PlayerInputController : NetworkBehaviour
     [Command]
     private void CmdMovePlayer(Vector2 input)
     {
-        Debug.Log("CmdMovePlayer " +  input);
+        Debug.Log("CmdMovePlayer " +  input + ", " + GetComponent<Player>().MovementSpeed + ", " + Time.deltaTime);
         moveInput = input;
         if(moveInput.magnitude > 0)
         {
@@ -43,6 +43,7 @@ public class PlayerInputController : NetworkBehaviour
         }
        
         Vector2 newPosition = transform.position + ((Vector3)(input) * GetComponent<Player>().MovementSpeed * Time.deltaTime);
+        Debug.Log("newPosition: " + newPosition);
         UpdatePosition(newPosition);
     }
 
