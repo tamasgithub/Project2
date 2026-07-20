@@ -3,31 +3,29 @@ using Mirror;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Windows;
+using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class PlayerInputController : NetworkBehaviour
 {
     [SyncVar]
     private Vector2 _faceDirection = Vector2.down;
-    private Vector2 moveInput;
+    private InputAction moveInputAction;
+
+    private void Awake()
+    {
+        if (isClient)
+            moveInputAction = InputSystem.actions.FindAction("move");
+    }
 
     void Update()
     {
-        if (true || isOwned)
+        if (isOwned)
         {
-            //Debug.Log("in update, isOwned: " + isOwned);
-            Debug.Log(InputSystem.actions.FindAction("move").ReadValue<Vector2>());
-            CmdMovePlayer(
-               InputSystem.actions.FindAction("move").ReadValue<Vector2>()
-            );
-            if (isServer)
+            Vector2 moveInput = moveInputAction.ReadValue<Vector2>();
+            if (moveInput.magnitude > 0)
             {
-                /*transform.position +=
-                    (Vector3)moveInput *
-                    GetComponent<Player>().MovementSpeed *
-                    Time.deltaTime;
-                */
+                CmdMovePlayer(moveInput);
             }
-
         }
     }
 
@@ -35,23 +33,19 @@ public class PlayerInputController : NetworkBehaviour
     [Command]
     private void CmdMovePlayer(Vector2 input)
     {
-        Debug.Log("CmdMovePlayer " +  input + ", " + GetComponent<Player>().MovementSpeed + ", " + Time.deltaTime);
-        moveInput = input;
-        if(moveInput.magnitude > 0)
+        if (input.magnitude > 0)
         {
-            _faceDirection = moveInput.normalized; 
+            _faceDirection = input.normalized;
+            Vector2 newPosition = transform.position + ((Vector3)(input) * GetComponent<Player>().MovementSpeed * Time.deltaTime);
+            transform.position = newPosition;
+            UpdatePosition(newPosition);
         }
-       
-        Vector2 newPosition = transform.position + ((Vector3)(input) * GetComponent<Player>().MovementSpeed * Time.deltaTime);
-        Debug.Log("newPosition: " + newPosition);
-        UpdatePosition(newPosition);
     }
 
 
     [ClientRpc]
     private void UpdatePosition(Vector2 position)
     {
-        Debug.Log("UpdatePosition to " + position);
         transform.position = position;
     }
 
