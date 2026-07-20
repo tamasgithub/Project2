@@ -50,6 +50,7 @@ public static class HierarchyUtility
         {
             T component = root.GetComponentInChildren<T>(true);
             if (component != null)
+                Debug.Log("Found " + component);
                 return component;
         }
 

@@ -63,6 +63,8 @@ public partial class Player : Entity
         {
             Instantiate(cameraPrefab);
         }*/
+        OnPlayerMovedToGame += (player) => HierarchyUtility.FindInScene<Camera>(gameObject.scene).GetComponent<CameraController>().POI = transform;
+        Debug.Log("Set camera POI");
     }
 
     protected override void Update()

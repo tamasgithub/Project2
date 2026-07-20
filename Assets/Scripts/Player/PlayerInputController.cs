@@ -13,7 +13,6 @@ public class PlayerInputController : NetworkBehaviour
 
     private void Awake()
     {
-        if (isClient)
             moveInputAction = InputSystem.actions.FindAction("move");
     }
 

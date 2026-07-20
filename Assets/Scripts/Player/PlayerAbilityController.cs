@@ -30,7 +30,7 @@ public class PlayerAbilityController : NetworkBehaviour
         // if (!isServer) return;
         Entity entity = GetComponent<Entity>();
         Debug.Log("playercontroller:" + entity.netId);
-        // RegisterAbility(new DaggerAbility(daggerAbilityData, GetComponent<NetworkIdentity>(), entity));
+        RegisterAbility(new DaggerAbility(daggerAbilityData, GetComponent<NetworkIdentity>(), entity));
         //RegisterAbility(new ChakramAbility(chakramAbilityData, GetComponent<NetworkIdentity>(), entity));
         // RegisterAbility(new BombAbility(bombAbilityData, GetComponent<NetworkIdentity>(), entity));
 
