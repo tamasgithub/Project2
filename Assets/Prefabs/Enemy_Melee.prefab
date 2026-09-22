@@ -263,7 +263,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8915887651676760280}
   - component: {fileID: 9209813063596031329}
-  - component: {fileID: 6611726484612143875}
   - component: {fileID: 2438645692330801031}
   - component: {fileID: 4147109015431710018}
   - component: {fileID: 750504839272380536}
@@ -350,33 +349,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &6611726484612143875
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5490901775504061714}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ec66c33399f3da40afc455a9ddcbeea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  lootTable:
-  - LootType: 0
-    probability: 90
-  - LootType: 1
-    probability: 10
-  lootPrefabs:
-  - LootType: 0
-    prefab: {fileID: 8045666839231644796, guid: 536ad02d240c3a94b91b4cd6691c50ca, type: 3}
-  - LootType: 1
-    prefab: {fileID: 8045666839231644796, guid: ebc18844b3adc25419995a75c5da03c6, type: 3}
-  canvas: {fileID: 8561730405883606342}
-  hpBar: {fileID: 4580940209772801715}
 --- !u!50 &2438645692330801031
 Rigidbody2D:
   serializedVersion: 5
