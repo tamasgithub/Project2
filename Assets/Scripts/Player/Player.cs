@@ -17,10 +17,14 @@ public partial class Player : Entity
     public event Action<long, long> OnXpChanged;
     public event Action<UpgradeRequest> OnLevelUp;
 
+    // SyncVars, not plain fields: xp only ever changes on the server, while the only
+    // subscriber of OnXpChanged is the client's UIManager. Without replication the event was
+    // raised on the server, where nobody listens, and the client's xp bar could never fill.
+    [SyncVar(hook = nameof(OnXpSynced))]
     private long xp = 0;
-    private long xpToNextLevel = 5; // update on level up    public event Action<UpgradeRequest> OnLevelUp;
+    [SyncVar(hook = nameof(OnXpSynced))]
+    private long xpToNextLevel = 5; // update on level up
     private Image coplayerHpBar;
-    private ObjectPool ObjectPool { get => ObjectPool.Instance; }
 
 
     public override void OnStartServer()
@@ -28,6 +32,33 @@ public partial class Player : Entity
         base.OnStartServer();
 
         SetBaseData(maxHp, movementSpeed);
+
+        // Contact damage used to come from the deleted GameObject enemy's OnCollisionEnter2D.
+        // The player prefab already carries an AreaTrigger, which reports the same overlaps
+        // through the spatial grid, once per entry just like a physics collision did.
+        AreaTrigger contactTrigger = GetComponent<AreaTrigger>();
+        if (contactTrigger != null)
+        {
+            contactTrigger.OnTriggerEnter += OnEnemyContact;
+        }
+    }
+
+    public override void OnStopServer()
+    {
+        base.OnStopServer();
+
+        AreaTrigger contactTrigger = GetComponent<AreaTrigger>();
+        if (contactTrigger != null)
+        {
+            contactTrigger.OnTriggerEnter -= OnEnemyContact;
+        }
+    }
+
+    [Server]
+    private void OnEnemyContact(ServerEntity other)
+    {
+        if (other is not ServerEnemy) return;
+        ReceiveDamage(1);
     }
 
     public override void OnStartClient()
@@ -58,20 +89,18 @@ public partial class Player : Entity
             }
         }
 
-        /*Camera.main.gameObject.GetComponent<CameraController>().POI = transform;
-        if (authority)
-        {
-            Instantiate(cameraPrefab);
-        }*/
-        OnPlayerMovedToGame += (player) => HierarchyUtility.FindInScene<Camera>(gameObject.scene).GetComponent<CameraController>().POI = transform;
-        Debug.Log("Set camera POI");
+        // The camera is attached in MoveToClientGameScene, for the local player only.
     }
 
     protected override void Update()
     {
         base.Update();
         if (!isServer) return;
-        foreach (Loot loot in SpatialHashGrid.Loot.GetNearObjects(transform.position, 1f))
+
+        GameContext context = GameContext.For(this);
+        if (context == null) return;
+
+        foreach (Loot loot in context.LootGrid.GetNearObjects(transform.position, 1f))
         {
             Loot.LootType type = loot.Type;
             switch (type)
@@ -82,15 +111,16 @@ public partial class Player : Entity
                 case Loot.LootType.EXP:
                 default:
                     xp++;
-                    OnXpChanged?.Invoke(xp, xpToNextLevel);
-                    if (xp == xpToNextLevel)
+                    // Several orbs can be picked up in one frame, so this has to be >=:
+                    // with == a single skipped value meant no level up ever again.
+                    if (xp >= xpToNextLevel)
                     {
                         RpcRequestUpgrade();
                     }
                     break;
 
             }
-            ObjectPool.Return(loot);
+            context.ObjectPool.Return(loot);
 
         }
 
@@ -131,6 +161,11 @@ public partial class Player : Entity
         {
             RpcRequestUpgrade();
         }
+    }
+
+    // Raised on the client whenever one of the two replicated xp values arrives.
+    private void OnXpSynced(long _, long __)
+    {
         OnXpChanged?.Invoke(xp, xpToNextLevel);
     }
 

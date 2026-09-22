@@ -13,9 +13,12 @@ public class BombAbility : PeriodicAbility
     [Server]
     public override void Cast()
     {
-        GameObject newBomb = GameObject.Instantiate(bombPrefab, _owner.transform.position, Quaternion.identity);
+        GameContext context = Context;
+        if (context == null) return;
+
+        GameObject newBomb = context.Create(bombPrefab, _owner.transform.position, Quaternion.identity);
         newBomb.transform.GetComponent<Bomb>().LoadStats(Level, data, Vector2.zero, _entity);
-        NetworkServer.Spawn(newBomb);
+        context.Spawn(newBomb);
     }
 
     public override void OnEquip()

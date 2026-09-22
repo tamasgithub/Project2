@@ -1,45 +1,46 @@
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 using Mirror;
+using UnityEngine;
 
+// Server only, one per game scene. All per lobby state now comes from the scene's
+// GameContext instead of static singletons.
 public class EnemyManager : NetworkBehaviour
 {
-    public int lobbyId = -1;
-    public static EnemyManager Instance;
-    private List<GameObject> players = new();
-    private HashSet<ServerEnemy> enemies = new();
-    private HashSet<ServerEnemy> toRemove = new();
-    private List<EnemyDto> enemyDtos = new();
-    private List<DamageEventDto> damageDtos = new();
-    public float ticksPerSeconds = 8;
+    private readonly HashSet<ServerEnemy> enemies = new();
+    private readonly HashSet<ServerEnemy> toRemove = new();
+    private readonly List<EnemyDto> enemyDtos = new();
+    private readonly List<DamageEventDto> damageDtos = new();
+
     private float _tickRate;
     private float _tick;
 
-    private SurvivorNetworkManager networkManager;
+    private GameContext _context;
+    private GameContext Context
+    {
+        get
+        {
+            if (_context == null) _context = GameContext.For(this);
+            return _context;
+        }
+    }
 
+    private SurvivorNetworkManager NetworkManager => Mirror.NetworkManager.singleton as SurvivorNetworkManager;
+
+    [ServerCallback]
     void Awake()
     {
-        Instance = this;
         _tickRate = 1.0f / GlobalConstants.ENEMY_STATE_UPDATE_RATE;
     }
 
-    public override void OnStartServer()
-    {
-        players = GameObject.FindGameObjectsWithTag("Player").ToList();
-        SurvivorNetworkManager.PlayerJoined += (conn) => players.Add(conn.identity.gameObject);
-        SurvivorNetworkManager.PlayerLeft += (conn) => players.Remove(conn.identity.gameObject);
-        networkManager = FindAnyObjectByType<SurvivorNetworkManager>();
-    }
-
+    [ServerCallback]
     void Update()
     {
         if (enemies.Count < 1) return;
-        if (!isServer || lobbyId < 0) return;
+        if (Context == null) return;
+
         _tick += Time.deltaTime;
         if (_tick >= _tickRate)
         {
-
             if (UpdateEnemies(_tick))
             {
                 SendMessages();
@@ -51,7 +52,6 @@ public class EnemyManager : NetworkBehaviour
             }
             _tick -= _tickRate;
         }
-
     }
 
     [Server]
@@ -59,8 +59,10 @@ public class EnemyManager : NetworkBehaviour
     {
         Transform t = FindNearestPlayerPos();
         if (t == null) return false;
-        var targetPos = t != null ? (Vector2)t.position : Vector2.zero;
+        var targetPos = (Vector2)t.position;
 
+        SpatialHashGrid<ServerEnemy> grid = Context.EnemyGrid;
+        ObjectPool pool = Context.ObjectPool;
 
         toRemove.Clear();
 
@@ -79,15 +81,18 @@ public class EnemyManager : NetworkBehaviour
             {
                 damageDtos.Add(dmgDto);
 
-                PoolableObject dmgNr = ObjectPool.Instance?.Get(PoolableObjectType.DMG_NR, enemy.Position, Quaternion.identity);
-                dmgNr.GetComponent<DamageNumber>().SetDamage(dmgDto.Amount, true);
+                PoolableObject dmgNr = pool != null ? pool.Get(PoolableObjectType.DMG_NR, enemy.Position, Quaternion.identity) : null;
+                if (dmgNr != null)
+                {
+                    dmgNr.GetComponent<DamageNumber>().SetDamage(dmgDto.Amount, true);
+                }
             }
 
             //Dont Calculate Position if enemy is dead
             if (enemy.IsDead)
             {
                 toRemove.Add(enemy);
-                SpatialHashGrid.ServerEnemies.Remove(enemy);
+                grid.Remove(enemy);
                 enemyDtos.Add(enemy.ToDto());
                 continue;
             }
@@ -95,15 +100,14 @@ public class EnemyManager : NetworkBehaviour
 
             //Anit clumping push
 
-            foreach (ServerEnemy other in SpatialHashGrid.ServerEnemies.GetNearObjects(enemy.Position, 1f))
+            foreach (ServerEnemy other in grid.GetNearObjects(enemy.Position, 1f))
             {
                 if (other == enemy) continue;
                 var direction = (enemy.Position - other.Position).normalized;
                 enemy.Position += direction * 10f * Time.deltaTime;
             }
-            SpatialHashGrid.ServerEnemies.Update(enemy);
+            grid.Update(enemy);
             enemyDtos.Add(enemy.ToDto());
-
         }
 
         enemies.ExceptWith(toRemove);
@@ -113,11 +117,14 @@ public class EnemyManager : NetworkBehaviour
     [Server]
     private void SendMessages()
     {
+        SurvivorNetworkManager networkManager = NetworkManager;
+        if (networkManager == null) return;
+
         var enemyStatusMsg = new EnemyStatusMessage()
         {
             enemies = enemyDtos
         };
-        networkManager.SendToClientsInGame(enemyStatusMsg, lobbyId);
+        networkManager.SendToClientsInGame(enemyStatusMsg, Context.LobbyId);
         enemyDtos.Clear();
 
 
@@ -125,7 +132,7 @@ public class EnemyManager : NetworkBehaviour
         {
             damageEventDtos = damageDtos
         };
-        networkManager.SendToClientsInGame(damageEventsMsg, lobbyId);
+        networkManager.SendToClientsInGame(damageEventsMsg, Context.LobbyId);
         damageDtos.Clear();
     }
 
@@ -134,11 +141,13 @@ public class EnemyManager : NetworkBehaviour
     {
         Transform nearestTarget = null;
         float smallestDistance = float.MaxValue;
-        foreach (GameObject player in players)
+        foreach (Player player in Context.Players)
         {
-            if (nearestTarget == null || Vector2.Distance(transform.position, player.transform.position) < smallestDistance)
+            if (player == null) continue;
+            float distance = Vector2.Distance(transform.position, player.transform.position);
+            if (nearestTarget == null || distance < smallestDistance)
             {
-                smallestDistance = Vector2.Distance(transform.position, player.transform.position);
+                smallestDistance = distance;
                 nearestTarget = player.transform;
             }
         }
@@ -148,14 +157,20 @@ public class EnemyManager : NetworkBehaviour
     [Server]
     public void RegisterEnemy(ServerEnemy enemy)
     {
+        GameContext context = Context;
+        if (context == null)
+        {
+            Debug.LogError("RegisterEnemy called before the lobby's GameContext exists");
+            return;
+        }
         enemies.Add(enemy);
-        SpatialHashGrid.ServerEnemies.Insert(enemy);
+        context.EnemyGrid.Insert(enemy);
     }
+
     [Server]
     public void UnregisterEnemy(ServerEnemy enemy)
     {
         enemies.Remove(enemy);
-        SpatialHashGrid.ServerEnemies.Remove(enemy);
+        Context?.EnemyGrid.Remove(enemy);
     }
-
 }

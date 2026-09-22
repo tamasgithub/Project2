@@ -50,10 +50,13 @@ public class DaggerAbility : PeriodicAbility
 
     private void SpawnDagger(Vector2 direction)
     {
-        var dagger = GameObject.Instantiate(daggerPrefab, _owner.transform.position, quaternion.identity);
+        GameContext context = Context;
+        if (context == null) return;
+
+        var dagger = context.Create(daggerPrefab, _owner.transform.position, quaternion.identity);
         var daggerProjectile = dagger.GetComponent<DaggerProjectile>();
         daggerProjectile.LoadStats(Level, data, direction, _entity);
         dagger.transform.rotation = Quaternion.FromToRotation((Vector3)Vector2.up, (Vector3)direction);
-        NetworkServer.Spawn(dagger);
+        context.Spawn(dagger);
     }
 }

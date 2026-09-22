@@ -59,6 +59,13 @@ public partial class Player : Entity
         }
         SceneManager.MoveGameObjectToScene(gameObject, scene);
         Debug.Log($"Player {userName}: moved to the LobbyScene. (lobbyId = {lobbyId})");
+
+        if (isOwned)
+        {
+            SceneViewControl.ActivateOnly(scene);
+            BindUiToSceneCamera(scene);
+        }
+
         OnPlayerMovedToLobby?.Invoke(this);
     }
 
@@ -107,7 +114,56 @@ public partial class Player : Entity
         }
         SceneManager.MoveGameObjectToScene(gameObject, scene);
         Debug.Log($"Player {userName}: moved to the GameScene. (lobbyId = {lobbyId})");
+
+        // Only the local player drives the camera. This used to hang off the static
+        // OnPlayerMovedToGame event, with every player instance on the client subscribing a
+        // lambda that pointed the camera at itself, so whichever player moved in last took over
+        // everyone's camera.
+        if (isOwned)
+        {
+            SceneViewControl.ActivateOnly(scene);
+            BindUiToSceneCamera(scene);
+            FollowWithLocalCamera(scene);
+        }
+
         OnPlayerMovedToGame?.Invoke(this);
+    }
+
+    /// <summary>
+    /// Points the player's canvases at the camera of the scene it just entered.
+    ///
+    /// A Screen Space - Camera canvas renders nothing while its camera is disabled, and
+    /// SceneViewControl disables the cameras of every scene the local player is not in. So the
+    /// binding has to follow the player instead of being taken once from Camera.main.
+    /// </summary>
+    [Client]
+    private void BindUiToSceneCamera(Scene scene)
+    {
+        Camera sceneCamera = HierarchyUtility.FindInScene<Camera>(scene);
+        if (sceneCamera == null)
+        {
+            Debug.LogError($"No camera in {scene.name}: the player's UI cannot render there");
+            return;
+        }
+
+        foreach (Canvas canvas in GetComponentsInChildren<Canvas>(true))
+        {
+            canvas.worldCamera = sceneCamera;
+        }
+    }
+
+    [Client]
+    private void FollowWithLocalCamera(Scene scene)
+    {
+        CameraController camera = HierarchyUtility.FindInScene<CameraController>(scene);
+        if (camera == null)
+        {
+            Debug.LogError("No CameraController in the GameScene, the local player has nothing following it.");
+            return;
+        }
+
+        camera.POI = transform;
+        Debug.Log($"Camera now follows the local player {userName}");
     }
 
     [Command]

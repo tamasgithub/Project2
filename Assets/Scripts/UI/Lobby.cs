@@ -45,8 +45,18 @@ public class Lobby : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // Purely a client side concern: hide the lobby UI once the game scene is up. On the
+        // server this fired for every lobby whenever any other lobby loaded a scene.
+        if (!NetworkClient.active) return;
+
         gameObject.SetActive(scene.name == "LobbyScene");
     }
+
+    /// <summary>
+    /// The Player events are static, so on a server running several lobbies every lobby scene
+    /// hears about every player in the process. Only players of this lobby are ours.
+    /// </summary>
+    private bool BelongsHere(Player player) => player != null && LobbyId >= 0 && player.lobbyId == LobbyId;
 
     private void OnDestroy()
     {
@@ -59,6 +69,8 @@ public class Lobby : MonoBehaviour
 
     private void HandlePlayerJoinedLobby(Player newPlayer)
     {
+        if (!BelongsHere(newPlayer)) return;
+
         foreach (var p in playersInLobby.Values)
         {
             if (p == newPlayer)
@@ -82,6 +94,8 @@ public class Lobby : MonoBehaviour
 
     private void CleanupLobby(Player playerLeft)
     {
+        if (!BelongsHere(playerLeft)) return;
+
         Debug.Log("Cleanup lobby after player " + playerLeft.userName + " left");
         // assumes the key is unique (time of joining in ms)
         long keyToRemove = -1;
@@ -108,6 +122,8 @@ public class Lobby : MonoBehaviour
 
     private void OnPlayerDataChanged(Player p)
     {
+        if (!BelongsHere(p)) return;
+
         // resort the list, because the lobby joined timestamp might have changed
         var entries = playersInLobby.Values.ToList();
         playersInLobby.Clear();

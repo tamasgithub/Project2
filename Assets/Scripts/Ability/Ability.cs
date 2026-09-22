@@ -13,6 +13,9 @@ public abstract class Ability
     public AbilityType Type { get; protected set; }
 
     public AbilityData data;
+
+    /// <summary>Lobby the owning player currently plays in. Null while outside a game scene.</summary>
+    protected GameContext Context => GameContext.For(_owner);
     public Ability(AbilityData data, NetworkIdentity owner, Entity entity)
     {
         this.data = data;

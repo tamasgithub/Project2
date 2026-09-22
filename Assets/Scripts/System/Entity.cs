@@ -68,8 +68,15 @@ public class Entity : NetworkBehaviour
         //Damage Modifiers
         
         Hp -= amount;
-        PoolableObject dmgNr = ObjectPool.Instance.Get(PoolableObjectType.DMG_NR, transform.position, Quaternion.identity);
-        dmgNr.GetComponent<DamageNumber>().SetDamage(amount, this is Player);
+
+        ObjectPool pool = GameContext.For(this)?.ObjectPool;
+        PoolableObject dmgNr = pool != null
+            ? pool.Get(PoolableObjectType.DMG_NR, transform.position, Quaternion.identity)
+            : null;
+        if (dmgNr != null)
+        {
+            dmgNr.GetComponent<DamageNumber>().SetDamage(amount, this is Player);
+        }
     }
 
     public void Heal(int amount)

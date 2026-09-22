@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 
-public class AreaTrigger : NetworkBehaviour
+public class AreaTrigger : NetworkBehaviour, IContextBound
 {
     public float radius = 1.0f;
     private float _currentRadius;
@@ -11,27 +11,48 @@ public class AreaTrigger : NetworkBehaviour
     public event Action<ServerEntity> OnTriggerEnter;
     public event Action<ServerEntity> OnTriggerExit;
 
+    private GameContext _context;
+
     void Start()
     {
         _currentRadius = transform.localScale.magnitude * radius;
     }
+
     [ServerCallback]
     void OnEnable()
     {
-        TriggerTickManager.OnTick += CheckTrigger;
+        // Objects spawned through GameContext.Spawn already live in their lobby's scene,
+        // so they find their context right away. The player is moved between scenes after
+        // spawning and is rebound explicitly by GameContext.AttachPlayer.
+        BindContext(GameContext.For(this));
     }
 
     [ServerCallback]
     void OnDisable()
     {
-        TriggerTickManager.OnTick -= CheckTrigger;
+        BindContext(null);
     }
 
+    public void BindContext(GameContext context)
+    {
+        if (_context == context) return;
+
+        if (_context != null && _context.TriggerTicks != null)
+            _context.TriggerTicks.OnTick -= CheckTrigger;
+
+        _context = context;
+        _inside.Clear();
+
+        if (_context != null && _context.TriggerTicks != null)
+            _context.TriggerTicks.OnTick += CheckTrigger;
+    }
 
     private void CheckTrigger()
     {
+        if (_context == null) return;
+
         var newlyEntered = new HashSet<ServerEntity>();
-        var enemies = SpatialHashGrid.ServerEnemies.GetNearObjects((Vector2)transform.position,_currentRadius);
+        var enemies = _context.EnemyGrid.GetNearObjects((Vector2)transform.position, _currentRadius);
         foreach (var enemy in enemies)
         {
             if (Vector2.Distance(enemy.Position, (Vector2)transform.position) <= _currentRadius + 0.5f) //0.5f hardocded enemy hitbox
@@ -40,7 +61,6 @@ public class AreaTrigger : NetworkBehaviour
                 if (!_inside.Contains(enemy))
                 {
                     OnTriggerEnter?.Invoke(enemy);
-                    
                 }
             }
         }
@@ -55,7 +75,6 @@ public class AreaTrigger : NetworkBehaviour
 
         _inside.Clear();
         _inside.UnionWith(newlyEntered);
-
     }
 
 #if UNITY_EDITOR

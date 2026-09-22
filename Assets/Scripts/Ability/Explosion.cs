@@ -5,24 +5,20 @@ using UnityEngine.SceneManagement;
 public class Explosion : NetworkBehaviour
 {
     public float explosionVisualDuration;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        if (isServer)
-        {
-            Invoke(nameof(SelfDestroy), explosionVisualDuration);
-        }
 
-        if (isClient)
-        {
-            SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("GameScene"));
-        }
+    public override void OnStartServer()
+    {
+        Invoke(nameof(SelfDestroy), explosionVisualDuration);
+    }
+
+    public override void OnStartClient()
+    {
+        if (NetworkServer.active) return;
+        SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("GameScene"));
     }
 
     private void SelfDestroy()
     {
         NetworkServer.Destroy(gameObject);
     }
-
-
 }

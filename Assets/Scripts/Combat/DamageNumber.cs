@@ -12,11 +12,15 @@ public class DamageNumber : PoolableObject
 
     public override void OnStartClient()
     {
+        // Applies the replicated in-use state.
+        base.OnStartClient();
+
         Scene scene = SceneManager.GetSceneByName("GameScene");
         SceneManager.MoveGameObjectToScene(gameObject, scene);
-        Transform parent = HierarchyUtility.GetOrCreatePath("ObjectPool/Combat/DamageNumbers", scene    );
+        // See Loot.OnStartClient: a parent named "ObjectPool" would be the networked scene
+        // object, which Mirror keeps deactivated.
+        Transform parent = HierarchyUtility.GetOrCreatePath("PooledObjects/DamageNumbers", scene);
         transform.SetParent(parent, false);
-        ClientOnReturn();
     }
 
     public override void OnGet()
@@ -33,23 +37,18 @@ public class DamageNumber : PoolableObject
         Renderer.enabled = false;
     }
 
-    [ClientRpc]
-    public override void RpcOnGet()
+    protected override void ApplyOnClient(bool isInUse)
     {
-        Animation.Play();
-        Renderer.enabled = true;
-    }
-
-    [ClientRpc]
-    public override void RpcOnReturn()
-    {
-        ClientOnReturn();
-    }
-    [Client]
-    private void ClientOnReturn()
-    {
-        Animation.Stop();
-        Renderer.enabled = false;
+        if (isInUse)
+        {
+            Animation.Play();
+            Renderer.enabled = true;
+        }
+        else
+        {
+            Animation.Stop();
+            Renderer.enabled = false;
+        }
     }
 
     [Server]
@@ -69,7 +68,7 @@ public class DamageNumber : PoolableObject
 
     public void OnAnimationEnd()
     {
-        ObjectPool.Instance.Return(this);
+        GameContext.For(this)?.ObjectPool?.Return(this);
     }
 
 }

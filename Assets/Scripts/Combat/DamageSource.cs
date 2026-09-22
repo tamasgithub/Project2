@@ -1,14 +1,13 @@
-using System.Collections.Generic;
-using System.Linq;
 using Mirror;
-using Mirror.BouncyCastle.Asn1.X509;
 using UnityEngine;
-public class DamageSource : NetworkBehaviour
+
+public class DamageSource : NetworkBehaviour, IContextBound
 {
     private Entity _owner;
     private bool isPlayer;
-    private HashSet<Entity> targets = new();
     public float radius = 1.0f;
+
+    private GameContext _context;
 
     public void Load(Entity owner)
     {
@@ -19,21 +18,34 @@ public class DamageSource : NetworkBehaviour
     [ServerCallback]
     void OnEnable()
     {
-        CombatTickManager.OnTick += DealDamage;
+        BindContext(GameContext.For(this));
     }
 
     [ServerCallback]
     void OnDisable()
     {
-        CombatTickManager.OnTick -= DealDamage;
+        BindContext(null);
     }
-    
+
+    public void BindContext(GameContext context)
+    {
+        if (_context == context) return;
+
+        if (_context != null && _context.CombatTicks != null)
+            _context.CombatTicks.OnTick -= DealDamage;
+
+        _context = context;
+
+        if (_context != null && _context.CombatTicks != null)
+            _context.CombatTicks.OnTick += DealDamage;
+    }
+
     [Server]
     private void DealDamage()
     {
-        // Calculate
-        var enemies = SpatialHashGrid.ServerEnemies.GetNearObjects((Vector2)transform.position, 2f);
-        // var dmg = _owner.Damage;
+        if (_context == null) return;
+
+        var enemies = _context.EnemyGrid.GetNearObjects((Vector2)transform.position, 2f);
         foreach (var enemy in enemies)
         {
             if (Vector2.Distance(enemy.Position, (Vector2)transform.position) <= radius + 0.5f) //0.5f hardocded enemy hitbox
@@ -41,13 +53,6 @@ public class DamageSource : NetworkBehaviour
                 enemy.ReceiveDamage(new DamageEvent(2));
             }
         }
-        // if (isPlayer)
-        // {
-        //     foreach (var target in targets)
-        //     {
-        //         target?.ReceiveDamage(dmg);
-        //     }
-        // }
     }
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()

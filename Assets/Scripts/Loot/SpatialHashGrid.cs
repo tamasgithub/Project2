@@ -1,6 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Uniform grid for proximity queries. Instances belong to a single lobby and live on its
+/// <see cref="GameContext"/>; there is deliberately no static access any more, because a
+/// shared grid mixed the enemies and loot of all concurrently running lobbies.
+/// </summary>
 public class SpatialHashGrid<T> where T : ISpatialHashGridData
 {
     private Vector2 center;
@@ -14,7 +19,7 @@ public class SpatialHashGrid<T> where T : ISpatialHashGridData
 
     private Dictionary<Vector2Int, HashSet<T>> cells;
 
-    internal SpatialHashGrid(Vector2 center, Vector2 bounds, Vector2Int dimensions)
+    public SpatialHashGrid(Vector2 center, Vector2 bounds, Vector2Int dimensions)
     {
         this.center = center;
         this.bounds = bounds;
@@ -26,15 +31,11 @@ public class SpatialHashGrid<T> where T : ISpatialHashGridData
     {
         Vector2Int cellKey = GetCellForPosition(data.GetPosition());
         data.SetCellKey(cellKey);
-        //Debug.Log($"Inserted {data} at {cellKey}");
         if (!cells.ContainsKey(cellKey))
         {
             cells.Add(cellKey, new HashSet<T>());
         }
-        bool insertResult = cells[cellKey].Add(data);
-
-        //Debug.Log($"Now {cells.GetValueOrDefault(cellKey, new()).Count} objects in cell {cellKey}");
-        return insertResult;
+        return cells[cellKey].Add(data);
     }
 
     public bool Remove(T data)
@@ -66,8 +67,6 @@ public class SpatialHashGrid<T> where T : ISpatialHashGridData
             for (int j = cell.y - radiusInCells.y; j <= cell.y + radiusInCells.y; j++)
             {
                 Vector2Int cellKey = new Vector2Int(i, j);
-                // Debug.Log($"Checking {cellKey}");
-                // Debug.Log($"{cells.GetValueOrDefault(cellKey, new()).Count} objects in cell {cellKey}");
                 foreach (T data in cells.GetValueOrDefault(cellKey, new()))
                 {
                     if (Vector2.Distance(data.GetPosition(), position) <= radius)
@@ -77,7 +76,6 @@ public class SpatialHashGrid<T> where T : ISpatialHashGridData
                 }
             }
         }
-        //Debug.Log($"Found {results.Count} results");
         return results;
     }
 
@@ -88,48 +86,3 @@ public class SpatialHashGrid<T> where T : ISpatialHashGridData
         return new Vector2Int(cellX, cellY);
     }
 }
-
-// non-generic facade
-public static class SpatialHashGrid
-{
-    private static SpatialHashGrid<Enemy> _instanceEnemies;
-    private static SpatialHashGrid<ServerEnemy> _instanceServerEnemies;
-    private static SpatialHashGrid<Loot> _instanceLoot;
-
-    public static SpatialHashGrid<Enemy> Enemies
-    {
-        get
-        {
-            if (_instanceEnemies == null)
-            {
-                _instanceEnemies = new SpatialHashGrid<Enemy>(Vector3.zero, Vector2.one * 100, Vector2Int.one * 50);
-            }
-            return _instanceEnemies;
-        }
-    }
-
-    public static SpatialHashGrid<Loot> Loot
-    {
-        get
-        {
-            if (_instanceLoot == null)
-            {
-                _instanceLoot = new SpatialHashGrid<Loot>(Vector3.zero, Vector2.one * 100, Vector2Int.one * 50);
-            }
-            return _instanceLoot;
-        }
-    }
-
-    public static SpatialHashGrid<ServerEnemy> ServerEnemies
-    {
-        get
-        {
-            if (_instanceServerEnemies == null)
-            {
-                _instanceServerEnemies = new SpatialHashGrid<ServerEnemy>(Vector3.zero, Vector2.one * 100, Vector2Int.one * 50);
-            }
-            return _instanceServerEnemies;
-        }
-    }
-    
-} 

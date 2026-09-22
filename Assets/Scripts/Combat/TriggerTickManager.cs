@@ -2,9 +2,10 @@ using System;
 using Mirror;
 using UnityEngine;
 
+// One per game scene: the tick is per lobby, so the event must not be static.
 public class TriggerTickManager : NetworkBehaviour
 {
-    public static event Action OnTick;
+    public event Action OnTick;
     public int collisionTicksPerSecond = 32;
     private float _collisionTickRate = 1f;
     private float _collisionTicks = 0f;
@@ -12,23 +13,17 @@ public class TriggerTickManager : NetworkBehaviour
     [ServerCallback]
     void Start()
     {
-        if (!isServer) return;
         _collisionTickRate = 1.0f / GlobalConstants.TRIGGER_CHECK_RATE;
-
     }
 
     [ServerCallback]
     private void Update()
     {
-        if (!isServer) return;
         _collisionTicks += Time.deltaTime;
         if (_collisionTicks >= _collisionTickRate)
         {
             _collisionTicks -= _collisionTickRate;
             OnTick?.Invoke();
         }
-
     }
-    
-
 }

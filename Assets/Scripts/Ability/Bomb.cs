@@ -31,7 +31,7 @@ public class Bomb : Projectile
 
     protected override void Update()
     {
-        if (!isServer) return;
+        if (!NetworkServer.active) return;
         base.Update();
         currentColor = lifeTimeColorGradient.Evaluate(LifeTime / maxLifeTime);
 
@@ -49,11 +49,14 @@ public class Bomb : Projectile
     [Server]
     protected override void OnLifeTimeEnded()
     {
-        GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
+        GameContext context = Context;
+        if (context == null) return;
+
+        GameObject explosion = context.Create(explosionPrefab, transform.position, Quaternion.identity);
         explosion.transform.localScale = Vector2.one * aoeSize;
         explosion.GetComponent<Explosion>().explosionVisualDuration = explosionVisualDuration;
-        NetworkServer.Spawn(explosion);
-        foreach (ServerEnemy enemy in SpatialHashGrid.ServerEnemies.GetNearObjects(transform.position, aoeSize / 2.0f))
+        context.Spawn(explosion);
+        foreach (ServerEnemy enemy in context.EnemyGrid.GetNearObjects(transform.position, aoeSize / 2.0f))
         {
             enemy.ReceiveDamage(new DamageEvent(3));
         }

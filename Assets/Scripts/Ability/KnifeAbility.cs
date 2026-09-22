@@ -26,12 +26,15 @@ public class KnifeAbility : PermanentAbility
     }
     private void SpawnOrbital()
     {
-        var gO = GameObject.Instantiate(kniveOrbitalPrefab, _owner.transform);
+        GameContext context = Context;
+        if (context == null) return;
+
+        var gO = context.CreateAttached(kniveOrbitalPrefab, _owner.transform);
         orbital = gO.GetComponent<KnifeOrbital>();
         orbital.Init(Level, _owner, (KnifeAbilityData)data);
         // daggerProjectile.LoadStats(Level, data, direction, _entity);
         // dagger.transform.rotation = Quaternion.FromToRotation((Vector3)Vector2.up, (Vector3)direction);
-        NetworkServer.Spawn(gO);  
+        context.Spawn(gO);
     } 
 
 

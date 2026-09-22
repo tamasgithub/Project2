@@ -1,13 +1,12 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Mirror;
-using Unity.VisualScripting;
 using UnityEngine;
 
+// One pool per game scene. Reach it through GameContext.For(gameObject.scene).ObjectPool
+// instead of a static instance, which used to hand every lobby the pool of the scene
+// that happened to load last.
 public class ObjectPool : NetworkBehaviour
 {
-    public static ObjectPool Instance;
     public bool isFake = false;
 
     public List<PoolInfo> poolInfos;
@@ -15,9 +14,11 @@ public class ObjectPool : NetworkBehaviour
     private Dictionary<PoolableObjectType, HashSet<PoolableObject>> activeObjects;
     Dictionary<PoolableObjectType, Transform> parents;
 
+    // ServerCallback and not isServer: the pool has to work before Mirror has spawned
+    // the scene object itself, and a client must never build a pool of its own.
+    [ServerCallback]
     public void Start()
     {
-        Instance = this;
         availableObjects = new(poolInfos.Count);
         activeObjects = new(poolInfos.Count);
         parents = new(poolInfos.Count);
@@ -38,21 +39,19 @@ public class ObjectPool : NetworkBehaviour
         Debug.Log("ObjectPool initialized");
     }
 
-    // [Server]
+    [ServerCallback]
     public PoolableObject Get(PoolableObjectType type, Vector3 position, Quaternion rotation)
     {
-        // if (!isServer) return null;
-
-        //Debug.Log("Get poolable object of type " + type);
         if (isFake)
         {
-            GameObject go = Instantiate(poolInfos.Find(i => i.type == type).prefab, position, rotation);
-            if(isServer) NetworkServer.Spawn(go);
-            go.GetComponent<PoolableObject>().OnGet();
-            return go.GetComponent<PoolableObject>();
+            GameObject go = Instantiate(poolInfos.Find(i => i.type == type).prefab, position, rotation, transform);
+            NetworkServer.Spawn(go);
+            PoolableObject fake = go.GetComponent<PoolableObject>();
+            fake.SetInUse(true);
+            return fake;
         }
 
-        if (!availableObjects.TryGetValue(type, out var pool))
+        if (availableObjects == null || !availableObjects.TryGetValue(type, out var pool))
         {
             Debug.LogError($"No pool exists for {type}");
             return null;
@@ -65,32 +64,28 @@ public class ObjectPool : NetworkBehaviour
                 Debug.LogError($"Cannot return GameObject for type {type}, no prefab is known!");
                 return null;
             }
-            Transform child = transform.Find(type.ToString());
             ExtendPool(infoForType);
         }
         PoolableObject poolableObject = pool.Dequeue();
         activeObjects[type].Add(poolableObject);
         poolableObject.transform.position = position;
         poolableObject.transform.rotation = rotation;
-        poolableObject.OnGet();
-        poolableObject.RpcOnGet();
+        poolableObject.SetInUse(true);
         return poolableObject;
     }
 
-    // [Server]
+    [ServerCallback]
     public void Return(PoolableObject returnedObject)
     {
-        // if (!isServer) return;
         if (isFake)
         {
-            returnedObject.OnReturn();
+            returnedObject.SetInUse(false);
             NetworkServer.Destroy(returnedObject.gameObject);
             return;
         }
         PoolableObjectType type = returnedObject.PoolableObjectType;
-        Debug.Log("Return poolable object of type " + type);
 
-        if (!availableObjects.TryGetValue(type, out var pool))
+        if (availableObjects == null || !availableObjects.TryGetValue(type, out var pool))
         {
             Debug.LogError($"No pool exists for {type}");
             return;
@@ -105,15 +100,8 @@ public class ObjectPool : NetworkBehaviour
             Debug.LogError($"Returned object {returnedObject} of type {type} wasn't active!");
             return;
         }
-        /*if (!gameObject.activeSelf)
-        {
-            Debug.LogWarning($"{returnedObject} was already inactive.");
-        }
-        gameObject.SetActive(false);*/
-        returnedObject.OnReturn();
-        returnedObject.RpcOnReturn();
+        returnedObject.SetInUse(false);
         pool.Enqueue(returnedObject);
-
     }
 
     private void ExtendPool(PoolInfo info)
@@ -123,11 +111,12 @@ public class ObjectPool : NetworkBehaviour
 
     private void ExtendPool(PoolInfo info, int size)
     {
-        // Debug.Log($"Extend pool of type {info.type}");
         availableObjects.TryGetValue(info.type, out var queue);
         Transform parent = parents[info.type];
         for (int i = 0; i < size; i++)
         {
+            // Parenting into the pool keeps the object inside this lobby's scene, which is
+            // what SceneInterestManagement uses to decide who gets to see it.
             GameObject go = Instantiate(info.prefab, Vector3.zero, Quaternion.identity, parent);
             PoolableObject poolableObject = go.GetComponent<PoolableObject>();
             if (poolableObject == null)
@@ -136,11 +125,9 @@ public class ObjectPool : NetworkBehaviour
                 return;
             }
             NetworkServer.Spawn(go);
-            poolableObject.OnReturn();
-            poolableObject.RpcOnReturn();
+            poolableObject.SetInUse(false);
             queue.Enqueue(poolableObject);
         }
-        //Debug.Log($"Added {size} objects of type {info.type}");
     }
 }
 

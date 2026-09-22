@@ -14,9 +14,10 @@ public class UIManager : MonoBehaviour
     public Transform upgradeChoices;
     void Start()
     {
-        GetComponent<Canvas>().worldCamera = Camera.main;
+        // The canvas camera is bound by Player whenever it enters a scene. Camera.main here
+        // would be whichever camera happens to be enabled while the player still sits in the
+        // lobby, and that one gets disabled as soon as the game scene takes over.
         Load();
-
     }
     public void Load()
     {

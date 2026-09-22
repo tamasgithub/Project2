@@ -33,6 +33,11 @@ public class KnifeOrbital : NetworkBehaviour
         // transform.SetParent(_owner.transform);
          
         // Refresh();       
+
+        // Mirror does not replicate the server side parenting, so on the client the orbital
+        // arrives as a root object and has to be moved into the client's single GameScene.
+        // The server already created it inside its lobby's scene and must not touch this.
+        if (NetworkServer.active) return;
         SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("GameScene"));
     }
 

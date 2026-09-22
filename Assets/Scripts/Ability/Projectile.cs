@@ -14,6 +14,8 @@ public abstract class Projectile : NetworkBehaviour
     private Vector2 direction;
     protected float LifeTime { get; private set; }
 
+    protected GameContext Context => GameContext.For(this);
+
     public virtual void LoadStats(int level, AbilityData abilityData, Vector2 direction, Entity _entity)
     {
         LoadBaseStats(level, abilityData);
@@ -26,25 +28,27 @@ public abstract class Projectile : NetworkBehaviour
 
     }
 
-    void OnEnable()
+    // Subscribing in OnStartServer rather than OnEnable: OnEnable already runs during
+    // Instantiate, before NetworkServer.Spawn, when isServer is still false.
+    public override void OnStartServer()
     {
-        if (isServer)
-        {
-            GetComponent<AreaTrigger>().OnTriggerEnter += OnCollision;
-        }
+        GetComponent<AreaTrigger>().OnTriggerEnter += OnCollision;
+    }
 
-        if (isClient)
-        {
-            SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("GameScene"));
-        }
-    }
-    void OnDisable()
+    public override void OnStopServer()
     {
-        if (isServer)
-        {
-            GetComponent<AreaTrigger>().OnTriggerEnter -= OnCollision;
-        }
+        AreaTrigger trigger = GetComponent<AreaTrigger>();
+        if (trigger != null) trigger.OnTriggerEnter -= OnCollision;
     }
+
+    public override void OnStartClient()
+    {
+        // The server places its objects through GameContext and must never resolve a scene
+        // by name: it has one GameScene per lobby. A client only ever has one.
+        if (NetworkServer.active) return;
+        SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("GameScene"));
+    }
+
     protected virtual void Update()
     {
         if (!authority) return;

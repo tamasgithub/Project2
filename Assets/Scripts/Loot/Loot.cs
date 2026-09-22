@@ -21,48 +21,43 @@ public class Loot : PoolableObject, ISpatialHashGridData
     public void SetCellKey(Vector2Int index) => sphCellIndex = index;
     public Vector2Int GetCellKey() => sphCellIndex;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
-        if (isServer)
-        {
-            PoolableObjectType = _type == LootType.EXP ? PoolableObjectType.EXP : PoolableObjectType.HP_POTION;
-        }
-        if (isClient)
-        {
-            Scene scene = SceneManager.GetSceneByName("GameScene");
-            SceneManager.MoveGameObjectToScene(gameObject, scene);
-            Transform parent = HierarchyUtility.GetOrCreatePath("ObjectPool/Loot/" + _type, scene);
-            transform.SetParent(parent, false);
-        }
+        PoolableObjectType = _type == LootType.EXP ? PoolableObjectType.EXP : PoolableObjectType.HP_POTION;
+    }
 
+    public override void OnStartClient()
+    {
+        // Applies the replicated in-use state.
+        base.OnStartClient();
+
+        Scene scene = SceneManager.GetSceneByName("GameScene");
+        SceneManager.MoveGameObjectToScene(gameObject, scene);
+        // NOT "ObjectPool/...": the game scene already contains a root object of that name,
+        // and it carries a NetworkIdentity. Mirror keeps scene objects with a NetworkIdentity
+        // deactivated until they are spawned, so anything parented under it inherits
+        // activeInHierarchy == false and is neither drawn nor updated.
+        Transform parent = HierarchyUtility.GetOrCreatePath("PooledObjects/Loot/" + _type, scene);
+        transform.SetParent(parent, false);
     }
 
     public override void OnGet()
     {
         this.enabled = true;
         MyRenderer.enabled = true;
-        SpatialHashGrid.Loot.Insert(this);
+        GameContext.For(this)?.LootGrid?.Insert(this);
     }
 
     public override void OnReturn()
     {
-        SpatialHashGrid.Loot.Remove(this);
+        GameContext.For(this)?.LootGrid?.Remove(this);
         MyRenderer.enabled = false;
         this.enabled = false;
     }
 
-    [ClientRpc]
-    public override void RpcOnGet()
+    protected override void ApplyOnClient(bool isInUse)
     {
-        this.enabled = true;
-        MyRenderer.enabled = true;
-    }
-
-    [ClientRpc]
-    public override void RpcOnReturn()
-    {
-        MyRenderer.enabled = false;
-        this.enabled = false;
+        this.enabled = isInUse;
+        MyRenderer.enabled = isInUse;
     }
 }

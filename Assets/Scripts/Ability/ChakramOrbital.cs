@@ -50,7 +50,12 @@ public class ChakramOrbital : NetworkBehaviour
             transform.GetChild(i).gameObject.SetActive(i < chakramCount);
             offset.Add(Vector2.up.Rotate(fraction * i));
         }
-        
+    }
+
+    public override void OnStartClient()
+    {
+        // The server created this inside its lobby's scene; a client has exactly one GameScene.
+        if (NetworkServer.active) return;
         SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("GameScene"));
     }
 

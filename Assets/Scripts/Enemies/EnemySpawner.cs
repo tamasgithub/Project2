@@ -1,49 +1,55 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Mirror;
 using UnityEngine;
 
 public class EnemySpawner : NetworkBehaviour
 {
-    public Enemy[] enemies;
     public float spawnFrequency = 3f;
     public float baseSpawnAmount = 10f;
     public float spawnRadius = 5f;
     public Vector2 spawnPosition = Vector2.zero;
-    public GameObject enemyPrefab;
-    private int waveNumber = 0;
-    private ObjectPool objectPool;
 
+    [Header("Enemy base stats (used to live on the Enemy prefab)")]
+    public int enemyMaxHp = 1;
+    public float enemyMovementSpeed = 2f;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    public override void OnStartServer()
+    [Header("Loot table (used to live on the Enemy prefab)")]
+    public List<LootTableEntry> lootTable = new()
     {
-        objectPool = FindAnyObjectByType<ObjectPool>();
+        new LootTableEntry { LootType = Loot.LootType.EXP, probability = 90f },
+        new LootTableEntry { LootType = Loot.LootType.HP_POT, probability = 10f },
+    };
+
+    private int waveNumber = 0;
+
+    [ServerCallback]
+    void Start()
+    {
         StartCoroutine(PeriodicSpawning());
-
     }
-
-    
 
     private IEnumerator PeriodicSpawning()
     {
+        // The context is created right after this scene finished loading.
+        yield return new WaitUntil(() => GameContext.For(this) != null);
         yield return new WaitForSeconds(4);
+
         Debug.Log("Periodic Spawning started");
-        int enemyIndex = 0;
         while (true)
         {
             waveNumber++;
-            SpawnInCircle(enemies[enemyIndex++ % enemies.Length], spawnRadius + waveNumber * 0.25f, baseSpawnAmount + waveNumber);
+            SpawnInCircle(spawnRadius + waveNumber * 0.25f, baseSpawnAmount + waveNumber);
             yield return new WaitForSeconds(spawnFrequency);
         }
     }
 
     [Server]
-    private void SpawnInCircle(Enemy enemy, float spawnRadius, float spawnAmount)
+    private void SpawnInCircle(float spawnRadius, float spawnAmount)
     {
-        //Debug.Log($"SpawnInCircle({gameObject},{spawnRadius}, {spawnAmount})");
+        GameContext context = GameContext.For(this);
+        if (context == null || context.EnemyManager == null) return;
+
         for (int i = 0; i < spawnAmount; i++)
         {
             float angle = i * Mathf.PI * 2f / spawnAmount;
@@ -52,20 +58,11 @@ public class EnemySpawner : NetworkBehaviour
                 Mathf.Cos(angle),
                 Mathf.Sin(angle)
             ) * spawnRadius;
-            var e = new ServerEnemy();
-            e.Position = position;
-         
-            EnemyManager.Instance.RegisterEnemy(e);
-            // GameObject newEnemyGO = Instantiate(enemy.gameObject, position, Quaternion.identity);
-            // newEnemyGO.GetComponent<Enemy>().Level = waveNumber;
-            // NetworkServer.Spawn(newEnemyGO);
+
+            var enemy = new ServerEnemy(context, waveNumber, enemyMaxHp, enemyMovementSpeed, lootTable);
+            enemy.Position = position;
+
+            context.EnemyManager.RegisterEnemy(enemy);
         }
     }
-    [Client]
-    private void SpawnEnemy()
-    {
-        
-    }
-
-
 }
