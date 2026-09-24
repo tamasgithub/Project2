@@ -64,6 +64,7 @@ public partial class Player : Entity
         {
             SceneViewControl.ActivateOnly(scene);
             BindUiToSceneCamera(scene);
+            ShowInGameHud(false);
         }
 
         OnPlayerMovedToLobby?.Invoke(this);
@@ -124,9 +125,31 @@ public partial class Player : Entity
             SceneViewControl.ActivateOnly(scene);
             BindUiToSceneCamera(scene);
             FollowWithLocalCamera(scene);
+            ShowInGameHud(true);
         }
 
         OnPlayerMovedToGame?.Invoke(this);
+    }
+
+    /// <summary>
+    /// Shows or hides the in game HUD: hp bar, xp bar and the upgrade cards all hang under the
+    /// player's UI canvas. The player object already exists while its owner sits in the lobby,
+    /// so the HUD has to be switched off there.
+    ///
+    /// The Canvas component is disabled rather than the GameObject, because UIManager sits on
+    /// that same object and has to keep running to stay subscribed to the player's events.
+    /// </summary>
+    [Client]
+    private void ShowInGameHud(bool visible)
+    {
+        UIManager hud = GetComponentInChildren<UIManager>(true);
+        if (hud == null) return;
+
+        Canvas canvas = hud.GetComponent<Canvas>();
+        if (canvas != null)
+        {
+            canvas.enabled = visible;
+        }
     }
 
     /// <summary>

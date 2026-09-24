@@ -57,9 +57,7 @@ public class EnemyManager : NetworkBehaviour
     [Server]
     private bool UpdateEnemies(float deltaTime)
     {
-        Transform t = FindNearestPlayerPos();
-        if (t == null) return false;
-        var targetPos = (Vector2)t.position;
+        if (!HasPlayers()) return false;
 
         SpatialHashGrid<ServerEnemy> grid = Context.EnemyGrid;
         ObjectPool pool = Context.ObjectPool;
@@ -96,7 +94,14 @@ public class EnemyManager : NetworkBehaviour
                 enemyDtos.Add(enemy.ToDto());
                 continue;
             }
-            enemy.Position += (targetPos - enemy.Position).normalized * enemy.MovementSpeed * deltaTime;
+            // Per enemy, not once per tick: the target used to be looked up from the
+            // EnemyManager's own position, so every enemy in the lobby walked to the same player.
+            Transform target = FindNearestPlayer(enemy.Position);
+            if (target != null)
+            {
+                Vector2 targetPos = target.position;
+                enemy.Position += (targetPos - enemy.Position).normalized * enemy.MovementSpeed * deltaTime;
+            }
 
             //Anit clumping push
 
@@ -137,17 +142,30 @@ public class EnemyManager : NetworkBehaviour
     }
 
     [Server]
-    private Transform FindNearestPlayerPos()
+    private bool HasPlayers()
+    {
+        foreach (Player player in Context.Players)
+        {
+            if (player != null) return true;
+        }
+        return false;
+    }
+
+    [Server]
+    private Transform FindNearestPlayer(Vector2 from)
     {
         Transform nearestTarget = null;
-        float smallestDistance = float.MaxValue;
+        float smallestSqrDistance = float.MaxValue;
         foreach (Player player in Context.Players)
         {
             if (player == null) continue;
-            float distance = Vector2.Distance(transform.position, player.transform.position);
-            if (nearestTarget == null || distance < smallestDistance)
+
+            // Squared distance: this now runs per enemy and per tick, and the ordering is
+            // the same without the square root.
+            float sqrDistance = ((Vector2)player.transform.position - from).sqrMagnitude;
+            if (nearestTarget == null || sqrDistance < smallestSqrDistance)
             {
-                smallestDistance = distance;
+                smallestSqrDistance = sqrDistance;
                 nearestTarget = player.transform;
             }
         }

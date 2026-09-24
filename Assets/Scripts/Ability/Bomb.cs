@@ -58,7 +58,9 @@ public class Bomb : Projectile
         context.Spawn(explosion);
         foreach (ServerEnemy enemy in context.EnemyGrid.GetNearObjects(transform.position, aoeSize / 2.0f))
         {
-            enemy.ReceiveDamage(new DamageEvent(3));
+            // 'damage' is what LoadBaseStats and Projectile.LoadStats worked out: the ability's
+            // level curve plus the owner's Damage. The explosion used to discard all of it.
+            enemy.ReceiveDamage(new DamageEvent(damage));
         }
     }
 }

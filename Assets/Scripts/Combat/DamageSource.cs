@@ -6,6 +6,8 @@ public class DamageSource : NetworkBehaviour, IContextBound
     private Entity _owner;
     private bool isPlayer;
     public float radius = 1.0f;
+    [Tooltip("Damage per combat tick, before the owner's Damage stat is added.")]
+    public int baseDamage = 2;
 
     private GameContext _context;
 
@@ -45,12 +47,14 @@ public class DamageSource : NetworkBehaviour, IContextBound
     {
         if (_context == null) return;
 
+        int damage = baseDamage + (_owner != null ? _owner.Damage : 0);
+
         var enemies = _context.EnemyGrid.GetNearObjects((Vector2)transform.position, 2f);
         foreach (var enemy in enemies)
         {
             if (Vector2.Distance(enemy.Position, (Vector2)transform.position) <= radius + 0.5f) //0.5f hardocded enemy hitbox
             {
-                enemy.ReceiveDamage(new DamageEvent(2));
+                enemy.ReceiveDamage(new DamageEvent(damage));
             }
         }
     }

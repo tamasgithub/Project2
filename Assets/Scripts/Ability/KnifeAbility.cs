@@ -22,6 +22,7 @@ public class KnifeAbility : PermanentAbility
     public override void LevelUp()
     {
         base.LevelUp();
+        if (orbital == null) return;
         orbital.Init(Level, _owner, (KnifeAbilityData)data);
     }
     private void SpawnOrbital()

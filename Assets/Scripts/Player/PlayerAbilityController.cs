@@ -23,19 +23,48 @@ public class PlayerAbilityController : NetworkBehaviour
     public ChakramAbilityData chakramAbilityData;
 
 
-    public override void OnStartServer()
+    private bool startingAbilitiesGranted;
+
+    /// <summary>
+    /// Granted when the player enters a game scene, not when its object spawns.
+    ///
+    /// OnStartServer runs while the owner is still in the menu, so the player object lives in
+    /// the MainMenuScene and has no GameContext. A PermanentAbility creates its orbital on
+    /// equip and needs that context, so it would silently create nothing.
+    /// </summary>
+    [Server]
+    public void GrantStartingAbilities()
     {
-        base.OnStartServer();
-        Debug.Log("Start On Server");
-        // if (!isServer) return;
+        if (startingAbilitiesGranted) return;
+        startingAbilitiesGranted = true;
+
+        CreateAbility(AbilityName.KnifeAbility);
+    }
+
+    [Server]
+    private void CreateAbility(AbilityName abilityName)
+    {
         Entity entity = GetComponent<Entity>();
-        Debug.Log("playercontroller:" + entity.netId);
-        RegisterAbility(new DaggerAbility(daggerAbilityData, GetComponent<NetworkIdentity>(), entity));
-        //RegisterAbility(new ChakramAbility(chakramAbilityData, GetComponent<NetworkIdentity>(), entity));
-        // RegisterAbility(new BombAbility(bombAbilityData, GetComponent<NetworkIdentity>(), entity));
+        NetworkIdentity owner = GetComponent<NetworkIdentity>();
 
-        // RegisterAbility(new KnifeAbility(knifeAbilityData, GetComponent<NetworkIdentity>(), GetComponent<Entity>()));
-
+        switch (abilityName)
+        {
+            case AbilityName.DaggerAbility:
+                RegisterAbility(new DaggerAbility(daggerAbilityData, owner, entity));
+                break;
+            case AbilityName.BombAbility:
+                RegisterAbility(new BombAbility(bombAbilityData, owner, entity));
+                break;
+            case AbilityName.KnifeAbility:
+                RegisterAbility(new KnifeAbility(knifeAbilityData, owner, entity));
+                break;
+            case AbilityName.ChakramAbility:
+                RegisterAbility(new ChakramAbility(chakramAbilityData, owner, entity));
+                break;
+            default:
+                Debug.LogError($"Could not resolve ability name {abilityName}");
+                break;
+        }
     }
 
     [Server]
@@ -63,23 +92,7 @@ public class PlayerAbilityController : NetworkBehaviour
             ability.LevelUp();
             return;
         }
-        Entity entity = GetComponent<Entity>();
-        switch (choice.AbilityName)
-        {
-            case AbilityName.DaggerAbility:
-                RegisterAbility(new DaggerAbility(daggerAbilityData, GetComponent<NetworkIdentity>(), entity));
-                break;
-            case AbilityName.BombAbility:
-                RegisterAbility(new BombAbility(bombAbilityData, GetComponent<NetworkIdentity>(), entity));
-                break;
-            case AbilityName.KnifeAbility:
-                RegisterAbility(new KnifeAbility(knifeAbilityData, GetComponent<NetworkIdentity>(), entity));
-                break;
-            default:
-                Debug.LogError("Could not resolve Ability Name");
-                break;
-        }
-
+        CreateAbility(choice.AbilityName);
     }
 
 

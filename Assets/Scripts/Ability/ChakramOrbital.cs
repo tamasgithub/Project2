@@ -62,7 +62,8 @@ public class ChakramOrbital : NetworkBehaviour
     
     public void OnChakramCountChanged(int old, int count)
     {
-        offset.Clear();
+        // Must not touch offset: it is filled by Init on the server and is not replicated,
+        // so clearing it here left every client with an empty list.
         for (int i = 0; i < transform.childCount; i++)
         {
             transform.GetChild(i).gameObject.SetActive(i < _chakramCount);
@@ -81,11 +82,16 @@ public class ChakramOrbital : NetworkBehaviour
         }
     }
 
+    /// <summary>Hit damage before the owner's Damage stat is added.</summary>
+    private const int BaseHitDamage = 3;
+
     [Server]
     private void OnHit(ServerEntity collision)
     {
         if (collision is not ServerEnemy enemy) return;
-        enemy.ReceiveDamage(new DamageEvent(3));
+
+        Entity owner = _identity != null ? _identity.GetComponent<Entity>() : null;
+        enemy.ReceiveDamage(new DamageEvent(BaseHitDamage + (owner != null ? owner.Damage : 0)));
         if (state == ChakramState.ORBIT)
         {
 
@@ -100,8 +106,8 @@ public class ChakramOrbital : NetworkBehaviour
         hoverPositions.Clear();
         for (int i = 0; i < _chakramCount; i++)
         {
-            var direction = (chakramPositions[i] - target) * _detachDistance;
-            hoverPositions.Add(target - direction *_detachDistance);
+            var direction = chakramPositions[i] - target;
+            hoverPositions.Add(target - direction * _detachDistance);
         }
         state = ChakramState.DETACH;
     }
@@ -109,7 +115,7 @@ public class ChakramOrbital : NetworkBehaviour
     private void MoveToHoverPos()
     {
         var complete = true;
-        for (int i = 0; i < _chakramCount; i++)
+        for (int i = 0; i < SimulatedChakrams; i++)
         {
             chakramPositions[i] = Vector3.MoveTowards(chakramPositions[i], hoverPositions[i], Time.deltaTime * 50f);
             complete = (Vector3.Distance(chakramPositions[i], hoverPositions[i]) <= 0.1f) && complete;
@@ -124,10 +130,16 @@ public class ChakramOrbital : NetworkBehaviour
     private void ReturnToOwner()
     {
         var complete = true;
-        for (int i = 0; i < _chakramCount; i++)
+        for (int i = 0; i < SimulatedChakrams; i++)
         {
             _returnDelays[i] -= Time.deltaTime;
-            if (_returnDelays[i] > 0) return;
+            if (_returnDelays[i] > 0)
+            {
+                // continue, not return: with return the later chakrams never had their delay
+                // ticked down, so the staggered offsets piled up into a cumulative wait.
+                complete = false;
+                continue;
+            }
 
             chakramPositions[i] = Vector3.MoveTowards(chakramPositions[i], _identity.transform.position + offset[i], Time.deltaTime * 50f);
             complete = (Vector3.Distance(chakramPositions[i], _identity.transform.position + offset[i]) <= 0.2f) && complete;
@@ -152,7 +164,7 @@ public class ChakramOrbital : NetworkBehaviour
             {
 
                 case ChakramState.ORBIT:
-                    for (int i = 0; i < _chakramCount; i++)
+                    for (int i = 0; i < SimulatedChakrams; i++)
                     {
                         chakramPositions[i] = _identity.transform.position + offset[i];
 
@@ -191,7 +203,7 @@ public class ChakramOrbital : NetworkBehaviour
         {
 
             default:
-                for (int i = 0; i < _chakramCount; i++)
+                for (int i = 0; i < VisibleChakrams; i++)
                 {
                     transform.GetChild(i).transform.position = chakramPositions[i];
                 }
@@ -199,6 +211,20 @@ public class ChakramOrbital : NetworkBehaviour
         }
 
     }
+
+    /// <summary>
+    /// Server side bound. Includes offset, which only the server fills.
+    /// </summary>
+    private int SimulatedChakrams =>
+        Mathf.Min(_chakramCount, chakramPositions.Count, offset.Count, transform.childCount);
+
+    /// <summary>
+    /// Bound for the visual loop, which runs on clients too. offset is deliberately left out:
+    /// it is not replicated and is always empty there. chakramPositions is a SyncList that
+    /// arrives after the _chakramCount SyncVar, so the count alone is not a safe bound either.
+    /// </summary>
+    private int VisibleChakrams =>
+        Mathf.Min(_chakramCount, chakramPositions.Count, transform.childCount);
     enum ChakramState
     {
         ORBIT,

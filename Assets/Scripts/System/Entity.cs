@@ -7,9 +7,12 @@ using UnityEngine;
 public class Entity : NetworkBehaviour
 {
 
-    [SyncVar]
+    // The modifier lists live on the server only, so the client cannot fold them itself.
+    // What is replicated is therefore the finished value, not the base one.
+    [SyncVar(hook = nameof(OnMaxHpChanged))]
     private int _maxHp;
-    public int MaxHp { get => ApplyMaxHPMods(); private set => _maxHp = value; }
+    private int _baseMaxHp;
+    public int MaxHp => _maxHp;
     [SyncVar(hook = nameof(OnHpChanged))]
     private int _hp;
     public int Hp
@@ -37,8 +40,10 @@ public class Entity : NetworkBehaviour
     public int Damage { get { return ApplyDamageMods(); } private set => _damage = value; }
     private float _projectileSize = 1.0f;
     public float ProjectileSize { get { return ApplyProjectileSizeMods(); } set => _projectileSize = value; }
-    public float AreaOfEffectSize { get; set; } = 1.0f;
-    public int Pierce {  get; set; } = 0;
+    private float _areaOfEffectSize = 1.0f;
+    public float AreaOfEffectSize { get { return ApplyAreaOfEffectSizeMods(); } private set => _areaOfEffectSize = value; }
+    private int _pierce = 0;
+    public int Pierce { get { return ApplyPierceMods(); } private set => _pierce = value; }
 	
 	public int Level { get; set; } = 1;
 
@@ -54,13 +59,32 @@ public class Entity : NetworkBehaviour
     private List<IStatModifier> movementSpeedModifiers = new();
     private List<IStatModifier> cdrModifiers = new();
     private List<IStatModifier> projectileSizeModifiers = new();
+    private List<IStatModifier> areaOfEffectSizeModifiers = new();
+    // Pierce counts projectile hits, so it is integral by nature: no IStatModifier, which
+    // works in float and would only invite a percentage that cannot mean anything here.
+    private List<int> pierceModifiers = new();
     #endregion
     private List<TemporaryEffect> temporaryEffects = new();
     protected void SetBaseData(int maxHp, float movementSpeed)
     {
-        MaxHp = maxHp;
-        Hp = maxHp;
+        _baseMaxHp = maxHp;
+        RecalculateMaxHp();
+        Hp = MaxHp;
         MovementSpeed = movementSpeed;
+    }
+
+    /// <summary>Folds the max hp modifiers into the replicated value. Server only.</summary>
+    [Server]
+    private void RecalculateMaxHp()
+    {
+        _maxHp = ApplyMaxHPMods();
+    }
+
+    [Client]
+    private void OnMaxHpChanged(int _, int __)
+    {
+        // Without this the hp bars would keep their old denominator until the next hit.
+        OnStatChanged?.Invoke();
     }
 
     public void ReceiveDamage(int amount)
@@ -126,13 +150,17 @@ public class Entity : NetworkBehaviour
         if (mod is StatModifierFlat flat)
         {
             maxHpModifiers.Insert(0, flat);
-            return;
         }
-        maxHpModifiers.Add(mod);
+        else
+        {
+            maxHpModifiers.Add(mod);
+        }
+
+        RecalculateMaxHp();
     }
     private int ApplyMaxHPMods()
     {
-        var value = _maxHp;
+        var value = _baseMaxHp;
         // maxHpModifiers.RemoveAll(x => !x.IsActive);
         foreach (var mod in maxHpModifiers)
         {
@@ -220,6 +248,41 @@ public class Entity : NetworkBehaviour
         foreach (var mod in projectileSizeModifiers)
         {
             value = mod.Calculate(value);
+        }
+        return value;
+    }
+
+    public void RegisterAreaOfEffectSizeModifier(IStatModifier mod)
+    {
+        if (mod is StatModifierFlat flat)
+        {
+            areaOfEffectSizeModifiers.Insert(0, flat);
+            return;
+        }
+        areaOfEffectSizeModifiers.Add(mod);
+    }
+
+    private float ApplyAreaOfEffectSizeMods()
+    {
+        var value = _areaOfEffectSize;
+        foreach (var mod in areaOfEffectSizeModifiers)
+        {
+            value = mod.Calculate(value);
+        }
+        return value;
+    }
+
+    public void RegisterPierceModifier(int amount)
+    {
+        pierceModifiers.Add(amount);
+    }
+
+    private int ApplyPierceMods()
+    {
+        var value = _pierce;
+        foreach (int mod in pierceModifiers)
+        {
+            value += mod;
         }
         return value;
     }

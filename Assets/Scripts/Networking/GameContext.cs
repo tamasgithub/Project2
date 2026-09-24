@@ -107,6 +107,10 @@ public class GameContext : MonoBehaviour
 
         players.Add(player);
         BindAll(player.gameObject, this);
+
+        // Only now does the player have a context, which a PermanentAbility needs to create
+        // its orbital, so this is the earliest point at which abilities can be granted.
+        player.GetComponent<PlayerAbilityController>()?.GrantStartingAbilities();
     }
 
     public void DetachPlayer(Player player)

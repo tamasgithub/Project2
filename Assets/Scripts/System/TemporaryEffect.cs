@@ -31,9 +31,15 @@ public  class TemporaryEffect
         
     }
 
-    public TemporaryEffect IsBleed(ServerEntity target)
+    /// <summary>
+    /// Bleed scales with the target's max hp, plus the flat damage of whoever applied it.
+    /// The value is captured now, exactly like a projectile snapshots its damage when it
+    /// spawns: later upgrades do not change a bleed that is already running.
+    /// </summary>
+    public TemporaryEffect IsBleed(ServerEntity target, int bonusDamage = 0)
     {
-        var damage = Math.Max(1, (int)((float)(target.MaxHp) / (float)(GlobalConstants.BLEED_BASE_PERCENTAGE)));
+        var damage = Math.Max(1, (int)((float)(target.MaxHp) / (float)(GlobalConstants.BLEED_BASE_PERCENTAGE)))
+                     + bonusDamage;
         this.OnTick = () => target.ReceiveDamage(new DamageEvent(damage, DamageFlag.BLEED));
         return this;
     }

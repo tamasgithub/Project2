@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using DG.Tweening;
-using Mirror.BouncyCastle.Crypto.Modes;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -16,7 +15,7 @@ public class UI_UpgradeChoice : MonoBehaviour, IPointerClickHandler, IPointerEnt
     public Image sprite;
     public Color active;
     private Tween _tween;
-    public void Load(UpgradeChoice choice, Action onClick, Ability ability = null)
+    public void Load(UpgradeChoice choice, Action onClick, PlayerAbilityController abilities = null, int abilityLevel = 0)
     {
         _choice = choice;
         _onClick = onClick;
@@ -24,7 +23,7 @@ public class UI_UpgradeChoice : MonoBehaviour, IPointerClickHandler, IPointerEnt
         {
             case ChoiceType.ABILITY:
 
-                if (ability != null) LoadAbility(ability);
+                LoadAbility(choice.AbilityName, abilities, abilityLevel);
                 text.text = _choice.AbilityName.ToString();
 
                 break;
@@ -52,14 +51,20 @@ public class UI_UpgradeChoice : MonoBehaviour, IPointerClickHandler, IPointerEnt
         _tween = transform.DOScale(Vector3.one, 0.3f);
     }
 
-    private void LoadAbility(Ability ability)
+    private void LoadAbility(AbilityName abilityName, PlayerAbilityController abilities, int level)
     {
-        for (int i = 0; i < ability.Level; i++)
+        // The dots show how far the player has already levelled this ability, none when they
+        // do not own it yet. The level comes from the request now: it is read on the server,
+        // where the Ability objects actually live.
+        for (int i = 0; i < level && i < levels.childCount; i++)
         {
             levels.GetChild(i).GetComponent<Image>().color = active;
         }
-        var controller = FindObjectsByType(typeof(PlayerAbilityController)).FirstOrDefault() as PlayerAbilityController;
-        if(controller != null) sprite.sprite = controller.abilityData.FirstOrDefault(x => x.name == ability.AbilityName).data.sprite;     
-        
+
+        // The icon comes from the prefab's ability data, which is present on the client too,
+        // and is shown whether or not the ability is already owned.
+        if (abilities == null) return;
+        AbilityData data = abilities.abilityData.FirstOrDefault(x => x.name == abilityName).data;
+        if (data != null) sprite.sprite = data.sprite;
     }
 }
